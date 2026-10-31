@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dogwood: #FBE7E3;
+  --color-scarlet: #E22001;
+  --color-pastel-day: #E1D1E4;
+  --color-rural-green: #8E7C49;
+  --color-black-bean: #340404;
+  --color-cream: #FFF9F7;
+
+  --font-heading: "Cormorant Garamond", "Amiri", Georgia, serif;
+  --font-body: "Montserrat", "Noto Sans Arabic", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+  --color-dogwood: #FBE7E3;
+  --color-scarlet: #E22001;
+  --color-pastel-day: #E1D1E4;
+  --color-rural-green: #8E7C49;
+  --color-black-bean: #340404;
+  --color-white: #FFFFFF;
+
+  /* Semantic aliases */
+  --bg-page: var(--color-dogwood);
+  --bg-surface: var(--color-white);
+  --bg-alt: var(--color-pastel-day);
+  --text-primary: var(--color-black-bean);
+  --cta-bg: var(--color-scarlet);
+  --cta-text: var(--color-white);
+  --accent: var(--color-rural-green);
+  --border-soft: var(--color-pastel-day);
+  --focus-ring: var(--color-scarlet);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-dogwood);
+  color: var(--color-black-bean);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-heading {
+  font-family: var(--font-heading);
+}
+
+[dir="rtl"] {
+  font-family: "Noto Sans Arabic", "Montserrat", sans-serif;
+}
+
+[dir="rtl"] h1, 
+[dir="rtl"] h2, 
+[dir="rtl"] h3, 
+[dir="rtl"] .font-heading {
+  font-family: "Amiri", "Cormorant Garamond", serif;
+}
+
+/* Custom scrollbars and styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FBE7E3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E1D1E4;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8E7C49;
+}
