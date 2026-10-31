@@ -20,6 +20,17 @@
   --color-black-bean: #340404;
   --color-white: #FFFFFF;
 
+  /* Bedtime Store Shop Redesign Palette */
+  --bg-shop: #FFF8F6;
+  --text-shop-main: #2A1A20;
+  --text-shop-secondary: #5F5357;
+  --border-shop: #CFC3C6;
+  --sale-red: #B3261E;
+  --brand-burgundy: #6B1E3F;
+  --header-blush: #FCEEEC;
+  --chip-lavender: #DDD3EA;
+  --divider-shop: #EEE4E4;
+
   /* Semantic aliases */
   --bg-page: var(--color-dogwood);
   --bg-surface: var(--color-white);

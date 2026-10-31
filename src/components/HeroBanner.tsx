@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useStore } from '../context/StoreContext';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
-import { HERO_IMAGE } from '../data/seedData';
+import { HERO_IMAGE } from '../assets/images';
 
 interface HeroBannerProps {
   onShopClick: () => void;

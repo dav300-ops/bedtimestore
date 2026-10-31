@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, Category, Order, Coupon, ProductReview, OrderStatus } from '../types';
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_COUPONS, INITIAL_ORDERS } from '../data/seedData';
 
 export interface CMSBannerSettings {
   announcementTextEn: string;
@@ -112,6 +111,7 @@ interface StoreContextType {
   orders: Order[];
   coupons: Coupon[];
   cms: CMSBannerSettings;
+  isLoading: boolean;
   dbStatus: {
     connected: boolean;
     state: string;
@@ -146,40 +146,37 @@ interface StoreContextType {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Dynamic state populated exclusively by database queries
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('bedtime_products');
-    if (!saved) return INITIAL_PRODUCTS;
+    if (!saved) return [];
     try {
-      const parsed: Product[] = JSON.parse(saved);
-      const existingIds = new Set(parsed.map((p) => p.id));
-      const missing = INITIAL_PRODUCTS.filter((p) => !existingIds.has(p.id));
-      return missing.length > 0 ? [...parsed, ...missing] : parsed;
+      return JSON.parse(saved);
     } catch {
-      return INITIAL_PRODUCTS;
+      return [];
     }
   });
 
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('bedtime_categories');
-    if (!saved) return INITIAL_CATEGORIES;
+    if (!saved) return [];
     try {
-      const parsed: Category[] = JSON.parse(saved);
-      const existingIds = new Set(parsed.map((c) => c.id));
-      const missing = INITIAL_CATEGORIES.filter((c) => !existingIds.has(c.id));
-      return missing.length > 0 ? [...parsed, ...missing] : parsed;
+      return JSON.parse(saved);
     } catch {
-      return INITIAL_CATEGORIES;
+      return [];
     }
   });
 
   const [orders, setOrders] = useState<Order[]>(() => {
     const saved = localStorage.getItem('bedtime_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [coupons, setCoupons] = useState<Coupon[]>(() => {
     const saved = localStorage.getItem('bedtime_coupons');
-    return saved ? JSON.parse(saved) : INITIAL_COUPONS;
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [cms, setCms] = useState<CMSBannerSettings>(() => {
@@ -268,7 +265,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       }
     } catch (err) {
-      console.warn('MySQL API sync fallback to cached store:', err);
+      console.warn('MySQL API sync notice:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -621,6 +620,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         orders,
         coupons,
         cms,
+        isLoading,
         dbStatus,
         inventoryOverview,
         salesAnalytics,

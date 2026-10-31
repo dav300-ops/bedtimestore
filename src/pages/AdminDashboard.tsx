@@ -53,7 +53,7 @@ import {
   KIDS_PJ_IMAGE, 
   KIDS_ROBE_IMAGE,
   KIDS_COTTON_IMAGE
-} from '../data/seedData';
+} from '../assets/images';
 
 interface AdminDashboardProps {
   onReturnToStore: () => void;

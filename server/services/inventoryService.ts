@@ -8,7 +8,7 @@ import {
   SQL_UPDATE_PRODUCT_VARIANTS,
   SQL_COUNT_PRODUCTS,
 } from '../queries/mysqlQueries';
-import { INITIAL_PRODUCTS } from '../../src/data/seedData';
+import { INITIAL_PRODUCTS } from '../data/defaultCatalog';
 
 export interface ProductInventoryBalance {
   productId: string;
@@ -79,6 +79,7 @@ export class MySQLInventoryService {
             p.newArrival ? 1 : 0,
             p.active !== false ? 1 : 0,
             p.rating || 5,
+            p.reviewCount || 0,
             (p as any).targetAudience || (p.isKids ? 'kids' : 'women'),
             (p as any).kidAgeRange || p.ageGroup || null,
           ]);
@@ -91,22 +92,22 @@ export class MySQLInventoryService {
   }
 
   /**
-   * Get all products from MySQL database
+   * Get all products dynamically from MySQL database
    */
   public async getProducts(): Promise<any[]> {
     try {
       const rows = await executeQuery(SQL_SELECT_ALL_PRODUCTS);
-      if (rows && rows.length > 0) {
+      if (rows && Array.isArray(rows)) {
         return rows.map(this.mapProductRow);
       }
     } catch (err: any) {
-      console.warn('[MySQL] Failed to fetch products from MySQL, using initial data:', err?.message);
+      console.warn('[MySQL] Failed to fetch products from MySQL:', err?.message);
     }
-    return INITIAL_PRODUCTS;
+    return [];
   }
 
   /**
-   * Get single product by id or sku from MySQL
+   * Get single product by id or sku dynamically from MySQL
    */
   public async getProductById(idOrSku: string): Promise<any | null> {
     try {
@@ -117,7 +118,7 @@ export class MySQLInventoryService {
     } catch (err: any) {
       console.warn('[MySQL] Error fetching product by id/sku:', err?.message);
     }
-    return INITIAL_PRODUCTS.find((p) => p.id === idOrSku || p.sku === idOrSku) || null;
+    return null;
   }
 
   /**

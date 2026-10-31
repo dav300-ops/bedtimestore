@@ -12,7 +12,7 @@ import {
   SQL_SELECT_SALES_OVERALL_SUMMARY,
   SQL_COUNT_PRODUCT_SALES,
 } from '../queries/mysqlQueries';
-import { INITIAL_ORDERS, INITIAL_PRODUCTS } from '../../src/data/seedData';
+import { INITIAL_ORDERS, INITIAL_PRODUCTS } from '../data/defaultCatalog';
 
 export interface ProductSaleRecord {
   id: string;

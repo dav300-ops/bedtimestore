@@ -1,4 +1,4 @@
-import { Category, Product, Coupon, Order } from '../types';
+import { Category, Product, Coupon, Order } from '../../src/types';
 
 export const HERO_IMAGE = '/images/hero_luxury_sleepwear_1791490145358.jpg';
 export const SILK_PJ_IMAGE = '/images/product_silk_pj_set_1791490156744.jpg';

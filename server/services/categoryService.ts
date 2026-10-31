@@ -7,7 +7,7 @@ import {
   SQL_DELETE_CATEGORY,
   SQL_COUNT_CATEGORIES,
 } from '../queries/mysqlQueries';
-import { INITIAL_CATEGORIES } from '../../src/data/seedData';
+import { INITIAL_CATEGORIES } from '../data/defaultCatalog';
 
 export class MySQLCategoryService {
   /**
@@ -41,22 +41,22 @@ export class MySQLCategoryService {
   }
 
   /**
-   * Get all categories sorted by display order
+   * Get all categories dynamically from MySQL database
    */
   public async getCategories(): Promise<any[]> {
     try {
       const rows = await executeQuery(SQL_SELECT_ALL_CATEGORIES);
-      if (rows && rows.length > 0) {
+      if (rows && Array.isArray(rows)) {
         return rows.map(this.mapCategoryRow);
       }
     } catch (err: any) {
-      console.warn('[MySQL] Failed to fetch categories from MySQL, using initial seed data:', err?.message);
+      console.warn('[MySQL] Failed to fetch categories from MySQL:', err?.message);
     }
-    return INITIAL_CATEGORIES;
+    return [];
   }
 
   /**
-   * Get single category by ID or slug
+   * Get single category by ID or slug dynamically from MySQL
    */
   public async getCategoryById(idOrSlug: string): Promise<any | null> {
     try {
@@ -67,7 +67,7 @@ export class MySQLCategoryService {
     } catch (err: any) {
       console.warn('[MySQL] Error fetching category by id/slug:', err?.message);
     }
-    return INITIAL_CATEGORIES.find((c) => c.id === idOrSlug || c.slug === idOrSlug) || null;
+    return null;
   }
 
   /**

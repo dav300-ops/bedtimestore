@@ -8,7 +8,7 @@ import { KidsCollectionSection } from '../components/KidsCollectionSection';
 import { Product } from '../types';
 import { Sparkles, Shield, Truck, RefreshCw, Star, Images, Maximize2, ArrowRight } from 'lucide-react';
 import { GoogleReviewsSection } from '../components/GoogleReviewsSection';
-import { SILK_PJ_IMAGE } from '../data/seedData';
+import { SILK_PJ_IMAGE } from '../assets/images';
 
 interface HomePageProps {
   onNavigate: (page: string, params?: any) => void;

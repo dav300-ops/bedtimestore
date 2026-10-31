@@ -65,6 +65,16 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
     },
   };
 
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+
+  const handleAgeChange = (bracketId: KidAgeRange | 'all') => {
+    setSelectedAge(bracketId);
+    setCurrentPageIndex(0);
+  };
+
+  const totalPages = Math.ceil(filteredKidsProducts.length / 4);
+  const displayedProducts = filteredKidsProducts.slice(currentPageIndex * 4, currentPageIndex * 4 + 4);
+
   return (
     <section className="bg-[#FAF5F2] py-16 sm:py-20 border-y border-[#E1D1E4]/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,8 +109,8 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
             {ageBrackets.map((bracket) => (
               <button
                 key={bracket.id}
-                onClick={() => setSelectedAge(bracket.id)}
-                className={`px-4 py-2 text-xs sm:text-sm font-medium rounded-full transition-all flex items-center gap-1.5 ${
+                onClick={() => handleAgeChange(bracket.id)}
+                className={`px-4 py-2 text-xs sm:text-sm font-medium rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
                   selectedAge === bracket.id
                     ? 'bg-[#340404] text-[#FBE7E3] shadow-sm'
                     : 'bg-white text-[#340404] hover:bg-[#FBE7E3] border border-[#E1D1E4]'
@@ -118,7 +128,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
 
           <button
             onClick={() => setIsSizeChartOpen(true)}
-            className="inline-flex items-center gap-1.5 text-xs text-[#8E7C49] hover:text-[#340404] font-medium underline underline-offset-4 py-1 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-[#8E7C49] hover:text-[#340404] font-medium underline underline-offset-4 py-1 transition-colors cursor-pointer"
           >
             <Ruler className="w-3.5 h-3.5" />
             <span>{t.kidsCollection.sizeGuideTitle}</span>
@@ -148,7 +158,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
 
             <button
               onClick={() => onNavigate('shop', { category: 'cat-kids-sleepwear', ageGroup: selectedAge })}
-              className="text-xs font-semibold uppercase tracking-wider text-[#E22001] hover:text-[#c01b01] inline-flex items-center gap-1 whitespace-nowrap self-start sm:self-center"
+              className="text-xs font-semibold uppercase tracking-wider text-[#E22001] hover:text-[#c01b01] inline-flex items-center gap-1 whitespace-nowrap self-start sm:self-center cursor-pointer"
             >
               <span>{language === 'ar' ? 'عرض كافة المقاسات والألوان' : 'View All in this Age'}</span>
               {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
@@ -156,9 +166,9 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
           </div>
         )}
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {filteredKidsProducts.map((product) => (
+        {/* Curated Products Grid - Displaying ONLY 4 products at a time */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          {displayedProducts.map((product) => (
             <div key={product.id} className="relative group">
               <ProductCard
                 product={product}
@@ -178,6 +188,47 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
             </div>
           ))}
         </div>
+
+        {/* 4-Item Pagination Navigation Bar */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-4 select-none">
+            <button
+              type="button"
+              disabled={currentPageIndex === 0}
+              onClick={() => setCurrentPageIndex((prev) => Math.max(0, prev - 1))}
+              className="p-2.5 rounded-full bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#FBE7E3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-xs"
+              aria-label="Previous 4 curated products"
+            >
+              {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentPageIndex(idx)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all cursor-pointer ${
+                    currentPageIndex === idx
+                      ? 'bg-[#E22001] w-6'
+                      : 'bg-[#CFC3C6] hover:bg-[#8E7C49]'
+                  }`}
+                  aria-label={`Go to page ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              disabled={currentPageIndex >= totalPages - 1}
+              onClick={() => setCurrentPageIndex((prev) => Math.min(totalPages - 1, prev + 1))}
+              className="p-2.5 rounded-full bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#FBE7E3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-xs"
+              aria-label="Next 4 curated products"
+            >
+              {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+            </button>
+          </div>
+        )}
 
         {/* Bottom CTA & View Full Collection */}
         <div className="mt-12 text-center space-y-4">
