@@ -30,8 +30,8 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
 
   const isWishlisted = isInWishlist(product.id);
-  const displayName = language === 'ar' ? product.nameAr : product.nameEn;
-  const displayCategory = language === 'ar' ? product.categoryNameAr : product.categoryNameEn;
+  const displayName = language === 'ar' ? product.nameAr : (language === 'ru' && product.nameRu ? product.nameRu : product.nameEn);
+  const displayCategory = language === 'ar' ? product.categoryNameAr : (language === 'ru' && product.categoryNameRu ? product.categoryNameRu : product.categoryNameEn);
 
   // Extract unique colors from variants
   const uniqueColors = useMemo(() => {
@@ -238,7 +238,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
             <div
               className="absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[8px] bg-white/90 text-[#5F5357] text-[14px] font-semibold flex items-center justify-center select-none cursor-not-allowed border border-[#CFC3C6]"
             >
-              {language === 'ar' ? 'نفدت الكمية' : 'Sold out'}
+              {language === 'ar' ? 'نفدت الكمية' : language === 'ru' ? 'Распродано' : 'Sold out'}
             </div>
           ) : (
             <>
@@ -258,12 +258,12 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 {isSingleAddedFeedback ? (
                   <>
                     <Check className="w-4 h-4 text-white" />
-                    <span>{language === 'ar' ? 'تمت الإضافة ✓' : 'Added to bag ✓'}</span>
+                    <span>{language === 'ar' ? 'تمت الإضافة ✓' : language === 'ru' ? 'В корзине ✓' : 'Added to bag ✓'}</span>
                   </>
                 ) : (
                   <>
                     <span className="text-base leading-none font-bold">+</span>
-                    <span>{language === 'ar' ? 'إضافة سريعة' : 'Quick add'}</span>
+                    <span>{language === 'ar' ? 'إضافة سريعة' : language === 'ru' ? 'В корзину' : 'Quick add'}</span>
                   </>
                 )}
               </button>

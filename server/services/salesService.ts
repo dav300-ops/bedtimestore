@@ -11,6 +11,9 @@ import {
   SQL_SELECT_DAILY_SALES_TREND,
   SQL_SELECT_SALES_OVERALL_SUMMARY,
   SQL_COUNT_PRODUCT_SALES,
+  SQL_SELECT_CUSTOMER_PURCHASES_SUMMARY,
+  SQL_SELECT_SALES_BY_CUSTOMER,
+  SQL_SELECT_BUYERS_BY_PRODUCT,
 } from '../queries/mysqlQueries';
 import { INITIAL_ORDERS, INITIAL_PRODUCTS } from '../data/defaultCatalog';
 
@@ -250,6 +253,27 @@ export class MySQLSalesService {
    */
   public async getSalesByOrder(orderIdOrNumber: string): Promise<ProductSaleRecord[]> {
     return await executeQuery(SQL_SELECT_SALES_BY_ORDER, [orderIdOrNumber, orderIdOrNumber]);
+  }
+
+  /**
+   * Get aggregated customer purchases summary (user-product purchasing profiles)
+   */
+  public async getCustomerPurchasesSummary(): Promise<any[]> {
+    return await executeQuery(SQL_SELECT_CUSTOMER_PURCHASES_SUMMARY);
+  }
+
+  /**
+   * Get detailed product purchase history for a specific customer
+   */
+  public async getCustomerPurchasesDetail(customerIdOrEmail: string): Promise<ProductSaleRecord[]> {
+    return await executeQuery(SQL_SELECT_SALES_BY_CUSTOMER, [customerIdOrEmail, customerIdOrEmail]);
+  }
+
+  /**
+   * Get all customers who purchased a specific product
+   */
+  public async getProductBuyers(productIdOrSku: string): Promise<any[]> {
+    return await executeQuery(SQL_SELECT_BUYERS_BY_PRODUCT, [productIdOrSku, productIdOrSku]);
   }
 }
 

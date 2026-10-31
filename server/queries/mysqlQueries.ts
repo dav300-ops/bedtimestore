@@ -608,3 +608,55 @@ export const SQL_COUNT_PRODUCT_SALES = `
 SELECT COUNT(*) AS total FROM product_sales
 `;
 
+export const SQL_SELECT_CUSTOMER_PURCHASES_SUMMARY = `
+SELECT 
+  COALESCE(customer_email, 'guest@thebedtimestore.bh') AS customerEmail,
+  MAX(customer_name) AS customerName,
+  MAX(customer_id) AS customerId,
+  MAX(customer_area) AS customerArea,
+  MAX(customer_city) AS customerCity,
+  COUNT(DISTINCT order_id) AS totalOrders,
+  CAST(SUM(quantity) AS SIGNED) AS totalItemsPurchased,
+  COUNT(DISTINCT product_id) AS distinctProductsCount,
+  CAST(SUM(total_amount) AS DECIMAL(10, 3)) AS totalSpendBHD,
+  MAX(sale_date) AS lastPurchaseDate
+FROM product_sales
+GROUP BY customer_email
+ORDER BY totalSpendBHD DESC
+`;
+
+export const SQL_SELECT_SALES_BY_CUSTOMER = `
+SELECT 
+  id, order_id AS orderId, order_number AS orderNumber, product_id AS productId,
+  product_sku AS productSku, product_name_en AS productNameEn, product_name_ar AS productNameAr,
+  category_id AS categoryId, category_name_en AS categoryNameEn,
+  variant_size AS variantSize, variant_color_name AS variantColorName, variant_color_hex AS variantColorHex,
+  unit_price AS unitPrice, quantity, total_amount AS totalAmount, currency,
+  payment_method AS paymentMethod, payment_status AS paymentStatus,
+  customer_id AS customerId, customer_name AS customerName, customer_email AS customerEmail,
+  customer_area AS customerArea, customer_city AS customerCity, sale_date AS saleDate, created_at AS createdAt
+FROM product_sales
+WHERE customer_email = ? OR customer_id = ?
+ORDER BY created_at DESC
+`;
+
+export const SQL_SELECT_BUYERS_BY_PRODUCT = `
+SELECT 
+  customer_email AS customerEmail,
+  customer_name AS customerName,
+  customer_id AS customerId,
+  customer_area AS customerArea,
+  order_number AS orderNumber,
+  variant_size AS variantSize,
+  variant_color_name AS variantColorName,
+  quantity,
+  total_amount AS totalAmount,
+  payment_status AS paymentStatus,
+  payment_method AS paymentMethod,
+  sale_date AS saleDate,
+  created_at AS createdAt
+FROM product_sales
+WHERE product_id = ? OR product_sku = ?
+ORDER BY created_at DESC
+`;
+

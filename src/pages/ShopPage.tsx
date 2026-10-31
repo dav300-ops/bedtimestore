@@ -64,11 +64,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
     // Supported fabrics based on real materials in catalog
     const fabrics = [
-      { id: 'silk', nameEn: 'Mulberry Silk', nameAr: 'حرير التوت الطبيعي' },
-      { id: 'satin', nameEn: 'Liquid Satin', nameAr: 'ساتان فائق النعومة' },
-      { id: 'cotton', nameEn: 'Organic Cotton', nameAr: 'قطن بيما عضوي' },
-      { id: 'lace', nameEn: 'Chantilly Lace', nameAr: 'دانتيل شانتيلي' },
-      { id: 'velvet', nameEn: 'Silk Velvet', nameAr: 'مخمل حريري' },
+      { id: 'silk', nameEn: 'Mulberry Silk', nameAr: 'حرير التوت الطبيعي', nameRu: 'Шёлк малбери' },
+      { id: 'satin', nameEn: 'Liquid Satin', nameAr: 'ساتان فائق النعومة', nameRu: 'Атласный сатин' },
+      { id: 'cotton', nameEn: 'Organic Cotton', nameAr: 'قطن بيما عضوي', nameRu: 'Органический хлопок' },
+      { id: 'lace', nameEn: 'Chantilly Lace', nameAr: 'دانتيل شانتيلي', nameRu: 'Французское кружево' },
+      { id: 'velvet', nameEn: 'Silk Velvet', nameAr: 'مخمل حريري', nameRu: 'Шёлковый бархат' },
     ];
 
     // Desired size order

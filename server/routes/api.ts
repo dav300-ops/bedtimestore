@@ -593,6 +593,54 @@ router.get('/sales/product/:productId', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Admin: Get aggregated customer purchases profiles (all users & products bought)
+ */
+router.get('/admin/customer-purchases', async (_req: Request, res: Response) => {
+  try {
+    const customers = await salesService.getCustomerPurchasesSummary();
+    return res.json({
+      success: true,
+      count: customers.length,
+      customers,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error?.message || 'Failed to fetch customer purchases from MySQL' });
+  }
+});
+
+/**
+ * Admin: Get detailed product purchase history for a specific customer
+ */
+router.get('/admin/customer-purchases/:customerIdOrEmail', async (req: Request, res: Response) => {
+  try {
+    const purchases = await salesService.getCustomerPurchasesDetail(req.params.customerIdOrEmail);
+    return res.json({
+      success: true,
+      count: purchases.length,
+      purchases,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error?.message || 'Failed to fetch customer purchase history' });
+  }
+});
+
+/**
+ * Admin: Get all customers who bought a specific product
+ */
+router.get('/admin/product-buyers/:productId', async (req: Request, res: Response) => {
+  try {
+    const buyers = await salesService.getProductBuyers(req.params.productId);
+    return res.json({
+      success: true,
+      count: buyers.length,
+      buyers,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: error?.message || 'Failed to fetch product buyers' });
+  }
+});
+
 // ============================================================================
 // 7. Health & Status Check
 // ============================================================================

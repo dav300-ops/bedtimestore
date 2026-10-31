@@ -67,7 +67,7 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
     >
       <div className="flex items-center justify-between mb-2">
         <span className="text-[12px] font-semibold text-[#2A1A20] uppercase tracking-wider">
-          {language === 'ar' ? 'اختاري المقاس:' : 'Select Size:'}
+          {language === 'ar' ? 'اختاري المقاس:' : language === 'ru' ? 'Выберите размер:' : 'Select Size:'}
         </span>
         <button
           type="button"
@@ -117,7 +117,7 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
 
       {justAddedSize && (
         <p className="mt-2 text-[11px] font-bold text-center text-[#6B1E3F] animate-in fade-in">
-          {language === 'ar' ? 'تمت الإضافة إلى الحقيبة ✓' : 'Added to bag ✓'}
+          {language === 'ar' ? 'تمت الإضافة إلى الحقيبة ✓' : language === 'ru' ? 'Добавлено в корзину ✓' : 'Added to bag ✓'}
         </p>
       )}
     </div>

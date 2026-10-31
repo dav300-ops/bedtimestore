@@ -83,9 +83,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
   const exploreItems = [
     {
       id: 'album',
-      label: (t.nav as any).album || (language === 'ar' ? 'ألبوم الصور' : 'Lookbook Album'),
-      subtitle: language === 'ar' ? 'جلسات تصوير وتنسيقات ملابس النوم الفاخرة' : 'Curated styling & editorial photo sessions',
-      badge: language === 'ar' ? 'معرض الصور' : 'Visual Gallery',
+      label: (t.nav as any).album || (language === 'ar' ? 'ألبوم الصور' : language === 'ru' ? 'Лукбук' : 'Lookbook Album'),
+      subtitle: language === 'ar' ? 'جلسات تصوير وتنسيقات ملابس النوم الفاخرة' : language === 'ru' ? 'Стилизованные фотосессии и лукбук' : 'Curated styling & editorial photo sessions',
+      badge: language === 'ar' ? 'معرض الصور' : language === 'ru' ? 'Галерея' : 'Visual Gallery',
       badgeColor: 'bg-[#DDD3EA] text-[#6B1E3F]',
       icon: BookOpen,
       action: () => onNavigate('album'),
@@ -94,8 +94,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
     {
       id: 'best-sellers',
       label: t.nav.bestSellers,
-      subtitle: language === 'ar' ? 'القطع الأكثر طلباً وإعجاباً في البحرين' : 'Most-loved luxury silk & satin essentials',
-      badge: language === 'ar' ? 'الأكثر طلباً' : 'Top Rated',
+      subtitle: language === 'ar' ? 'القطع الأكثر طلباً وإعجاباً في البحرين' : language === 'ru' ? 'Самые популярные модели из шёлка и сатина' : 'Most-loved luxury silk & satin essentials',
+      badge: language === 'ar' ? 'الأكثر طلباً' : language === 'ru' ? 'Хит' : 'Top Rated',
       badgeColor: 'bg-amber-100 text-amber-900',
       icon: Flame,
       action: () => onNavigate('shop', { filter: 'bestSeller' }),
@@ -104,8 +104,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
     {
       id: 'sale',
       label: t.nav.sale,
-      subtitle: language === 'ar' ? 'تخفيضات وعروض حصرية على أطقم ملابس النوم' : 'Exclusive seasonal promotions & special pricing',
-      badge: language === 'ar' ? 'عروض خاصة' : 'Special Offers',
+      subtitle: language === 'ar' ? 'تخفيضات وعروض حصرية على أطقم ملابس النوم' : language === 'ru' ? 'Эксклюзивные сезонные скидки на пижамы' : 'Exclusive seasonal promotions & special pricing',
+      badge: language === 'ar' ? 'عروض خاصة' : language === 'ru' ? 'Скидки' : 'Special Offers',
       badgeColor: 'bg-rose-100 text-[#B3261E]',
       icon: Tag,
       action: () => onNavigate('shop', { filter: 'sale' }),
@@ -271,7 +271,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     <div className="mt-2 pt-2 border-t border-[#EEE4E4] px-2 flex items-center justify-between text-[11px] text-[#5F5357]">
                       <span className="flex items-center gap-1 text-[#6B1E3F]">
                         <Sparkles className="w-3 h-3 text-[#B3261E]" />
-                        <span>{language === 'ar' ? 'توصيل مجاني فوق ٢٥ د.ب' : 'Free delivery over 25 BHD'}</span>
+                        <span>{language === 'ar' ? 'توصيل مجاني فوق ٢٥ د.ب' : language === 'ru' ? 'Бесплатная доставка от 25 BHD' : 'Free delivery over 25 BHD'}</span>
                       </span>
                       <span className="font-serif italic text-[#6B1E3F]">Bedtime Store</span>
                     </div>
@@ -292,7 +292,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={language === 'ar' ? 'بحث في المتجر...' : 'Search sleepwear...'}
+                      placeholder={language === 'ar' ? 'بحث في المتجر...' : language === 'ru' ? 'Поиск в бутике...' : 'Search sleepwear...'}
                       className="w-36 sm:w-56 px-3 py-1.5 text-xs bg-white text-[#2A1A20] border border-[#CFC3C6] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B3261E]"
                     />
                     <button
@@ -380,28 +380,59 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   )}
                 </div>
                 <span className="hidden sm:inline text-xs font-semibold tracking-wider uppercase">
-                  {language === 'ar' ? 'الحقيبة' : 'Bag'}
+                  {language === 'ar' ? 'الحقيبة' : language === 'ru' ? 'Корзина' : 'Bag'}
                 </span>
               </button>
 
-              {/* Compact Language Switcher & Admin toggle */}
-              <div className="hidden xl:flex items-center gap-2 pl-2 rtl:pl-0 rtl:pr-2 border-l rtl:border-l-0 rtl:border-r border-[#CFC3C6]/60">
-                <button
-                  type="button"
-                  onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-                  className="text-[11px] font-semibold text-[#5F5357] hover:text-[#6B1E3F] px-1 py-0.5 rounded transition-colors"
-                  title="Toggle Language"
-                >
-                  {language === 'en' ? 'العربية' : 'EN'}
-                </button>
+              {/* 3-Language Switcher (EN · AR · RU) & Admin shortcut */}
+              <div className="hidden lg:flex items-center gap-1.5 pl-2 rtl:pl-0 rtl:pr-2 border-l rtl:border-l-0 rtl:border-r border-[#CFC3C6]/60">
+                <div className="flex items-center bg-white/80 border border-[#CFC3C6] rounded-full p-0.5 shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('en')}
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                      language === 'en'
+                        ? 'bg-[#6B1E3F] text-white shadow-xs'
+                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                    }`}
+                    title="English"
+                  >
+                    EN
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('ar')}
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                      language === 'ar'
+                        ? 'bg-[#6B1E3F] text-white shadow-xs'
+                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                    }`}
+                    title="العربية"
+                  >
+                    العربية
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('ru')}
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                      language === 'ru'
+                        ? 'bg-[#6B1E3F] text-white shadow-xs'
+                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                    }`}
+                    title="Русский"
+                  >
+                    RU
+                  </button>
+                </div>
+
                 {isAdmin && (
                   <button
                     type="button"
                     onClick={() => onNavigate('admin')}
-                    className="text-[11px] text-[#B3261E] hover:underline"
+                    className="p-1 text-[#B3261E] hover:bg-white rounded-full transition-colors ml-0.5"
                     title="Admin"
                   >
-                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <ShieldCheck className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -442,7 +473,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
 
               <div className="pt-2 border-t border-[#CFC3C6]/40">
                 <span className="text-[11px] font-bold text-[#5F5357] uppercase tracking-wider block mb-1">
-                  {language === 'ar' ? 'استكشف المجموعات' : 'Explore Collections'}
+                  {language === 'ar' ? 'استكشف المجموعات' : language === 'ru' ? 'Коллекции бутиков' : 'Explore Collections'}
                 </span>
                 {exploreItems.map((item) => (
                   <button
@@ -462,25 +493,61 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 ))}
               </div>
 
-              <div className="pt-2 border-t border-[#CFC3C6]/40 flex items-center justify-between text-xs">
-                <button
-                  type="button"
-                  onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-                  className="font-bold text-[#6B1E3F]"
-                >
-                  {language === 'en' ? 'العربية (AR)' : 'English (EN)'}
-                </button>
-                {isAdmin && (
+              {/* 3-Language Selector in Mobile Menu */}
+              <div className="pt-3 border-t border-[#CFC3C6]/40 space-y-2">
+                <span className="text-[11px] font-bold text-[#5F5357] uppercase tracking-wider block">
+                  {language === 'ar' ? 'اللغة' : language === 'ru' ? 'Язык' : 'Language'}
+                </span>
+                <div className="grid grid-cols-3 gap-1.5">
                   <button
                     type="button"
-                    onClick={() => {
-                      onNavigate('admin');
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="text-[#B3261E] font-medium"
+                    onClick={() => setLanguage('en')}
+                    className={`py-1.5 px-2 text-xs font-semibold rounded-md border text-center transition-all ${
+                      language === 'en'
+                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
+                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                    }`}
                   >
-                    Admin Portal
+                    English
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('ar')}
+                    className={`py-1.5 px-2 text-xs font-semibold rounded-md border text-center transition-all ${
+                      language === 'ar'
+                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
+                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                    }`}
+                  >
+                    العربية
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('ru')}
+                    className={`py-1.5 px-2 text-xs font-semibold rounded-md border text-center transition-all ${
+                      language === 'ru'
+                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
+                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                    }`}
+                  >
+                    Русский
+                  </button>
+                </div>
+
+                {isAdmin && (
+                  <div className="pt-2 text-left rtl:text-right">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onNavigate('admin');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-[#B3261E] font-semibold text-xs flex items-center gap-1.5"
+                    >
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>{t.nav.admin}</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

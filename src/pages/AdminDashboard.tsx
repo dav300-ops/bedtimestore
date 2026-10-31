@@ -43,7 +43,11 @@ import {
   Code2,
   DollarSign,
   PieChart,
-  Activity
+  Activity,
+  Users,
+  UserCheck,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { 
   HERO_IMAGE, 
@@ -89,7 +93,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   const { language, formatBHD, t } = useLanguage();
   const { currentUser } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'products' | 'inventory' | 'categories' | 'orders' | 'coupons' | 'cms'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'customers' | 'products' | 'inventory' | 'categories' | 'orders' | 'coupons' | 'cms'>('overview');
   const [inventorySearch, setInventorySearch] = useState('');
   const [inventoryStockFilter, setInventoryStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
   const [stockFeedback, setStockFeedback] = useState<string | null>(null);
@@ -105,8 +109,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   const [salesViewMode, setSalesViewMode] = useState<'table' | 'leaderboard' | 'queries'>('table');
   const [activeQueryTab, setActiveQueryTab] = useState<'insert' | 'top_products' | 'category' | 'regional' | 'summary' | 'ddl'>('insert');
 
+  // Customer Purchases & User-Product Association State
+  const [customerPurchases, setCustomerPurchases] = useState<any[]>([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customerViewMode, setCustomerViewMode] = useState<'by_customer' | 'by_product'>('by_customer');
+  const [selectedCustomerEmail, setSelectedCustomerEmail] = useState<string | null>(null);
+  const [customerDetailSales, setCustomerDetailSales] = useState<any[]>([]);
+  const [isLoadingCustomerDetail, setIsLoadingCustomerDetail] = useState(false);
+  const [selectedProductIdForBuyers, setSelectedProductIdForBuyers] = useState<string | null>(null);
+  const [productBuyersList, setProductBuyersList] = useState<any[]>([]);
+  const [isLoadingProductBuyers, setIsLoadingProductBuyers] = useState(false);
+
   React.useEffect(() => {
-    if (activeTab === 'sales' || activeTab === 'overview') {
+    if (activeTab === 'sales' || activeTab === 'overview' || activeTab === 'customers') {
       setIsLoadingSales(true);
       fetch('/api/sales?limit=100')
         .then((res) => res.json())
@@ -118,7 +134,58 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
         .catch((err) => console.warn('Failed to load sales line items from MySQL:', err))
         .finally(() => setIsLoadingSales(false));
     }
+
+    if (activeTab === 'customers' || activeTab === 'overview') {
+      setIsLoadingCustomers(true);
+      fetch('/api/admin/customer-purchases')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.success && Array.isArray(data.customers)) {
+            setCustomerPurchases(data.customers);
+          }
+        })
+        .catch((err) => console.warn('Failed to load customer purchases from MySQL:', err))
+        .finally(() => setIsLoadingCustomers(false));
+    }
   }, [activeTab]);
+
+  const handleSelectCustomer = (email: string) => {
+    if (selectedCustomerEmail === email) {
+      setSelectedCustomerEmail(null);
+      setCustomerDetailSales([]);
+      return;
+    }
+    setSelectedCustomerEmail(email);
+    setIsLoadingCustomerDetail(true);
+    fetch(`/api/admin/customer-purchases/${encodeURIComponent(email)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.purchases)) {
+          setCustomerDetailSales(data.purchases);
+        }
+      })
+      .catch((err) => console.warn('Failed to load customer detail sales:', err))
+      .finally(() => setIsLoadingCustomerDetail(false));
+  };
+
+  const handleSelectProductBuyers = (productId: string) => {
+    if (selectedProductIdForBuyers === productId) {
+      setSelectedProductIdForBuyers(null);
+      setProductBuyersList([]);
+      return;
+    }
+    setSelectedProductIdForBuyers(productId);
+    setIsLoadingProductBuyers(true);
+    fetch(`/api/admin/product-buyers/${encodeURIComponent(productId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.buyers)) {
+          setProductBuyersList(data.buyers);
+        }
+      })
+      .catch((err) => console.warn('Failed to load product buyers:', err))
+      .finally(() => setIsLoadingProductBuyers(false));
+  };
 
   // Delivery Verification (POD) Admin State
   const [enteredVerificationCode, setEnteredVerificationCode] = useState('');
@@ -492,9 +559,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
           <nav className="space-y-1.5 text-xs">
             {[
               { id: 'overview', label: t.admin.sidebarOverview, icon: BarChart3 },
-              { id: 'sales', label: language === 'ar' ? 'مبيعات المنتجات ' : 'Product Sales ', icon: TrendingUp, badge: salesAnalytics?.summary?.totalSaleItems ?? salesRecords.length },
+              { id: 'sales', label: language === 'ar' ? 'مبيعات المنتجات ' : language === 'ru' ? 'Продажи товаров' : 'Product Sales ', icon: TrendingUp, badge: salesAnalytics?.summary?.totalSaleItems ?? salesRecords.length },
+              { id: 'customers', label: language === 'ar' ? 'مشتريات العميلات والمنتجات' : language === 'ru' ? 'Покупки клиентов и товаров' : 'Customer Purchases', icon: Users, badge: customerPurchases.length },
               { id: 'products', label: t.admin.sidebarProducts, icon: Package },
-              { id: 'inventory', label: language === 'ar' ? 'المخزون والأرصدة' : 'Stock & Balances', icon: Database, badge: inventoryOverview?.lowStockCount ?? lowStockProducts.length },
+              { id: 'inventory', label: language === 'ar' ? 'المخزون والأرصدة' : language === 'ru' ? 'Склад и остатки' : 'Stock & Balances', icon: Database, badge: inventoryOverview?.lowStockCount ?? lowStockProducts.length },
               { id: 'categories', label: t.admin.sidebarCategories, icon: Layers },
               { id: 'orders', label: t.admin.sidebarOrders, icon: ShoppingBag, badge: pendingOrdersCount },
               { id: 'coupons', label: t.admin.sidebarCoupons, icon: Tag },
@@ -549,9 +617,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
           <div>
             <h1 className="font-heading text-2xl sm:text-3xl font-semibold text-[#340404] capitalize">
               {activeTab === 'overview' && t.admin.sidebarOverview}
-              {activeTab === 'sales' && (language === 'ar' ? 'سجلات ومبيعات المنتجات ' : '')}
+              {activeTab === 'sales' && (language === 'ar' ? 'سجلات ومبيعات المنتجات' : language === 'ru' ? 'Продажи товаров' : 'Product Sales')}
+              {activeTab === 'customers' && (language === 'ar' ? 'مشتريات العميلات وسجل المنتجات' : language === 'ru' ? 'Покупки клиентов и купленные товары' : 'Customer Purchases & Products Bought')}
               {activeTab === 'products' && t.admin.sidebarProducts}
-              {activeTab === 'inventory' && (language === 'ar' ? 'أرصدة ومخزون المنتجات (قاعدة بيانات )' : 'Product Stock & Balances ')}
+              {activeTab === 'inventory' && (language === 'ar' ? 'أرصدة ومخزون المنتجات' : language === 'ru' ? 'Складской учёт и остатки' : 'Product Stock & Balances')}
               {activeTab === 'categories' && t.admin.sidebarCategories}
               {activeTab === 'orders' && t.admin.sidebarOrders}
               {activeTab === 'coupons' && t.admin.sidebarCoupons}
@@ -1323,6 +1392,507 @@ CREATE TABLE IF NOT EXISTS product_sales (
   INDEX idx_sales_area (customer_area)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`}
                   </pre>
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* TAB: CUSTOMER PURCHASES & USER-PRODUCT ASSOCIATION */}
+        {activeTab === 'customers' && (
+          <div className="space-y-6">
+            {/* Top Stat Highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  {language === 'ar' ? 'إجمالي العميلات المشترين' : language === 'ru' ? 'Всего покупателей' : 'Total Purchasing Customers'}
+                </span>
+                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                  {customerPurchases.length}
+                </p>
+                <p className="text-[11px] text-[#340404]/60">
+                  {language === 'ar' ? 'عميلات مسجلات وطلبات زوار' : language === 'ru' ? 'Зарегистрированные и гости' : 'Registered & Guest Buyers'}
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  {language === 'ar' ? 'إجمالي القطع المشتراة' : language === 'ru' ? 'Куплено единиц' : 'Total Products Purchased'}
+                </span>
+                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                  {customerPurchases.reduce((sum, c) => sum + (Number(c.totalItemsPurchased) || 0), 0)}
+                </p>
+                <p className="text-[11px] text-[#340404]/60">
+                  {language === 'ar' ? 'قطع نوم فاخرة مسلمة' : language === 'ru' ? 'Единиц роскошной одежды' : 'Units of luxury nightwear'}
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  {language === 'ar' ? 'إجمالي مبيعات العميلات' : language === 'ru' ? 'Общая сумма покупок' : 'Total Customer Spend'}
+                </span>
+                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                  {formatBHD(customerPurchases.reduce((sum, c) => sum + (Number(c.totalSpendBHD) || 0), 0))}
+                </p>
+                <div className="flex items-center gap-1 text-[11px] text-[#8E7C49]">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>{language === 'ar' ? 'إيرادات محققة في البحرين' : language === 'ru' ? 'Выручка в Бахрейне' : 'Revenue generated in Bahrain'}</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  {language === 'ar' ? 'متوسط إنفاق العميلة' : language === 'ru' ? 'Средний чек клиента' : 'Avg Customer Spend'}
+                </span>
+                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                  {customerPurchases.length > 0
+                    ? formatBHD(
+                        customerPurchases.reduce((sum, c) => sum + (Number(c.totalSpendBHD) || 0), 0) /
+                          customerPurchases.length
+                      )
+                    : formatBHD(0)}
+                </p>
+                <p className="text-[11px] text-[#340404]/60">
+                  {language === 'ar' ? 'عبر جميع الطلبات السابقة' : language === 'ru' ? 'По всей истории заказов' : 'Across lifetime purchases'}
+                </p>
+              </div>
+            </div>
+
+            {/* Controls Bar: Search & View Mode Switch */}
+            <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex rounded-xs border border-[#E1D1E4] p-0.5 bg-[#FBE7E3]/30">
+                  <button
+                    type="button"
+                    onClick={() => setCustomerViewMode('by_customer')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-xs transition-colors flex items-center gap-1.5 ${
+                      customerViewMode === 'by_customer'
+                        ? 'bg-[#340404] text-white shadow-xs'
+                        : 'text-[#340404] hover:bg-white'
+                    }`}
+                  >
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span>{language === 'ar' ? 'عرض العميلات ومشترياتهن' : language === 'ru' ? 'По клиентам и покупкам' : 'By Customer Purchases'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCustomerViewMode('by_product')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-xs transition-colors flex items-center gap-1.5 ${
+                      customerViewMode === 'by_product'
+                        ? 'bg-[#340404] text-white shadow-xs'
+                        : 'text-[#340404] hover:bg-white'
+                    }`}
+                  >
+                    <Package className="w-3.5 h-3.5" />
+                    <span>{language === 'ar' ? 'عرض المنتجات والمشترين' : language === 'ru' ? 'По товарам и покупателям' : 'By Product Buyers'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Search */}
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-[#8E7C49] absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
+                <input
+                  type="text"
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  placeholder={
+                    customerViewMode === 'by_customer'
+                      ? (language === 'ar' ? 'البحث باسم العميلة، البريد، أو المنطقة...' : language === 'ru' ? 'Поиск покупателя по имени, email или району...' : 'Search by customer name, email, or area...')
+                      : (language === 'ar' ? 'البحث باسم المنتج أو الرمز SKU...' : language === 'ru' ? 'Поиск товара по названию или SKU...' : 'Search product by name or SKU...')
+                  }
+                  className="w-full pl-9 pr-4 rtl:pl-4 rtl:pr-9 py-2 text-xs border border-[#E1D1E4] rounded-xs bg-[#FBE7E3]/20 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                />
+                {customerSearch && (
+                  <button
+                    onClick={() => setCustomerSearch('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rtl:right-auto rtl:left-3 text-gray-400 hover:text-black"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* VIEW MODE 1: BY CUSTOMER */}
+            {customerViewMode === 'by_customer' && (
+              <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden">
+                <div className="p-4 bg-[#FBE7E3]/30 border-b border-[#E1D1E4] flex items-center justify-between">
+                  <span className="font-heading text-sm font-bold text-[#340404]">
+                    {language === 'ar' ? 'سجل العميلات والمنتجات المشتراة' : language === 'ru' ? 'Список покупателей и купленные ими товары' : 'Customer Purchasing Profiles & Associated Products'}
+                  </span>
+                  <span className="text-xs text-[#8E7C49] font-medium">
+                    {customerPurchases.length} {language === 'ar' ? 'عميلة مسجلة في قاعدة البيانات' : language === 'ru' ? 'клиентов в базе данных' : 'customers in MySQL database'}
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left rtl:text-right text-xs">
+                    <thead className="bg-[#FBE7E3]/50 text-[#340404] font-semibold uppercase tracking-wider">
+                      <tr>
+                        <th className="p-4">{language === 'ar' ? 'العميلة' : language === 'ru' ? 'Покупатель' : 'Customer'}</th>
+                        <th className="p-4">{language === 'ar' ? 'المنطقة / العنوان' : language === 'ru' ? 'Район / Город' : 'Area / City'}</th>
+                        <th className="p-4 text-center">{language === 'ar' ? 'الطلبات' : language === 'ru' ? 'Заказов' : 'Orders'}</th>
+                        <th className="p-4 text-center">{language === 'ar' ? 'القطع المشتراة' : language === 'ru' ? 'Куплено шт.' : 'Items Bought'}</th>
+                        <th className="p-4 text-center">{language === 'ar' ? 'منتجات مميزة' : language === 'ru' ? 'Разных товаров' : 'Distinct Items'}</th>
+                        <th className="p-4">{language === 'ar' ? 'إجمالي الإنفاق' : language === 'ru' ? 'Сумма покупок' : 'Total Spend'}</th>
+                        <th className="p-4">{language === 'ar' ? 'آخر شراء' : language === 'ru' ? 'Дата покупки' : 'Last Purchase'}</th>
+                        <th className="p-4 text-right rtl:text-left">{language === 'ar' ? 'تفاصيل المنتجات' : language === 'ru' ? 'Товары' : 'Products Bought'}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E1D1E4]">
+                      {isLoadingCustomers ? (
+                        <tr>
+                          <td colSpan={8} className="p-8 text-center text-gray-500">
+                            <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#8E7C49]" />
+                            <span>{language === 'ar' ? 'جاري تحميل سجلات العميلات من MySQL...' : language === 'ru' ? 'Загрузка профилей покупателей...' : 'Loading customer purchasing data from MySQL...'}</span>
+                          </td>
+                        </tr>
+                      ) : customerPurchases.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="p-8 text-center text-gray-500">
+                            {language === 'ar' ? 'لا توجد سجلات مشتريات مسجلة حتى الآن.' : language === 'ru' ? 'Пока нет сохранённых покупок.' : 'No customer purchases recorded yet.'}
+                          </td>
+                        </tr>
+                      ) : (
+                        customerPurchases
+                          .filter((cust) => {
+                            if (!customerSearch.trim()) return true;
+                            const q = customerSearch.toLowerCase();
+                            return (
+                              (cust.customerName && cust.customerName.toLowerCase().includes(q)) ||
+                              (cust.customerEmail && cust.customerEmail.toLowerCase().includes(q)) ||
+                              (cust.customerArea && cust.customerArea.toLowerCase().includes(q)) ||
+                              (cust.customerCity && cust.customerCity.toLowerCase().includes(q))
+                            );
+                          })
+                          .map((cust) => {
+                            const isExpanded = selectedCustomerEmail === cust.customerEmail;
+                            return (
+                              <React.Fragment key={cust.customerEmail || cust.customerId}>
+                                <tr className={`hover:bg-[#FBE7E3]/20 transition-colors ${isExpanded ? 'bg-[#FBE7E3]/30' : ''}`}>
+                                  <td className="p-4">
+                                    <div className="flex items-center gap-2.5">
+                                      <div className="w-8 h-8 rounded-full bg-[#340404] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                        {(cust.customerName || cust.customerEmail || 'C').charAt(0).toUpperCase()}
+                                      </div>
+                                      <div>
+                                        <p className="font-bold text-[#340404]">
+                                          {cust.customerName || 'Boutique Shopper'}
+                                        </p>
+                                        <p className="text-[11px] text-[#340404]/70 font-mono">
+                                          {cust.customerEmail}
+                                        </p>
+                                        {cust.customerId && (
+                                          <span className="text-[10px] text-[#8E7C49] font-mono">
+                                            ID: {cust.customerId.slice(0, 14)}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="p-4">
+                                    <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-xs text-[11px]">
+                                      {cust.customerArea || 'Manama'}, {cust.customerCity || 'Bahrain'}
+                                    </span>
+                                  </td>
+                                  <td className="p-4 text-center font-semibold text-[#340404] tabular-nums">
+                                    {cust.totalOrders}
+                                  </td>
+                                  <td className="p-4 text-center font-bold text-[#E22001] tabular-nums">
+                                    {cust.totalItemsPurchased}
+                                  </td>
+                                  <td className="p-4 text-center text-[#8E7C49] font-medium tabular-nums">
+                                    {cust.distinctProductsCount}
+                                  </td>
+                                  <td className="p-4 font-bold text-[#340404] tabular-nums">
+                                    {formatBHD(cust.totalSpendBHD)}
+                                  </td>
+                                  <td className="p-4 text-[11px] text-[#340404]/70 tabular-nums">
+                                    {cust.lastPurchaseDate || 'Recent'}
+                                  </td>
+                                  <td className="p-4 text-right rtl:text-left">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSelectCustomer(cust.customerEmail)}
+                                      className={`px-3 py-1.5 text-xs font-semibold rounded-xs transition-all flex items-center gap-1 ml-auto rtl:ml-0 rtl:mr-auto cursor-pointer ${
+                                        isExpanded
+                                          ? 'bg-[#340404] text-white'
+                                          : 'bg-white border border-[#E1D1E4] text-[#340404] hover:border-[#8E7C49] hover:bg-[#FBE7E3]/30'
+                                      }`}
+                                    >
+                                      <span>
+                                        {isExpanded
+                                          ? (language === 'ar' ? 'إغلاق المنتجات' : language === 'ru' ? 'Скрыть товары' : 'Hide Products')
+                                          : (language === 'ar' ? 'عرض المنتجات المشتراة' : language === 'ru' ? 'Купленные товары' : 'View Products')}
+                                      </span>
+                                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                    </button>
+                                  </td>
+                                </tr>
+
+                                {/* Expanded Products Drawer for this customer */}
+                                {isExpanded && (
+                                  <tr className="bg-[#FFF8F6]">
+                                    <td colSpan={8} className="p-4 border-y-2 border-[#8E7C49]/30">
+                                      <div className="space-y-3">
+                                        <div className="flex items-center justify-between pb-2 border-b border-[#E1D1E4]">
+                                          <div className="flex items-center gap-2">
+                                            <Package className="w-4 h-4 text-[#8E7C49]" />
+                                            <span className="font-bold text-[#340404] text-xs">
+                                              {language === 'ar' ? 'جميع المنتجات التي اشترتها العميلة:' : language === 'ru' ? 'Все товары, купленные этим клиентом:' : 'All Products Purchased by this Customer:'}
+                                            </span>
+                                            <span className="text-[11px] text-[#8E7C49] font-medium">
+                                              ({cust.customerName || cust.customerEmail})
+                                            </span>
+                                          </div>
+                                          <span className="text-[11px] text-[#340404]/70">
+                                            {customerDetailSales.length} {language === 'ar' ? 'بند منتج مسجل' : language === 'ru' ? 'позиций в заказах' : 'recorded line items'}
+                                          </span>
+                                        </div>
+
+                                        {isLoadingCustomerDetail ? (
+                                          <div className="py-6 text-center text-gray-500">
+                                            <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-1 text-[#8E7C49]" />
+                                            <span>{language === 'ar' ? 'جاري استرجاع تفاصيل المنتجات من MySQL...' : language === 'ru' ? 'Загрузка позиций...' : 'Retrieving purchase details from MySQL...'}</span>
+                                          </div>
+                                        ) : customerDetailSales.length === 0 ? (
+                                          <p className="text-xs text-gray-500 py-2">
+                                            {language === 'ar' ? 'لا توجد منتجات مسجلة لهذه العميلة.' : language === 'ru' ? 'Нет записей о товарах для этого клиента.' : 'No line items recorded for this customer.'}
+                                          </p>
+                                        ) : (
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                                            {customerDetailSales.map((item, idx) => {
+                                              const prodInfo = products.find((p) => p.id === item.productId || p.sku === item.productSku);
+                                              const img = prodInfo?.images?.[0] || ROSE_SATIN_IMAGE;
+                                              const itemName = language === 'ar' ? (item.productNameAr || prodInfo?.nameAr) : (language === 'ru' && prodInfo?.nameRu ? prodInfo.nameRu : (item.productNameEn || prodInfo?.nameEn));
+
+                                              return (
+                                                <div
+                                                  key={item.id || `${item.orderNumber}-${idx}`}
+                                                  className="bg-white p-3 rounded-xs border border-[#E1D1E4] shadow-2xs flex items-start gap-3 hover:border-[#8E7C49] transition-all"
+                                                >
+                                                  <img
+                                                    src={img}
+                                                    alt=""
+                                                    className="w-14 h-16 object-cover rounded-xs border border-[#E1D1E4] shrink-0"
+                                                    onError={(e) => {
+                                                      (e.target as HTMLImageElement).src = ROSE_SATIN_IMAGE;
+                                                    }}
+                                                  />
+                                                  <div className="flex-1 min-w-0 space-y-1">
+                                                    <div className="flex items-start justify-between gap-1">
+                                                      <h6 className="font-heading font-semibold text-xs text-[#340404] truncate">
+                                                        {itemName}
+                                                      </h6>
+                                                      <span className="text-[11px] font-bold text-[#E22001] tabular-nums shrink-0">
+                                                        {formatBHD(item.totalAmount)}
+                                                      </span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-1 text-[10px] text-[#8E7C49] font-mono">
+                                                      <span>SKU: {item.productSku}</span>
+                                                      <span>·</span>
+                                                      <span className="font-bold text-[#340404]">
+                                                        {item.orderNumber}
+                                                      </span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 text-[10px] text-[#340404]/80 flex-wrap">
+                                                      <span className="px-1.5 py-0.2 bg-gray-100 rounded-xs">
+                                                        {language === 'ar' ? 'المقاس' : language === 'ru' ? 'Разм.' : 'Size'}: <strong>{item.variantSize || 'M'}</strong>
+                                                      </span>
+                                                      <span className="flex items-center gap-1 px-1.5 py-0.2 bg-gray-100 rounded-xs">
+                                                        <span
+                                                          className="w-2 h-2 rounded-full border border-gray-400 inline-block"
+                                                          style={{ backgroundColor: item.variantColorHex || '#340404' }}
+                                                        />
+                                                        <span>{item.variantColorName || 'Standard'}</span>
+                                                      </span>
+                                                      <span className="px-1.5 py-0.2 bg-rose-50 text-[#E22001] font-bold rounded-xs">
+                                                        ×{item.quantity}
+                                                      </span>
+                                                    </div>
+
+                                                    <div className="pt-1 flex items-center justify-between text-[10px] text-gray-500 border-t border-gray-100 mt-1">
+                                                      <span>{item.saleDate || item.createdAt?.split('T')[0]}</span>
+                                                      <span className="px-1.5 py-0.2 bg-green-50 text-green-700 font-semibold rounded-xs">
+                                                        {item.paymentStatus || 'Paid'}
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )}
+                              </React.Fragment>
+                            );
+                          })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* VIEW MODE 2: BY PRODUCT & BUYERS MATRIX */}
+            {customerViewMode === 'by_product' && (
+              <div className="space-y-4">
+                <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs flex items-center justify-between">
+                  <div>
+                    <h4 className="font-heading text-sm font-bold text-[#340404]">
+                      {language === 'ar' ? 'سجل مشتري المنتجات (Product Buyers Matrix)' : language === 'ru' ? 'Матрица товаров и покупателей' : 'Product-to-Buyers Association Matrix'}
+                    </h4>
+                    <p className="text-xs text-[#340404]/70">
+                      {language === 'ar' ? 'اضغطي على أي منتج لعرض جميع العميلات اللاتي اشترين هذا المنتج وتفاصيل طلباتهن.' : language === 'ru' ? 'Нажмите на товар, чтобы увидеть всех клиентов, которые его купили.' : 'Click on any product to inspect all customers who purchased it and their order details.'}
+                    </p>
+                  </div>
+                  <span className="px-2.5 py-1 bg-[#340404] text-white text-xs font-semibold rounded-xs">
+                    {products.length} {language === 'ar' ? 'منتج بالمتجر' : language === 'ru' ? 'товаров' : 'Catalog Products'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {products
+                    .filter((p) => {
+                      if (!customerSearch.trim()) return true;
+                      const q = customerSearch.toLowerCase();
+                      return (
+                        p.nameEn.toLowerCase().includes(q) ||
+                        p.nameAr.toLowerCase().includes(q) ||
+                        (p.nameRu && p.nameRu.toLowerCase().includes(q)) ||
+                        p.sku.toLowerCase().includes(q)
+                      );
+                    })
+                    .map((prod) => {
+                      const isSelected = selectedProductIdForBuyers === prod.id;
+                      const prodName = language === 'ar' ? prod.nameAr : (language === 'ru' && prod.nameRu ? prod.nameRu : prod.nameEn);
+
+                      // Calculate sales for this product from local salesRecords
+                      const matchedSales = salesRecords.filter((s) => s.productId === prod.id || s.productSku === prod.sku);
+                      const totalSold = matchedSales.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+                      const totalRevenue = matchedSales.reduce((sum, s) => sum + (Number(s.totalAmount) || 0), 0);
+
+                      return (
+                        <div
+                          key={prod.id}
+                          className={`bg-white rounded-sm border transition-all overflow-hidden ${
+                            isSelected ? 'border-[#340404] ring-2 ring-[#340404]/20 shadow-md' : 'border-[#E1D1E4] hover:border-[#8E7C49] shadow-xs'
+                          }`}
+                        >
+                          <div className="p-4 flex items-start gap-3">
+                            <img
+                              src={prod.images[0] || ROSE_SATIN_IMAGE}
+                              alt=""
+                              className="w-16 h-20 object-cover rounded-xs border border-[#E1D1E4] shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = ROSE_SATIN_IMAGE;
+                              }}
+                            />
+                            <div className="flex-1 min-w-0 space-y-1">
+                              <span className="text-[10px] text-[#8E7C49] font-mono block">
+                                {prod.sku} · {prod.categoryNameEn}
+                              </span>
+                              <h5 className="font-heading font-bold text-xs text-[#340404] line-clamp-1">
+                                {prodName}
+                              </h5>
+                              <p className="text-xs font-bold text-[#E22001] tabular-nums">
+                                {formatBHD(prod.salePrice ?? prod.price)}
+                              </p>
+
+                              <div className="flex items-center gap-2 pt-1 text-[11px]">
+                                <span className="px-1.5 py-0.5 bg-gray-100 rounded-xs font-semibold text-[#340404]">
+                                  {totalSold} {language === 'ar' ? 'قطعة بيعت' : language === 'ru' ? 'продано' : 'units sold'}
+                                </span>
+                                {totalRevenue > 0 && (
+                                  <span className="text-[#8E7C49] font-bold tabular-nums">
+                                    {formatBHD(totalRevenue)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="px-4 py-2.5 bg-[#FBE7E3]/20 border-t border-[#E1D1E4] flex items-center justify-between">
+                            <button
+                              type="button"
+                              onClick={() => handleSelectProductBuyers(prod.id)}
+                              className={`w-full py-1.5 px-3 text-xs font-semibold rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#340404] text-white'
+                                  : 'bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#340404] hover:text-white'
+                              }`}
+                            >
+                              <Users className="w-3.5 h-3.5" />
+                              <span>
+                                {isSelected
+                                  ? (language === 'ar' ? 'إخفاء المشترين' : language === 'ru' ? 'Скрыть покупателей' : 'Hide Buyers')
+                                  : (language === 'ar' ? 'عرض جميع المشترين' : language === 'ru' ? 'Показать покупателей' : 'View Buyers')}
+                              </span>
+                            </button>
+                          </div>
+
+                          {/* Buyers List Drawer for this Product */}
+                          {isSelected && (
+                            <div className="p-4 bg-[#FFF8F6] border-t border-[#8E7C49]/30 space-y-3">
+                              <div className="flex items-center justify-between text-xs font-bold text-[#340404]">
+                                <span>{language === 'ar' ? 'سجل العميلات اللاتي اشترين هذا المنتج:' : language === 'ru' ? 'Покупатели этого товара:' : 'Customers who bought this product:'}</span>
+                                <span className="text-[10px] text-[#8E7C49] font-mono">
+                                  {productBuyersList.length} {language === 'ar' ? 'مشترية' : language === 'ru' ? 'покупателей' : 'buyers'}
+                                </span>
+                              </div>
+
+                              {isLoadingProductBuyers ? (
+                                <div className="py-4 text-center text-xs text-gray-500">
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin mx-auto mb-1 text-[#8E7C49]" />
+                                  <span>{language === 'ar' ? 'جاري الاستعلام من قاعدة البيانات...' : language === 'ru' ? 'Загрузка...' : 'Querying MySQL...'}</span>
+                                </div>
+                              ) : productBuyersList.length === 0 ? (
+                                <p className="text-xs text-gray-500 italic py-2">
+                                  {language === 'ar' ? 'لم تقم أي عميلة بشراء هذا المنتج بعد.' : language === 'ru' ? 'Этот товар пока не покупали.' : 'No customer purchases recorded for this item yet.'}
+                                </p>
+                              ) : (
+                                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                                  {productBuyersList.map((buyer, bIdx) => (
+                                    <div
+                                      key={`${buyer.orderNumber}-${bIdx}`}
+                                      className="p-2.5 bg-white rounded-xs border border-[#E1D1E4] text-[11px] space-y-1"
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="font-bold text-[#340404]">
+                                          {buyer.customerName || 'Shopper'}
+                                        </span>
+                                        <span className="text-[#E22001] font-bold tabular-nums">
+                                          {formatBHD(buyer.totalAmount)}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center justify-between text-gray-500 text-[10px]">
+                                        <span className="font-mono">{buyer.customerEmail}</span>
+                                        <span>{buyer.customerArea || 'Bahrain'}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between text-gray-600 text-[10px] pt-1 border-t border-gray-100">
+                                        <span>
+                                          Order: <strong className="font-mono text-[#340404]">{buyer.orderNumber}</strong> (×{buyer.quantity})
+                                        </span>
+                                        <span className="px-1.5 py-0.2 bg-green-50 text-green-700 font-semibold rounded-xs">
+                                          {buyer.variantSize || 'M'} · {buyer.saleDate || 'Recent'}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             )}

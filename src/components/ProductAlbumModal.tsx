@@ -297,13 +297,18 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
               onClick={handlePrevProduct}
               className="hover:text-white flex items-center gap-1 cursor-pointer"
               title="Previous Product"
+            <button
+              type="button"
+              onClick={handlePrevProduct}
+              className="hover:text-white flex items-center gap-1 cursor-pointer"
+              title="Previous Product"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{language === 'ar' ? 'السابق' : 'Prev Piece'}</span>
+              <span className="hidden sm:inline">{language === 'ar' ? 'السابق' : language === 'ru' ? 'Назад' : 'Prev Piece'}</span>
             </button>
             <span className="text-[#8E7C49] font-mono">·</span>
             <span className="font-semibold truncate max-w-[160px] sm:max-w-[220px]">
-              {language === 'ar' ? activeProduct.nameAr : activeProduct.nameEn}
+              {language === 'ar' ? activeProduct.nameAr : (language === 'ru' && activeProduct.nameRu ? activeProduct.nameRu : activeProduct.nameEn)}
             </span>
             <span className="text-[#8E7C49] font-mono">·</span>
             <button
@@ -312,7 +317,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
               className="hover:text-white flex items-center gap-1 cursor-pointer"
               title="Next Product"
             >
-              <span className="hidden sm:inline">{language === 'ar' ? 'التالي' : 'Next Piece'}</span>
+              <span className="hidden sm:inline">{language === 'ar' ? 'التالي' : language === 'ru' ? 'Далее' : 'Next Piece'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -325,7 +330,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
               {/* Category & Status */}
               <div className="flex items-center justify-between text-xs">
                 <span className="uppercase tracking-widest text-[#8E7C49] font-semibold">
-                  {language === 'ar' ? activeProduct.categoryNameAr : activeProduct.categoryNameEn}
+                  {language === 'ar' ? activeProduct.categoryNameAr : (language === 'ru' && activeProduct.categoryNameRu ? activeProduct.categoryNameRu : activeProduct.categoryNameEn)}
                 </span>
                 <span className={`px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider ${
                   isOutOfStock
