@@ -297,11 +297,6 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
               onClick={handlePrevProduct}
               className="hover:text-white flex items-center gap-1 cursor-pointer"
               title="Previous Product"
-            <button
-              type="button"
-              onClick={handlePrevProduct}
-              className="hover:text-white flex items-center gap-1 cursor-pointer"
-              title="Previous Product"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{language === 'ar' ? 'السابق' : language === 'ru' ? 'Назад' : 'Prev Piece'}</span>
