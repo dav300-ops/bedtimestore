@@ -20,6 +20,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { AnnouncementBar } from './AnnouncementBar';
+import boutiqueLogo from '../assets/images/boutique_logo.svg';
 
 interface HeaderProps {
   onNavigate: (page: string, params?: any) => void;
@@ -145,10 +146,15 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className="text-left rtl:text-right group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] rounded-xs"
+                className="text-left rtl:text-right group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] rounded-xs flex items-center gap-2.5 sm:gap-3"
               >
+                <img
+                  src={boutiqueLogo}
+                  alt="Bedtime Store Logo"
+                  className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-full shadow-xs border border-[#8E7C49]/40 group-hover:scale-105 transition-transform shrink-0"
+                />
                 <span 
-                  className="font-serif text-[24px] sm:text-[28px] font-bold tracking-tight text-[#6B1E3F] leading-none select-none"
+                  className="font-serif text-[22px] sm:text-[28px] font-bold tracking-tight text-[#6B1E3F] leading-none select-none"
                   style={{ 
                     fontFamily: '"Cormorant Garamond", Georgia, serif',
                     color: 'var(--brand-burgundy, #6B1E3F)'
