@@ -32,7 +32,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onSelectCategory }) 
         </div>
 
         {/* Category Tiles Grid - Pastel Day backgrounds with Black Bean text */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-5">
           {activeCategories.map((cat) => {
             const name = language === 'ar' ? cat.nameAr : cat.nameEn;
             const desc = language === 'ar' ? cat.descriptionAr : cat.descriptionEn;
