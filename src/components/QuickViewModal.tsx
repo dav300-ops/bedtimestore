@@ -55,9 +55,27 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const isLowStock = availableStock > 0 && availableStock <= 4;
   const isOutOfStock = availableStock === 0;
 
-  const displayName = language === 'ar' ? product.nameAr : (language === 'ru' && product.nameRu ? product.nameRu : product.nameEn);
-  const displayDesc = language === 'ar' ? product.descriptionAr : (language === 'ru' && product.descriptionRu ? product.descriptionRu : product.descriptionEn);
-  const displayMaterial = language === 'ar' ? product.materialAr : (language === 'ru' && product.materialRu ? product.materialRu : product.materialEn);
+  const displayName = language === 'ar' 
+    ? product.nameAr 
+    : language === 'ru' && product.nameRu 
+      ? product.nameRu 
+      : language === 'fr' && product.nameFr
+        ? product.nameFr
+        : product.nameEn;
+  const displayDesc = language === 'ar' 
+    ? product.descriptionAr 
+    : language === 'ru' && product.descriptionRu 
+      ? product.descriptionRu 
+      : language === 'fr' && product.descriptionFr
+        ? product.descriptionFr
+        : product.descriptionEn;
+  const displayMaterial = language === 'ar' 
+    ? product.materialAr 
+    : language === 'ru' && product.materialRu 
+      ? product.materialRu 
+      : language === 'fr' && product.materialFr
+        ? product.materialFr
+        : product.materialEn;
   const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCart = () => {

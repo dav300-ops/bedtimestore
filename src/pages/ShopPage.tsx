@@ -64,11 +64,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
     // Supported fabrics based on real materials in catalog
     const fabrics = [
-      { id: 'silk', nameEn: 'Mulberry Silk', nameAr: 'حرير التوت الطبيعي', nameRu: 'Шёлк малбери' },
-      { id: 'satin', nameEn: 'Liquid Satin', nameAr: 'ساتان فائق النعومة', nameRu: 'Атласный сатин' },
-      { id: 'cotton', nameEn: 'Organic Cotton', nameAr: 'قطن بيما عضوي', nameRu: 'Органический хлопок' },
-      { id: 'lace', nameEn: 'Chantilly Lace', nameAr: 'دانتيل شانتيلي', nameRu: 'Французское кружево' },
-      { id: 'velvet', nameEn: 'Silk Velvet', nameAr: 'مخمل حريري', nameRu: 'Шёлковый бархат' },
+      { id: 'silk', nameEn: 'Mulberry Silk', nameAr: 'حرير التوت الطبيعي', nameRu: 'Шёлк малбери', nameFr: 'Soie de Mûrier' },
+      { id: 'satin', nameEn: 'Liquid Satin', nameAr: 'ساتان فائق النعومة', nameRu: 'Атласный сатин', nameFr: 'Satin Liquide' },
+      { id: 'cotton', nameEn: 'Organic Cotton', nameAr: 'قطن بيما عضوي', nameRu: 'Органический хлопок', nameFr: 'Coton Biologique' },
+      { id: 'lace', nameEn: 'Chantilly Lace', nameAr: 'دانتيل شانتيلي', nameRu: 'Французское кружево', nameFr: 'Dentelle de Chantilly' },
+      { id: 'velvet', nameEn: 'Silk Velvet', nameAr: 'مخمل حريري', nameRu: 'Шёлковый бархат', nameFr: 'Velours de Soie' },
     ];
 
     // Desired size order
@@ -366,7 +366,15 @@ export const ShopPage: React.FC<ShopPageProps> = ({
               onClick={handleLoadMore}
               className="h-[48px] px-8 rounded-[8px] bg-white hover:bg-[#DDD3EA] text-[#2A1A20] font-semibold text-[14px] border border-[#CFC3C6] hover:border-[#6B1E3F] shadow-xs hover:shadow-sm transition-all duration-150 inline-flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
             >
-              <span>{language === 'ar' ? 'تحميل المزيد من المنتجات' : 'Load more products'}</span>
+              <span>
+                {language === 'ar' 
+                  ? 'تحميل المزيد من المنتجات' 
+                  : language === 'ru'
+                    ? 'Загрузить ещё товары'
+                    : language === 'fr'
+                      ? 'Charger plus de modèles'
+                      : 'Load more products'}
+              </span>
               <ArrowDown className="w-4 h-4 text-[#6B1E3F]" />
             </button>
 
@@ -376,7 +384,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             >
               {language === 'ar' 
                 ? `عرض ${displayedProducts.length} من أصل ${totalFilteredCount} منتج` 
-                : `Showing ${displayedProducts.length} of ${totalFilteredCount}`}
+                : language === 'ru'
+                  ? `Показано ${displayedProducts.length} из ${totalFilteredCount}`
+                  : language === 'fr'
+                    ? `Affichage de ${displayedProducts.length} sur ${totalFilteredCount} pièces`
+                    : `Showing ${displayedProducts.length} of ${totalFilteredCount}`}
             </span>
           </div>
         )}

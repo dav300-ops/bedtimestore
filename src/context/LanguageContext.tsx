@@ -15,7 +15,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('bedtime_language');
-    return (saved === 'ar' || saved === 'en' || saved === 'ru') ? saved : 'en';
+    return (saved === 'ar' || saved === 'en' || saved === 'ru' || saved === 'fr') ? saved : 'en';
   });
 
   const isRtl = language === 'ar';

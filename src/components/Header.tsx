@@ -84,9 +84,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
   const exploreItems = [
     {
       id: 'album',
-      label: (t.nav as any).album || (language === 'ar' ? 'ألبوم الصور' : language === 'ru' ? 'Лукбук' : 'Lookbook Album'),
-      subtitle: language === 'ar' ? 'جلسات تصوير وتنسيقات ملابس النوم الفاخرة' : language === 'ru' ? 'Стилизованные фотосессии и лукбук' : 'Curated styling & editorial photo sessions',
-      badge: language === 'ar' ? 'معرض الصور' : language === 'ru' ? 'Галерея' : 'Visual Gallery',
+      label: (t.nav as any).album || (language === 'ar' ? 'ألبوم الصور' : language === 'ru' ? 'Лукбук' : language === 'fr' ? 'Lookbook' : 'Lookbook Album'),
+      subtitle: language === 'ar' ? 'جلسات تصوير وتنسيقات ملابس النوم الفاخرة' : language === 'ru' ? 'Стилизованные фотосессии и лукбук' : language === 'fr' ? 'Séances photos et silhouettes haute couture' : 'Curated styling & editorial photo sessions',
+      badge: language === 'ar' ? 'معرض الصور' : language === 'ru' ? 'Галерея' : language === 'fr' ? 'Galerie' : 'Visual Gallery',
       badgeColor: 'bg-[#DDD3EA] text-[#6B1E3F]',
       icon: BookOpen,
       action: () => onNavigate('album'),
@@ -95,8 +95,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
     {
       id: 'best-sellers',
       label: t.nav.bestSellers,
-      subtitle: language === 'ar' ? 'القطع الأكثر طلباً وإعجاباً في البحرين' : language === 'ru' ? 'Самые популярные модели из шёлка и сатина' : 'Most-loved luxury silk & satin essentials',
-      badge: language === 'ar' ? 'الأكثر طلباً' : language === 'ru' ? 'Хит' : 'Top Rated',
+      subtitle: language === 'ar' ? 'القطع الأكثر طلباً وإعجاباً في البحرين' : language === 'ru' ? 'Самые популярные модели из шёлка и сатина' : language === 'fr' ? 'Les incontournables en soie et satin à Bahreïn' : 'Most-loved luxury silk & satin essentials',
+      badge: language === 'ar' ? 'الأكثر طلباً' : language === 'ru' ? 'Хит' : language === 'fr' ? 'Culte' : 'Top Rated',
       badgeColor: 'bg-amber-100 text-amber-900',
       icon: Flame,
       action: () => onNavigate('shop', { filter: 'bestSeller' }),
@@ -105,8 +105,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
     {
       id: 'sale',
       label: t.nav.sale,
-      subtitle: language === 'ar' ? 'تخفيضات وعروض حصرية على أطقم ملابس النوم' : language === 'ru' ? 'Эксклюзивные сезонные скидки на пижамы' : 'Exclusive seasonal promotions & special pricing',
-      badge: language === 'ar' ? 'عروض خاصة' : language === 'ru' ? 'Скидки' : 'Special Offers',
+      subtitle: language === 'ar' ? 'تخفيضات وعروض حصرية على أطقم ملابس النوم' : language === 'ru' ? 'Эксклюзивные сезонные скидки на пижамы' : language === 'fr' ? 'Réductions saisonnières exclusives sur les pyjamas' : 'Exclusive seasonal promotions & special pricing',
+      badge: language === 'ar' ? 'عروض خاصة' : language === 'ru' ? 'Скидки' : language === 'fr' ? 'Privilèges' : 'Special Offers',
       badgeColor: 'bg-rose-100 text-[#B3261E]',
       icon: Tag,
       action: () => onNavigate('shop', { filter: 'sale' }),
@@ -386,11 +386,11 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   )}
                 </div>
                 <span className="hidden sm:inline text-xs font-semibold tracking-wider uppercase">
-                  {language === 'ar' ? 'الحقيبة' : language === 'ru' ? 'Корзина' : 'Bag'}
+                  {language === 'ar' ? 'الحقيبة' : language === 'ru' ? 'Корзина' : language === 'fr' ? 'Panier' : 'Bag'}
                 </span>
               </button>
 
-              {/* 3-Language Switcher (EN · AR · RU) & Admin shortcut */}
+              {/* 4-Language Switcher (EN · AR · RU · FR) & Admin shortcut */}
               <div className="hidden lg:flex items-center gap-1.5 pl-2 rtl:pl-0 rtl:pr-2 border-l rtl:border-l-0 rtl:border-r border-[#CFC3C6]/60">
                 <div className="flex items-center bg-white/80 border border-[#CFC3C6] rounded-full p-0.5 shadow-2xs">
                   <button
@@ -428,6 +428,18 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     title="Русский"
                   >
                     RU
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('fr')}
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                      language === 'fr'
+                        ? 'bg-[#6B1E3F] text-white shadow-xs'
+                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                    }`}
+                    title="Français"
+                  >
+                    FR
                   </button>
                 </div>
 
@@ -499,27 +511,27 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 ))}
               </div>
 
-              {/* 3-Language Selector in Mobile Menu */}
+              {/* 4-Language Selector in Mobile Menu */}
               <div className="pt-3 border-t border-[#CFC3C6]/40 space-y-2">
                 <span className="text-[11px] font-bold text-[#5F5357] uppercase tracking-wider block">
-                  {language === 'ar' ? 'اللغة' : language === 'ru' ? 'Язык' : 'Language'}
+                  {language === 'ar' ? 'اللغة' : language === 'ru' ? 'Язык' : language === 'fr' ? 'Langue' : 'Language'}
                 </span>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-4 gap-1.5">
                   <button
                     type="button"
                     onClick={() => setLanguage('en')}
-                    className={`py-1.5 px-2 text-xs font-semibold rounded-md border text-center transition-all ${
+                    className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
                       language === 'en'
                         ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
                         : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
                     }`}
                   >
-                    English
+                    EN
                   </button>
                   <button
                     type="button"
                     onClick={() => setLanguage('ar')}
-                    className={`py-1.5 px-2 text-xs font-semibold rounded-md border text-center transition-all ${
+                    className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
                       language === 'ar'
                         ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
                         : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
@@ -530,13 +542,24 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   <button
                     type="button"
                     onClick={() => setLanguage('ru')}
-                    className={`py-1.5 px-2 text-xs font-semibold rounded-md border text-center transition-all ${
+                    className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
                       language === 'ru'
                         ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
                         : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
                     }`}
                   >
-                    Русский
+                    RU
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('fr')}
+                    className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
+                      language === 'fr'
+                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
+                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                    }`}
+                  >
+                    FR
                   </button>
                 </div>
 

@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 export const STORE_ANNOUNCEMENT_POLICY = 'Free delivery over 25 BHD · Easy returns across Bahrain & GCC';
 export const STORE_ANNOUNCEMENT_POLICY_AR = 'توصيل مجاني للطلبات فوق ٢٥ د.ب · إرجاع واستبدال مرن في البحرين والخليج';
 export const STORE_ANNOUNCEMENT_POLICY_RU = 'Бесплатная доставка от 25 BHD · Простой возврат по Бахрейну и странам Залива';
+export const STORE_ANNOUNCEMENT_POLICY_FR = 'Livraison offerte dès 25 BHD · Retours simples à Bahreïn & dans le Golfe';
 
 interface AnnouncementBarProps {
   customText?: string;
@@ -24,7 +25,9 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ customText }) 
         ? STORE_ANNOUNCEMENT_POLICY_AR 
         : language === 'ru'
           ? STORE_ANNOUNCEMENT_POLICY_RU
-          : STORE_ANNOUNCEMENT_POLICY;
+          : language === 'fr'
+            ? STORE_ANNOUNCEMENT_POLICY_FR
+            : STORE_ANNOUNCEMENT_POLICY;
 
   // If text is not set or empty, hide the bar completely
   if (!textToDisplay || textToDisplay.trim() === '') {

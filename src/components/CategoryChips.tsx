@@ -6,17 +6,18 @@ export interface CategoryChipItem {
   nameEn: string;
   nameAr: string;
   nameRu: string;
+  nameFr: string;
 }
 
 export const STORE_CATEGORIES: CategoryChipItem[] = [
-  { id: 'all', nameEn: 'All Nightwear', nameAr: 'جميع ملابس النوم', nameRu: 'Все модели' },
-  { id: 'cat-night-dresses', nameEn: 'Night Dresses', nameAr: 'فساتين النوم', nameRu: 'Ночные сорочки' },
-  { id: 'cat-pajama-sets', nameEn: 'Pajama Sets', nameAr: 'أطقم البيجامات', nameRu: 'Комплекты пижам' },
-  { id: 'cat-robes', nameEn: 'Robes & Kimonos', nameAr: 'الأرواب والكيمونو', nameRu: 'Халаты и кимоно' },
-  { id: 'cat-silk-nightwear', nameEn: 'Pure Silk Collection', nameAr: 'مجموعة الحرير الطبيعي', nameRu: 'Натуральный шёлк' },
-  { id: 'cat-bridal', nameEn: 'Bridal Nightwear', nameAr: 'تشكيلة العرائس', nameRu: 'Свадебная линия' },
-  { id: 'cat-sleep-sets', nameEn: 'Sleep & Cami Sets', nameAr: 'أطقم الكامي والراحة', nameRu: 'Комплекты с топами' },
-  { id: 'cat-kids-sleepwear', nameEn: 'Curated Kids Collection', nameAr: 'تشكيلة الأطفال الفاخرة', nameRu: 'Детская коллекция' },
+  { id: 'all', nameEn: 'All Nightwear', nameAr: 'جميع ملابس النوم', nameRu: 'Все модели', nameFr: 'Tous les Vêtements de Nuit' },
+  { id: 'cat-night-dresses', nameEn: 'Night Dresses', nameAr: 'فساتين النوم', nameRu: 'Ночные сорочки', nameFr: 'Robes & Nuisettes' },
+  { id: 'cat-pajama-sets', nameEn: 'Pajama Sets', nameAr: 'أطقم البيجامات', nameRu: 'Комплекты пижам', nameFr: 'Ensembles Pyjamas' },
+  { id: 'cat-robes', nameEn: 'Robes & Kimonos', nameAr: 'الأرواب والكيمونو', nameRu: 'Халаты и кимоно', nameFr: 'Peignoirs & Kimonos' },
+  { id: 'cat-silk-nightwear', nameEn: 'Pure Silk Collection', nameAr: 'مجموعة الحرير الطبيعي', nameRu: 'Натуральный шёлк', nameFr: 'Collection Soie Pure' },
+  { id: 'cat-bridal', nameEn: 'Bridal Nightwear', nameAr: 'تشكيلة العرائس', nameRu: 'Свадебная линия', nameFr: 'Lingerie de Nuit Mariée' },
+  { id: 'cat-sleep-sets', nameEn: 'Sleep & Cami Sets', nameAr: 'أطقم الكامي والراحة', nameRu: 'Комплекты с топами', nameFr: 'Ensembles Cami & Détente' },
+  { id: 'cat-kids-sleepwear', nameEn: 'Curated Kids Collection', nameAr: 'تشكيلة الأطفال الفاخرة', nameRu: 'Детская коллекция', nameFr: 'Collection Enfants' },
 ];
 
 interface CategoryChipsProps {
@@ -39,7 +40,7 @@ export const CategoryChips: React.FC<CategoryChipsProps> = ({
       <div className="flex items-center gap-[10px] overflow-x-auto pb-1 scrollbar-none select-none scroll-smooth">
         {STORE_CATEGORIES.map((cat) => {
           const isActive = selectedCategory === cat.id;
-          const label = language === 'ar' ? cat.nameAr : language === 'ru' ? cat.nameRu : cat.nameEn;
+          const label = language === 'ar' ? cat.nameAr : language === 'ru' ? cat.nameRu : language === 'fr' ? cat.nameFr : cat.nameEn;
 
           return (
             <button

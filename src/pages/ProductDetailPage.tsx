@@ -88,10 +88,34 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const [isKidsSizeModalOpen, setIsKidsSizeModalOpen] = useState(false);
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
 
-  const displayName = language === 'ar' ? product.nameAr : (language === 'ru' && product.nameRu ? product.nameRu : product.nameEn);
-  const displayDesc = language === 'ar' ? product.descriptionAr : (language === 'ru' && product.descriptionRu ? product.descriptionRu : product.descriptionEn);
-  const displayMaterial = language === 'ar' ? product.materialAr : (language === 'ru' && product.materialRu ? product.materialRu : product.materialEn);
-  const displayCare = language === 'ar' ? product.careInstructionsAr : (language === 'ru' && product.careInstructionsRu ? product.careInstructionsRu : product.careInstructionsEn);
+  const displayName = language === 'ar' 
+    ? product.nameAr 
+    : language === 'ru' && product.nameRu 
+      ? product.nameRu 
+      : language === 'fr' && product.nameFr
+        ? product.nameFr
+        : product.nameEn;
+  const displayDesc = language === 'ar' 
+    ? product.descriptionAr 
+    : language === 'ru' && product.descriptionRu 
+      ? product.descriptionRu 
+      : language === 'fr' && product.descriptionFr
+        ? product.descriptionFr
+        : product.descriptionEn;
+  const displayMaterial = language === 'ar' 
+    ? product.materialAr 
+    : language === 'ru' && product.materialRu 
+      ? product.materialRu 
+      : language === 'fr' && product.materialFr
+        ? product.materialFr
+        : product.materialEn;
+  const displayCare = language === 'ar' 
+    ? product.careInstructionsAr 
+    : language === 'ru' && product.careInstructionsRu 
+      ? product.careInstructionsRu 
+      : language === 'fr' && product.careInstructionsFr
+        ? product.careInstructionsFr
+        : product.careInstructionsEn;
   const isWishlisted = isInWishlist(product.id);
 
   // Total stock across all varieties for this product

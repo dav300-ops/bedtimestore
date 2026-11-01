@@ -1,4 +1,4 @@
-export type Language = 'en' | 'ar' | 'ru';
+export type Language = 'en' | 'ar' | 'ru' | 'fr';
 
 export type KidAgeRange = '3-5' | '5-7' | '8-9' | '10-12';
 
@@ -21,6 +21,7 @@ export interface ProductVariant {
   colorNameEn: string;
   colorNameAr: string;
   colorNameRu?: string;
+  colorNameFr?: string;
   colorHex: string;
   stock: number;
   sku: string;
@@ -32,13 +33,16 @@ export interface Product {
   nameEn: string;
   nameAr: string;
   nameRu?: string;
+  nameFr?: string;
   descriptionEn: string;
   descriptionAr: string;
   descriptionRu?: string;
+  descriptionFr?: string;
   categoryId: string;
   categoryNameEn: string;
   categoryNameAr: string;
   categoryNameRu?: string;
+  categoryNameFr?: string;
   price: number; // in BHD
   salePrice?: number; // in BHD
   currency: 'BHD';
@@ -47,9 +51,11 @@ export interface Product {
   materialEn: string;
   materialAr: string;
   materialRu?: string;
+  materialFr?: string;
   careInstructionsEn: string;
   careInstructionsAr: string;
   careInstructionsRu?: string;
+  careInstructionsFr?: string;
   tags: string[];
   featured?: boolean;
   newArrival?: boolean;

@@ -99,16 +99,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const activeChips: { id: string; label: string; onRemove: () => void }[] = [];
 
   if (filters.collection !== 'all') {
-    const colLabels: Record<string, { en: string; ar: string }> = {
-      newArrival: { en: 'New Arrivals', ar: 'وصل حديثاً' },
-      bestSeller: { en: 'Best Sellers', ar: 'الأكثر طلباً' },
-      sale: { en: 'Sale & Offers', ar: 'التخفيضات' },
+    const colLabels: Record<string, { en: string; ar: string; ru: string; fr: string }> = {
+      newArrival: { en: 'New Arrivals', ar: 'وصل حديثاً', ru: 'Новинки', fr: 'Nouveautés' },
+      bestSeller: { en: 'Best Sellers', ar: 'الأكثر طلباً', ru: 'Хиты продаж', fr: 'Meilleures Ventes' },
+      sale: { en: 'Sale & Offers', ar: 'التخفيضات', ru: 'Скидки и акции', fr: 'Offres Privilèges' },
     };
     const colObj = colLabels[filters.collection];
     if (colObj) {
       activeChips.push({
         id: 'collection',
-        label: language === 'ar' ? colObj.ar : colObj.en,
+        label: language === 'ar' ? colObj.ar : language === 'ru' ? colObj.ru : language === 'fr' ? colObj.fr : colObj.en,
         onRemove: () => onFilterChange({ collection: 'all' }),
       });
     }
@@ -117,27 +117,31 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   if (filters.size !== 'all') {
     activeChips.push({
       id: 'size',
-      label: `${language === 'ar' ? 'المقاس' : 'Size'}: ${filters.size}`,
+      label: `${language === 'ar' ? 'المقاس' : language === 'ru' ? 'Размер' : language === 'fr' ? 'Taille' : 'Size'}: ${filters.size}`,
       onRemove: () => onFilterChange({ size: 'all' }),
     });
   }
 
   if (filters.color !== 'all') {
     const foundColor = availableColors.find((c) => c.hex === filters.color);
-    const colorName = foundColor ? (language === 'ar' ? foundColor.nameAr : foundColor.nameEn) : filters.color;
+    const colorName = foundColor 
+      ? (language === 'ar' ? foundColor.nameAr : language === 'ru' && (foundColor as any).nameRu ? (foundColor as any).nameRu : language === 'fr' && (foundColor as any).nameFr ? (foundColor as any).nameFr : foundColor.nameEn) 
+      : filters.color;
     activeChips.push({
       id: 'color',
-      label: `${language === 'ar' ? 'اللون' : 'Color'}: ${colorName}`,
+      label: `${language === 'ar' ? 'اللون' : language === 'ru' ? 'Цвет' : language === 'fr' ? 'Couleur' : 'Color'}: ${colorName}`,
       onRemove: () => onFilterChange({ color: 'all' }),
     });
   }
 
   if (filters.fabric !== 'all') {
     const foundFabric = availableFabrics.find((f) => f.id === filters.fabric);
-    const fabricName = foundFabric ? (language === 'ar' ? foundFabric.nameAr : foundFabric.nameEn) : filters.fabric;
+    const fabricName = foundFabric 
+      ? (language === 'ar' ? foundFabric.nameAr : language === 'ru' && (foundFabric as any).nameRu ? (foundFabric as any).nameRu : language === 'fr' && (foundFabric as any).nameFr ? (foundFabric as any).nameFr : foundFabric.nameEn) 
+      : filters.fabric;
     activeChips.push({
       id: 'fabric',
-      label: `${language === 'ar' ? 'القماش' : 'Fabric'}: ${fabricName}`,
+      label: `${language === 'ar' ? 'القماش' : language === 'ru' ? 'Ткань' : language === 'fr' ? 'Matière' : 'Fabric'}: ${fabricName}`,
       onRemove: () => onFilterChange({ fabric: 'all' }),
     });
   }
@@ -151,11 +155,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   }
 
   const sortOptions = [
-    { id: 'bestSeller', labelEn: 'Best selling', labelAr: 'الأكثر مبيعاً' },
-    { id: 'newArrival', labelEn: 'New arrivals', labelAr: 'وصل حديثاً' },
-    { id: 'price-asc', labelEn: 'Price low to high', labelAr: 'السعر: من الأقل للأعلى' },
-    { id: 'price-desc', labelEn: 'Price high to low', labelAr: 'السعر: من الأعلى للأقل' },
-    { id: 'rating', labelEn: 'Top rated', labelAr: 'الأعلى تقييماً' },
+    { id: 'bestSeller', labelEn: 'Best selling', labelAr: 'الأكثر مبيعاً', labelRu: 'По популярности', labelFr: 'Meilleures ventes' },
+    { id: 'newArrival', labelEn: 'New arrivals', labelAr: 'وصل حديثاً', labelRu: 'Сначала новинки', labelFr: 'Nouveautés' },
+    { id: 'price-asc', labelEn: 'Price low to high', labelAr: 'السعر: من الأقل للأعلى', labelRu: 'По возрастанию цены', labelFr: 'Prix croissant' },
+    { id: 'price-desc', labelEn: 'Price high to low', labelAr: 'السعر: من الأعلى للأقل', labelRu: 'По убыванию цены', labelFr: 'Prix décroissant' },
+    { id: 'rating', labelEn: 'Top rated', labelAr: 'الأعلى تقييماً', labelRu: 'По рейтингу', labelFr: 'Mieux notés' },
   ];
 
   const currentSortLabel = sortOptions.find((s) => s.id === filters.sort);
@@ -495,7 +499,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             className="text-[14px] font-medium tabular-nums whitespace-nowrap"
             style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
           >
-            {totalCount} {language === 'ar' ? 'منتج' : 'products'}
+            {totalCount} {language === 'ar' ? 'منتج' : language === 'ru' ? 'товаров' : language === 'fr' ? 'produits' : 'products'}
           </span>
 
           {/* Sort Dropdown */}
@@ -507,10 +511,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               className="h-[44px] px-3.5 rounded-[8px] bg-white border border-[#CFC3C6] text-[14px] text-[#2A1A20] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] hover:bg-[#FFF8F6]"
             >
               <span className="hidden sm:inline text-[#5F5357] text-[13px]">
-                {language === 'ar' ? 'ترتيب:' : 'Sort:'}
+                {language === 'ar' ? 'ترتيب:' : language === 'ru' ? 'Сортировка:' : language === 'fr' ? 'Trier par :' : 'Sort:'}
               </span>
               <span className="font-semibold truncate max-w-[120px] sm:max-w-[150px]">
-                {currentSortLabel ? (language === 'ar' ? currentSortLabel.labelAr : currentSortLabel.labelEn) : 'Sort'}
+                {currentSortLabel ? (language === 'ar' ? currentSortLabel.labelAr : language === 'ru' ? currentSortLabel.labelRu : language === 'fr' ? currentSortLabel.labelFr : currentSortLabel.labelEn) : 'Sort'}
               </span>
               <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'sort' ? 'rotate-180' : ''}`} />
             </button>
@@ -533,7 +537,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       filters.sort === opt.id ? 'bg-[#DDD3EA] font-semibold text-[#6B1E3F]' : 'hover:bg-[#FFF8F6] text-[#2A1A20]'
                     }`}
                   >
-                    <span>{language === 'ar' ? opt.labelAr : opt.labelEn}</span>
+                    <span>{language === 'ar' ? opt.labelAr : language === 'ru' ? opt.labelRu : language === 'fr' ? opt.labelFr : opt.labelEn}</span>
                     {filters.sort === opt.id && <Check className="w-4 h-4 text-[#6B1E3F]" />}
                   </button>
                 ))}
@@ -572,7 +576,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             onClick={onClearAll}
             className="text-[13px] font-semibold text-[#B3261E] hover:underline ml-2 rtl:ml-0 rtl:mr-2 cursor-pointer focus-visible:outline-none"
           >
-            {language === 'ar' ? 'مسح الكل' : 'Clear all'}
+            {language === 'ar' ? 'مسح الكل' : language === 'ru' ? 'Сбросить всё' : language === 'fr' ? 'Tout effacer' : 'Clear all'}
           </button>
         </div>
       )}

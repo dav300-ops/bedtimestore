@@ -30,8 +30,20 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
 
   const isWishlisted = isInWishlist(product.id);
-  const displayName = language === 'ar' ? product.nameAr : (language === 'ru' && product.nameRu ? product.nameRu : product.nameEn);
-  const displayCategory = language === 'ar' ? product.categoryNameAr : (language === 'ru' && product.categoryNameRu ? product.categoryNameRu : product.categoryNameEn);
+  const displayName = language === 'ar' 
+    ? product.nameAr 
+    : language === 'ru' && product.nameRu 
+      ? product.nameRu 
+      : language === 'fr' && (product as any).nameFr
+        ? (product as any).nameFr
+        : product.nameEn;
+  const displayCategory = language === 'ar' 
+    ? product.categoryNameAr 
+    : language === 'ru' && product.categoryNameRu 
+      ? product.categoryNameRu 
+      : language === 'fr' && (product as any).categoryNameFr
+        ? (product as any).categoryNameFr
+        : product.categoryNameEn;
 
   // Extract unique colors from variants
   const uniqueColors = useMemo(() => {
@@ -202,7 +214,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 className="bg-[#6B1E3F] text-white text-[12px] font-semibold px-2 py-0.5 rounded-[4px] shadow-xs uppercase tracking-wider"
                 style={{ backgroundColor: 'var(--brand-burgundy, #6B1E3F)' }}
               >
-                {language === 'ar' ? 'جديد' : 'New'}
+                {language === 'ar' ? 'جديد' : language === 'ru' ? 'Новинка' : language === 'fr' ? 'Nouveau' : 'New'}
               </span>
             ) : null}
           </div>
@@ -215,10 +227,12 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
               e.stopPropagation();
               toggleWishlist(product.id);
             }}
-            aria-label={isWishlisted ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from wishlist') : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to wishlist')}
+            aria-label={isWishlisted 
+              ? (language === 'ar' ? 'إزالة من المفضلة' : language === 'ru' ? 'Удалить из избранного' : language === 'fr' ? 'Retirer des favoris' : 'Remove from wishlist') 
+              : (language === 'ar' ? 'إضافة إلى المفضلة' : language === 'ru' ? 'Добавить в избранное' : language === 'fr' ? 'Ajouter aux favoris' : 'Add to wishlist')}
             aria-pressed={isWishlisted}
             className="absolute top-2 right-2 rtl:right-auto rtl:left-2 z-20 w-[44px] h-[44px] rounded-full bg-white shadow-sm flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
-            title={language === 'ar' ? 'المفضلة' : 'Wishlist'}
+            title={language === 'ar' ? 'المفضلة' : language === 'ru' ? 'Избранное' : language === 'fr' ? 'Favoris' : 'Wishlist'}
           >
             <Heart
               className={`w-5 h-5 transition-colors ${
@@ -238,7 +252,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
             <div
               className="absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[8px] bg-white/90 text-[#5F5357] text-[14px] font-semibold flex items-center justify-center select-none cursor-not-allowed border border-[#CFC3C6]"
             >
-              {language === 'ar' ? 'نفدت الكمية' : language === 'ru' ? 'Распродано' : 'Sold out'}
+              {language === 'ar' ? 'نفدت الكمية' : language === 'ru' ? 'Распродано' : language === 'fr' ? 'Épuisé' : 'Sold out'}
             </div>
           ) : (
             <>
@@ -258,12 +272,12 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 {isSingleAddedFeedback ? (
                   <>
                     <Check className="w-4 h-4 text-white" />
-                    <span>{language === 'ar' ? 'تمت الإضافة ✓' : language === 'ru' ? 'В корзине ✓' : 'Added to bag ✓'}</span>
+                    <span>{language === 'ar' ? 'تمت الإضافة ✓' : language === 'ru' ? 'В корзине ✓' : language === 'fr' ? 'Ajouté ✓' : 'Added to bag ✓'}</span>
                   </>
                 ) : (
                   <>
                     <span className="text-base leading-none font-bold">+</span>
-                    <span>{language === 'ar' ? 'إضافة سريعة' : language === 'ru' ? 'В корзину' : 'Quick add'}</span>
+                    <span>{language === 'ar' ? 'إضافة سريعة' : language === 'ru' ? 'В корзину' : language === 'fr' ? 'Ajout rapide' : 'Quick add'}</span>
                   </>
                 )}
               </button>
@@ -340,7 +354,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 className="text-[12px] font-normal ml-1 rtl:ml-0 rtl:mr-1"
                 style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
               >
-                {uniqueColors.length} {language === 'ar' ? 'ألوان' : 'shades'}
+                {uniqueColors.length} {language === 'ar' ? 'ألوان' : language === 'ru' ? 'оттенка' : language === 'fr' ? 'nuances' : 'shades'}
               </span>
             )}
           </div>
