@@ -38,7 +38,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isGuest: boolean;
   loginAsGuest: (guestName?: string) => User;
-  login: (email: string, pass: string) => Promise<{ success: boolean; error?: string; remainingSeconds?: number }>;
+  login: (email: string, pass: string) => Promise<{ success: boolean; error?: string; remainingSeconds?: number; user?: User }>;
   register: (data: {
     firstName: string;
     lastName: string;
@@ -46,10 +46,17 @@ interface AuthContextType {
     phone: string;
     password: string;
   }) => Promise<{ success: boolean; error?: string }>;
+  createAdminUser: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    password: string;
+  }) => Promise<{ success: boolean; error?: string; admin?: User }>;
   loginWithOAuth: (
     provider: 'google' | 'github',
     preset?: { name: string; email: string; avatarUrl: string; handle?: string }
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
   changePassword: (currentPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   requestPasswordReset: (email: string) => Promise<{ success: boolean; resetCode?: string; error?: string }>;
@@ -263,7 +270,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (
     email: string,
     pass: string
-  ): Promise<{ success: boolean; error?: string; remainingSeconds?: number }> => {
+  ): Promise<{ success: boolean; error?: string; remainingSeconds?: number; user?: User }> => {
     await new Promise((resolve) => setTimeout(resolve, 500));
     const trimmedEmail = email.toLowerCase().trim();
 
@@ -294,7 +301,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { passwordHash: _, ...safeUser } = storedUser;
         const loggedIn = logSecurityAction(safeUser, 'login_success');
         setCurrentUser(loggedIn);
-        return { success: true };
+        return { success: true, user: loggedIn };
       }
     }
 
@@ -304,7 +311,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         resetFailedLogin(trimmedEmail);
         const loggedIn = logSecurityAction(DEMO_ADMIN, 'login_success');
         setCurrentUser(loggedIn);
-        return { success: true };
+        return { success: true, user: loggedIn };
       }
     }
 
@@ -314,7 +321,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         resetFailedLogin(trimmedEmail);
         const loggedIn = logSecurityAction(DEMO_CUSTOMER, 'login_success');
         setCurrentUser(loggedIn);
-        return { success: true };
+        return { success: true, user: loggedIn };
       }
     }
 
@@ -332,7 +339,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       const loggedIn = logSecurityAction(user, 'login_success');
       setCurrentUser(loggedIn);
-      return { success: true };
+      return { success: true, user: loggedIn };
     }
 
     // 7. Failed attempt: Record brute force
@@ -493,7 +500,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       const loggedIn = logSecurityAction(updatedUser, 'oauth_connected');
       setCurrentUser(loggedIn);
-      return { success: true };
+      return { success: true, user: loggedIn };
     }
 
     const newOAuthUser: User = {
@@ -519,13 +526,125 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           action: 'oauth_connected',
           ip: '82.194.22.10',
           location: 'Manama, Bahrain',
-          device: `${provider === 'google' ? 'Google OAuth 2.0' : 'failed.'}`,
+          device: `${provider === 'google' ? 'Google OAuth 2.0' : 'GitHub OAuth'}`,
         },
       ],
     };
 
     setCurrentUser(newOAuthUser);
-    return { success: true };
+    return { success: true, user: newOAuthUser };
+  };
+
+  /**
+   * Create New Boutique Administrator (Authorized Admin Role Only)
+   * Enforces admin authorization, password strength, hashing, local cache, and MySQL persistence
+   */
+  const createAdminUser = async (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    password: string;
+  }): Promise<{ success: boolean; error?: string; admin?: User }> => {
+    if (!isAdmin) {
+      return { success: false, error: 'Unauthorized: Only an active boutique administrator can create new admin accounts.' };
+    }
+
+    const emailTrimmed = data.email.toLowerCase().trim();
+    if (!emailTrimmed || !data.firstName.trim() || !data.password) {
+      return { success: false, error: 'Please provide first name, official boutique email, and password.' };
+    }
+
+    // Validate email pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailTrimmed)) {
+      return { success: false, error: 'Please enter a valid official email address.' };
+    }
+
+    // Enforce Password Security Best Practices
+    const analysis = analyzePassword(data.password);
+    if (!analysis.checks.minLength) {
+      return { success: false, error: 'Admin password must be at least 8 characters in length.' };
+    }
+    if (!analysis.checks.hasUpper || !analysis.checks.hasLower) {
+      return { success: false, error: 'Admin password must contain both uppercase (A-Z) and lowercase (a-z) letters.' };
+    }
+    if (!analysis.checks.hasNumber) {
+      return { success: false, error: 'Admin password must contain at least one numeric digit (0-9).' };
+    }
+    if (!analysis.checks.hasSpecial) {
+      return { success: false, error: 'Admin password must contain at least one special symbol (!@#$%^&*).' };
+    }
+
+    const storedUsers = getStoredUsers();
+    if (storedUsers.some((u) => u.email.toLowerCase() === emailTrimmed)) {
+      return { success: false, error: 'An administrator or user account with this email already exists.' };
+    }
+
+    const passwordHash = await hashPasswordWithSalt(data.password);
+    const newAdminId = `usr-admin-${Date.now()}`;
+
+    const newAdminUser: User = {
+      id: newAdminId,
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      email: emailTrimmed,
+      phone: data.phone?.trim() || '+973 1722 8844',
+      role: 'admin',
+      isGuest: false,
+      authProvider: 'email',
+      connectedProviders: { email: true },
+      twoFactorEnabled: false,
+      savedAddresses: [
+        {
+          buildingNumber: 'Atelier Boutique 10',
+          roadNumber: 'Road 3812',
+          blockNumber: 'Block 338',
+          area: 'Adliya',
+          city: 'Manama',
+          country: 'Bahrain',
+        },
+      ],
+      wishlist: [],
+      createdAt: new Date().toISOString(),
+      securityLogs: [
+        {
+          id: `log-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          action: 'admin_created',
+          ip: '82.194.22.10',
+          location: 'Manama, Bahrain',
+          device: `Created by admin ${currentUser?.email || 'Boutique Console'}`,
+        },
+      ],
+    };
+
+    // Save in local user cache so offline and local client logins recognize the new admin
+    const storedRecord: StoredAuthUser = {
+      ...newAdminUser,
+      passwordHash,
+    };
+    saveStoredUsers([...storedUsers, storedRecord]);
+
+    // Persist to MySQL Relational Database
+    try {
+      await fetch('/api/admin/create-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
+          email: emailTrimmed,
+          phone: data.phone?.trim() || '+973 1722 8844',
+          password: data.password,
+          createdByAdminId: currentUser?.id,
+        }),
+      });
+    } catch (apiErr) {
+      console.warn('MySQL admin creation API sync note:', apiErr);
+    }
+
+    return { success: true, admin: newAdminUser };
   };
 
   /**
@@ -768,6 +887,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginAsGuest,
         login,
         register,
+        createAdminUser,
         loginWithOAuth,
         logout,
         changePassword,

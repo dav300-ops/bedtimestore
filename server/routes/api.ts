@@ -124,6 +124,52 @@ router.get('/auth/logs/:userId', async (req: Request, res: Response) => {
 });
 
 /**
+ * Create New Administrator Account (Admin Role Only)
+ */
+router.post('/admin/create-admin', async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, email, phone, password, createdByAdminId } = req.body;
+    if (!email || !firstName || !password) {
+      return res.status(400).json({ error: 'First name, official email, and password are required.' });
+    }
+
+    const clientIp = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Boutique Admin Portal';
+
+    const newAdmin = await authService.createAdmin({
+      firstName,
+      lastName: lastName || '',
+      email,
+      phone,
+      password,
+      createdByAdminId,
+      ip: clientIp,
+      device: userAgent,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'New boutique administrator created and registered in MySQL successfully.',
+      admin: newAdmin,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ error: error?.message || 'Failed to create administrator' });
+  }
+});
+
+/**
+ * List all administrators from MySQL database
+ */
+router.get('/admin/administrators', async (_req: Request, res: Response) => {
+  try {
+    const admins = await authService.getAllAdmins();
+    return res.json({ success: true, admins });
+  } catch (error: any) {
+    return res.status(500).json({ error: error?.message || 'Failed to retrieve administrators' });
+  }
+});
+
+/**
  * Logout
  */
 router.post('/auth/logout', (_req: Request, res: Response) => {

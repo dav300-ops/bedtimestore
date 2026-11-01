@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Product, Category, Order, Coupon, OrderStatus, ProductSize, KidAgeRange } from '../types';
 import { DeliveryQrCode } from '../components/DeliveryQrCode';
 import { ReceiptModal } from '../components/ReceiptModal';
+import { CreateAdminModal } from '../components/CreateAdminModal';
 import { 
   BarChart3, 
   Package, 
@@ -13,6 +14,7 @@ import {
   Tag, 
   Sliders, 
   Plus, 
+  UserPlus, 
   Edit3, 
   Trash2, 
   Copy, 
@@ -46,6 +48,8 @@ import {
   Activity,
   Users,
   UserCheck,
+  Mail,
+  Phone,
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
@@ -93,12 +97,59 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   const { language, formatBHD, t } = useLanguage();
   const { currentUser } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'customers' | 'products' | 'inventory' | 'categories' | 'orders' | 'coupons' | 'cms'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'customers' | 'products' | 'inventory' | 'categories' | 'orders' | 'coupons' | 'cms' | 'admins'>('overview');
   const [inventorySearch, setInventorySearch] = useState('');
   const [inventoryStockFilter, setInventoryStockFilter] = useState<'all' | 'in_stock' | 'low_stock' | 'out_of_stock'>('all');
   const [stockFeedback, setStockFeedback] = useState<string | null>(null);
   const [editingVariantStocks, setEditingVariantStocks] = useState<Record<string, number>>({});
   const [isRefreshingDb, setIsRefreshingDb] = useState(false);
+
+  // Boutique Administrator & Staff Management State (Admin Dashboard Exclusive)
+  const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
+  const [adminList, setAdminList] = useState<any[]>([]);
+  const [isLoadingAdmins, setIsLoadingAdmins] = useState(false);
+  const [adminSearch, setAdminSearch] = useState('');
+
+  const fetchAdmins = () => {
+    setIsLoadingAdmins(true);
+    fetch('/api/admin/administrators')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.admins) && data.admins.length > 0) {
+          setAdminList(data.admins);
+        } else {
+          // Default fallback demo administrators if newly initialized
+          setAdminList([
+            {
+              id: 'usr-admin-01',
+              firstName: 'Reem',
+              lastName: 'Al Mansoor',
+              email: 'admin@thebedtimestore.bh',
+              phone: '+973 1722 8844',
+              role: 'admin',
+              twoFactorEnabled: true,
+              createdAt: '2026-01-01T00:00:00Z',
+            },
+          ]);
+        }
+      })
+      .catch((err) => {
+        console.warn('Failed to load administrators from MySQL:', err);
+        setAdminList([
+          {
+            id: 'usr-admin-01',
+            firstName: 'Reem',
+            lastName: 'Al Mansoor',
+            email: 'admin@thebedtimestore.bh',
+            phone: '+973 1722 8844',
+            role: 'admin',
+            twoFactorEnabled: true,
+            createdAt: '2026-01-01T00:00:00Z',
+          },
+        ]);
+      })
+      .finally(() => setIsLoadingAdmins(false));
+  };
 
   // MySQL Product Sales & Analytics State
   const [salesRecords, setSalesRecords] = useState<any[]>([]);
@@ -146,6 +197,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
         })
         .catch((err) => console.warn('Failed to load customer purchases from MySQL:', err))
         .finally(() => setIsLoadingCustomers(false));
+    }
+
+    if (activeTab === 'admins' || activeTab === 'overview') {
+      fetchAdmins();
     }
   }, [activeTab]);
 
@@ -475,7 +530,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
     p.variants.some((v) => v.stock > 0 && v.stock <= 4)
   );
 
-  // Dynamic MongoDB Inventory Balances
+  // Dynamic MySQL Inventory Balances
   const totalStockUnits = products.reduce(
     (sum, p) => sum + (p.variants || []).reduce((vSum, v) => vSum + (Number(v.stock) || 0), 0),
     0
@@ -567,6 +622,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
               { id: 'orders', label: t.admin.sidebarOrders, icon: ShoppingBag, badge: pendingOrdersCount },
               { id: 'coupons', label: t.admin.sidebarCoupons, icon: Tag },
               { id: 'cms', label: t.admin.sidebarCMS, icon: Sliders },
+              { id: 'admins', label: language === 'ar' ? 'فريق الإدارة والمشرفين' : language === 'ru' ? 'Администраторы' : 'Administrators & Staff', icon: ShieldCheck, badge: adminList.length > 0 ? adminList.length : undefined },
             ].map((item) => {
               const Icon = item.icon;
               const isSelected = activeTab === item.id;
@@ -625,9 +681,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
               {activeTab === 'orders' && t.admin.sidebarOrders}
               {activeTab === 'coupons' && t.admin.sidebarCoupons}
               {activeTab === 'cms' && t.admin.sidebarCMS}
+              {activeTab === 'admins' && (language === 'ar' ? 'فريق الإدارة وصلاحيات المشرفين' : language === 'ru' ? 'Администраторы бутика' : 'Boutique Administrators & Staff Access')}
             </h1>
             
           </div>
+
+          {activeTab === 'admins' && (
+            <button
+              type="button"
+              onClick={() => setIsCreateAdminModalOpen(true)}
+              className="px-4 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>{language === 'ar' ? 'إضافة مشرف جديد' : language === 'ru' ? 'Создать администратора' : 'Create New Admin'}</span>
+            </button>
+          )}
 
           {activeTab === 'inventory' && (
             <div className="flex items-center gap-2">
@@ -781,6 +849,48 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                 </div>
               </div>
             )}
+
+            {/* Boutique Administrator Role & Staff Management Card */}
+            <div className="bg-[#FAF5F2] border border-[#8E7C49]/40 p-5 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="w-12 h-12 rounded-full bg-[#340404] text-[#FBE7E3] flex items-center justify-center shrink-0 border border-[#8E7C49]/50 shadow-xs">
+                  <ShieldCheck className="w-6 h-6 text-[#8E7C49]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="bg-[#8E7C49]/20 text-[#8E7C49] font-bold text-[10px] uppercase px-2 py-0.5 rounded-xs border border-[#8E7C49]/30">
+                      {language === 'ar' ? 'صلاحية المشرف' : 'Administrator Role'}
+                    </span>
+                    <h4 className="font-heading text-base sm:text-lg font-bold text-[#340404]">
+                      {language === 'ar' ? 'إدارة المشرفين وتعيين حسابات إدارية جديدة' : 'Administrator Management & Role Assignment'}
+                    </h4>
+                  </div>
+                  <p className="text-xs text-[#340404]/75 mt-0.5">
+                    {language === 'ar'
+                      ? `بصفتك مشرفاً معتمداً، يمكنك إنشاء حسابات مشرفين جديدة للمتجر وحفظها في MySQL. المشرفون الجدد سيتم توجيههم تلقائياً إلى هذه اللوحة فور تسجيل الدخول.`
+                      : `You have the authority to create new store administrators. All administrators are registered in MySQL and automatically redirected to this dashboard upon login.`}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateAdminModalOpen(true)}
+                  className="flex-1 md:flex-none px-4 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>{language === 'ar' ? 'إنشاء مشرف جديد' : 'Create New Admin'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('admins')}
+                  className="flex-1 md:flex-none px-4 py-2.5 border border-[#8E7C49] text-[#340404] hover:bg-[#340404] hover:text-[#FBE7E3] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
+                >
+                  <span>{language === 'ar' ? `فريق الإدارة (${adminList.length})` : `View Admins (${adminList.length})`}</span>
+                </button>
+              </div>
+            </div>
 
             {/* Sales Chart / Category Breakdown (brand palette colors: Scarlet & Rural Green) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -1970,7 +2080,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
           </div>
         )}
 
-        {/* TAB 2.5: LIVE MONGODB STOCK & PRODUCT BALANCES */}
+        {/* TAB 2.5: LIVE MYSQL STOCK & PRODUCT BALANCES */}
         {activeTab === 'inventory' && (
           <div className="space-y-6">
             
@@ -2094,7 +2204,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     {language === 'ar' ? 'أرصدة المنتجات ومخزون الموديلات' : 'Live Product Balances & Variety Stock Table'}
                   </h3>
                   <p className="text-xs text-[#340404]/70">
-                    {language === 'ar' ? 'يمكنك زيادة أو تعديل المخزون مباشرة لكل مقاس ولون' : 'Adjust units directly per size and color. Updates are reflected immediately in customer store & MongoDB.'}
+                    {language === 'ar' ? 'يمكنك زيادة أو تعديل المخزون مباشرة لكل مقاس ولون، وتنعكس التحديثات فوراً في متجر العملاء وقاعدة بيانات MySQL' : 'Adjust units directly per size and color. Updates are reflected immediately in customer store & MySQL database.'}
                   </p>
                 </div>
                 <span className="text-xs text-[#8E7C49] font-mono font-semibold">
@@ -3164,6 +3274,219 @@ CREATE TABLE IF NOT EXISTS product_sales (
           </form>
         )}
 
+        {/* TAB 10: BOUTIQUE ADMINISTRATOR & STAFF MANAGEMENT */}
+        {activeTab === 'admins' && (
+          <div className="space-y-6">
+            
+            {/* Top Operational Metrics Banner */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  {language === 'ar' ? 'إجمالي المشرفين المعتمدين' : language === 'ru' ? 'Всего администраторов' : 'Active Store Admins'}
+                </span>
+                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                  {adminList.length}
+                </p>
+                <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{language === 'ar' ? 'مسجلون في قاعدة بيانات MySQL' : 'MySQL Relational Table users'}</span>
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  {language === 'ar' ? 'صلاحية تعيين المشرفين' : language === 'ru' ? 'Права создания админов' : 'Admin Creation Role'}
+                </span>
+                <p className="text-xl font-bold text-[#E22001]">
+                  {language === 'ar' ? 'مفعلة للمشرف' : 'Role Enabled'}
+                </p>
+                <p className="text-[11px] text-[#340404]/70">
+                  {language === 'ar' ? 'خاص وحصري بلوحة التحكم' : 'Restricted to Admin Dashboard'}
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  {language === 'ar' ? 'التوجيه التلقائي بعد الدخول' : language === 'ru' ? 'Автоматический редирект' : 'Post-Auth Redirection'}
+                </span>
+                <p className="text-xl font-bold text-[#340404]">
+                  {language === 'ar' ? 'توجيه فوري للوحة' : 'Immediate to /admin'}
+                </p>
+                <p className="text-[11px] text-[#340404]/70">
+                  {language === 'ar' ? 'لجميع المشرفين بعد المصادقة' : 'All authenticated staff'}
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs flex flex-col justify-between">
+                <div>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49] block">
+                    {language === 'ar' ? 'إجراء سريع' : 'Quick Staff Action'}
+                  </span>
+                  <span className="text-xs text-[#340404]/80 mt-1 block">
+                    {language === 'ar' ? 'إضافة وتعيين مشرف جديد' : 'Onboard new administrator'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCreateAdminModalOpen(true)}
+                  className="mt-2 w-full py-2 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{language === 'ar' ? 'فتح نافذة إضافة المشرف' : 'Open Create Admin'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Filter and Action Bar */}
+            <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={adminSearch}
+                  onChange={(e) => setAdminSearch(e.target.value)}
+                  placeholder={language === 'ar' ? 'بحث عن مشرف بالاسم أو البريد أو الهاتف...' : language === 'ru' ? 'Поиск администратора...' : 'Search admin by name, official email, or phone...'}
+                  className="w-full pl-9 pr-3 rtl:pl-3 rtl:pr-9 py-2 border border-[#E1D1E4] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[#E22001]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={fetchAdmins}
+                  disabled={isLoadingAdmins}
+                  className="px-3 py-2 border border-[#E1D1E4] hover:bg-gray-50 text-[#340404] text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Refresh admin list from MySQL"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingAdmins ? 'animate-spin text-[#E22001]' : 'text-gray-500'}`} />
+                  <span>{language === 'ar' ? 'تحديث من MySQL' : 'Sync MySQL'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsCreateAdminModalOpen(true)}
+                  className="px-4 py-2 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>{language === 'ar' ? 'إضافة مشرف جديد' : language === 'ru' ? 'Создать администратора' : 'Create New Admin'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Admin Staff Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {adminList
+                .filter((adm) => {
+                  if (!adminSearch.trim()) return true;
+                  const q = adminSearch.toLowerCase();
+                  return (
+                    (adm.firstName && adm.firstName.toLowerCase().includes(q)) ||
+                    (adm.lastName && adm.lastName.toLowerCase().includes(q)) ||
+                    (adm.email && adm.email.toLowerCase().includes(q)) ||
+                    (adm.phone && adm.phone.toLowerCase().includes(q))
+                  );
+                })
+                .map((admin) => {
+                  const isCurrent = currentUser?.email && admin.email.toLowerCase() === currentUser.email.toLowerCase();
+                  return (
+                    <div
+                      key={admin.id}
+                      className={`bg-white rounded-sm border p-5 space-y-4 shadow-xs transition-all relative ${
+                        isCurrent ? 'border-[#8E7C49] ring-1 ring-[#8E7C49]/40' : 'border-[#E1D1E4] hover:border-[#8E7C49]/60'
+                      }`}
+                    >
+                      {/* Top Header Row with Avatar & Status */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-full bg-[#340404] text-[#FBE7E3] flex items-center justify-center font-bold text-sm shrink-0 border border-[#8E7C49]/40 shadow-xs">
+                            {admin.firstName ? admin.firstName.charAt(0).toUpperCase() : 'A'}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h3 className="font-heading text-sm font-bold text-[#340404]">
+                                {admin.firstName} {admin.lastName}
+                              </h3>
+                              {isCurrent && (
+                                <span className="bg-[#8E7C49] text-white text-[9px] font-bold px-1.5 py-0.2 rounded-xs uppercase tracking-wider">
+                                  {language === 'ar' ? 'أنتِ (الجلسة الحالية)' : 'You (Current)'}
+                                </span>
+                              )}
+                            </div>
+                            <span className="inline-block mt-0.5 text-[10px] font-bold text-[#E22001] bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 uppercase tracking-wider">
+                              {language === 'ar' ? 'مشرف متجر معتمد' : 'Store Administrator'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className="p-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200" title="Active in MySQL">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </span>
+                      </div>
+
+                      {/* Contact & Database Details */}
+                      <div className="space-y-1.5 text-xs text-[#340404]/80 pt-1 border-t border-[#E1D1E4]/70">
+                        <div className="flex items-center gap-2 text-[11px] truncate">
+                          <Mail className="w-3.5 h-3.5 text-[#8E7C49] shrink-0" />
+                          <span className="font-mono truncate">{admin.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <Phone className="w-3.5 h-3.5 text-[#8E7C49] shrink-0" />
+                          <span className="font-mono">{admin.phone || '+973 1722 8844'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-500 pt-1">
+                          <Database className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span className="font-mono truncate">ID: {admin.id}</span>
+                        </div>
+                      </div>
+
+                      {/* Capabilities Checklist */}
+                      <div className="p-2.5 bg-[#FAF5F2] rounded-xs border border-[#E1D1E4] text-[10px] space-y-1 text-[#340404]/80">
+                        <div className="flex items-center gap-1.5 text-emerald-800 font-semibold">
+                          <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>{language === 'ar' ? 'صلاحية إضافة وتعيين مشرفين جدد' : 'Can create and assign new administrators'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-emerald-800 font-semibold">
+                          <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>{language === 'ar' ? 'إعادة التوجيه التلقائي للوحة التحكم الإدارية' : 'Automatic redirection to Admin Dashboard upon login'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-emerald-800 font-semibold">
+                          <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <span>{language === 'ar' ? 'إدارة الكتالوج، المخزون، والطلبات في MySQL' : 'Catalog, Inventory & Orders management in MySQL'}</span>
+                        </div>
+                      </div>
+
+                      {/* Card Footer */}
+                      <div className="flex items-center justify-between text-[10px] text-[#340404]/60 pt-2 border-t border-[#E1D1E4]/60">
+                        <span>{language === 'ar' ? 'تاريخ التعيين:' : 'Appointed:'} {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : 'Active'}</span>
+                        <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-xs border border-emerald-200">
+                          {admin.twoFactorEnabled ? '2FA Enabled' : 'Verified Staff'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+
+            {/* Security Assurance Callout */}
+            <div className="p-4 bg-amber-50/80 border border-amber-300 rounded-xs flex items-start gap-3 text-xs text-amber-950">
+              <ShieldCheck className="w-5 h-5 text-[#8E7C49] shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-bold">
+                  {language === 'ar'
+                    ? 'سياسة أمان المشرفين وتوجيه الصلاحيات (Bedtime Store Policy)'
+                    : 'Administrator Security Governance Policy'}
+                </p>
+                <p className="text-[11px] leading-relaxed text-amber-900">
+                  {language === 'ar'
+                    ? 'نافذة إنشاء وتعيين المشرفين مقتصرة حصرياً على لوحة التحكم الإدارية هذه ولا يمكن الوصول إليها من الصفحات العامة. فور قيام المشرف بتسجيل الدخول بأي حساب إداري، يتم توجيهه تلقائياً وبشكل مباشر إلى لوحة التحكم الإدارية لمتابعة عمليات المتجر الفاخر وإدارة المخزون والمبيعات.'
+                    : 'The "Create Admin" modal is strictly accessible exclusively within this Admin Dashboard and cannot be viewed on customer pages. Upon authenticating with any administrator credentials, the user is automatically redirected here to the Admin Dashboard for boutique operations.'}
+                </p>
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </main>
 
       {/* Product Edit / Create Modal */}
@@ -3785,8 +4108,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   </h3>
                   <p className="text-[11px] text-[#8E7C49] font-medium">
                     {language === 'ar'
-                      ? 'سيتم حفظ وتحديث القسم تلقائياً في قاعدة بيانات MongoDB Atlas'
-                      : 'Changes will be automatically synced with MongoDB Atlas database'}
+                      ? 'سيتم حفظ وتحديث القسم تلقائياً في قاعدة بيانات MySQL'
+                      : 'Changes will be automatically synced with MySQL database'}
                   </p>
                 </div>
               </div>
@@ -4057,7 +4380,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   {isSavingCategory ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>{language === 'ar' ? 'جاري الحفظ في MongoDB...' : 'Saving to MongoDB Atlas...'}</span>
+                      <span>{language === 'ar' ? 'جاري الحفظ في MySQL...' : 'Saving to MySQL Database...'}</span>
                     </>
                   ) : (
                     <>
@@ -4092,8 +4415,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
             <div className="space-y-3 text-xs text-[#340404]/80">
               <p>
                 {language === 'ar'
-                  ? `هل أنتِ متأكدة من رغبتك في حذف قسم "${categoryToDelete.nameAr || categoryToDelete.nameEn}" نهائياً من قاعدة بيانات MongoDB Atlas؟`
-                  : `Are you sure you want to permanently delete "${categoryToDelete.nameEn}" from MongoDB Atlas?`}
+                  ? `هل أنتِ متأكدة من رغبتك في حذف قسم "${categoryToDelete.nameAr || categoryToDelete.nameEn}" نهائياً من قاعدة بيانات MySQL؟`
+                  : `Are you sure you want to permanently delete "${categoryToDelete.nameEn}" from MySQL database?`}
               </p>
 
               {(() => {
@@ -4135,6 +4458,18 @@ CREATE TABLE IF NOT EXISTS product_sales (
             </div>
           </div>
         </div>
+      )}
+
+      {/* STRICT ACCESS: Create Admin Modal - ONLY accessible in the Admin Dashboard */}
+      {isCreateAdminModalOpen && (
+        <CreateAdminModal
+          isOpen={isCreateAdminModalOpen}
+          onClose={() => setIsCreateAdminModalOpen(false)}
+          onAdminCreated={(newAdmin) => {
+            setAdminList((prev) => [newAdmin, ...prev.filter((a) => a.id !== newAdmin.id)]);
+            fetchAdmins();
+          }}
+        />
       )}
 
     </div>

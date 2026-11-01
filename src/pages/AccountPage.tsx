@@ -154,7 +154,15 @@ export const AccountPage: React.FC<AccountPageProps> = ({
     return (
       <div className="bg-[#FBE7E3] min-h-screen py-10 px-4">
         <div className="max-w-md mx-auto">
-          <AuthModal embedded={true} defaultMode="signin" />
+          <AuthModal
+            embedded={true}
+            defaultMode="signin"
+            onNavigate={(page) => {
+              if (page === 'admin') {
+                onNavigateAdmin();
+              }
+            }}
+          />
         </div>
       </div>
     );

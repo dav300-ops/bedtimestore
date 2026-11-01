@@ -190,6 +190,7 @@ export interface SecurityLogItem {
     | '2fa_enabled'
     | '2fa_disabled'
     | 'account_created'
+    | 'admin_created'
     | 'guest_login';
   ip: string;
   location: string;

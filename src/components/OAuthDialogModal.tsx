@@ -7,7 +7,7 @@ import { Check, Shield, User, ArrowRight, X, ExternalLink, Lock } from 'lucide-r
 interface OAuthDialogModalProps {
   provider: 'google' | 'github' | null;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (user?: any) => void;
 }
 
 export const OAuthDialogModal: React.FC<OAuthDialogModalProps> = ({
@@ -29,8 +29,8 @@ export const OAuthDialogModal: React.FC<OAuthDialogModalProps> = ({
   const handleSelectAccount = async (preset: OAuthAccountPreset) => {
     setIsLoading(true);
     try {
-      await loginWithOAuth(provider, preset);
-      if (onSuccess) onSuccess();
+      const res = await loginWithOAuth(provider, preset);
+      if (onSuccess) onSuccess(res.user);
       onClose();
     } finally {
       setIsLoading(false);
@@ -49,8 +49,8 @@ export const OAuthDialogModal: React.FC<OAuthDialogModalProps> = ({
         avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(customName || customEmail)}`,
         verified: true,
       };
-      await loginWithOAuth(provider, preset);
-      if (onSuccess) onSuccess();
+      const res = await loginWithOAuth(provider, preset);
+      if (onSuccess) onSuccess(res.user);
       onClose();
     } finally {
       setIsLoading(false);

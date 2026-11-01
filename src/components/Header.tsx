@@ -20,7 +20,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { AnnouncementBar } from './AnnouncementBar';
-import boutiqueLogo from '../assets/images/boutique_logo.svg';
+import boutiqueLogo from '../assets/images/boutique_logo.jpeg';
 
 interface HeaderProps {
   onNavigate: (page: string, params?: any) => void;

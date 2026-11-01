@@ -23,7 +23,7 @@ import { useStore } from './context/StoreContext';
 import { Product, Order } from './types';
 
 export function AppContent() {
-  const { isAuthModalOpen, closeAuthModal, authModalMode } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, authModalMode, currentUser } = useAuth();
   const { products } = useStore();
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [pageParams, setPageParams] = useState<any>({});
@@ -37,6 +37,20 @@ export function AppContent() {
     setPageParams(params);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Automatically redirect administrator to the admin dashboard after authentication
+  const prevUserRef = React.useRef<typeof currentUser>(currentUser);
+  useEffect(() => {
+    const prev = prevUserRef.current;
+    prevUserRef.current = currentUser;
+
+    const wasNotAdmin = !prev || prev.isGuest || prev.role !== 'admin';
+    const isNowAdmin = currentUser && !currentUser.isGuest && currentUser.role === 'admin';
+
+    if (wasNotAdmin && isNowAdmin) {
+      navigateTo('admin');
+    }
+  }, [currentUser]);
 
   const handleSelectProduct = (product: Product) => {
     navigateTo('product', { product });
@@ -175,6 +189,7 @@ export function AppContent() {
               isOpen={isAuthModalOpen}
               onClose={closeAuthModal}
               defaultMode={authModalMode}
+              onNavigate={navigateTo}
             />
           )}
         </>

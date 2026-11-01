@@ -202,6 +202,15 @@ WHERE id = ?
 LIMIT 1
 `;
 
+export const SQL_SELECT_ALL_ADMINS = `
+SELECT 
+  id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled,
+  saved_addresses, wishlist, connected_providers, created_at, updated_at
+FROM users 
+WHERE role IN ('admin', 'superadmin')
+ORDER BY created_at DESC
+`;
+
 export const SQL_UPDATE_USER_PASSWORD = `
 UPDATE users 
 SET password_hash = ?, updated_at = NOW() 

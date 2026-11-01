@@ -7,6 +7,7 @@ import {
   SQL_UPDATE_USER_PROFILE,
   SQL_INSERT_SECURITY_LOG,
   SQL_GET_USER_SECURITY_LOGS,
+  SQL_SELECT_ALL_ADMINS,
 } from '../queries/mysqlQueries';
 
 export interface MySQLUser {
@@ -271,6 +272,64 @@ export class MySQLAuthService {
       location: r.location,
       device: r.device,
     }));
+  }
+
+  /**
+   * Retrieve all boutique administrators from MySQL database
+   */
+  public async getAllAdmins(): Promise<MySQLUser[]> {
+    const rows = await executeQuery(SQL_SELECT_ALL_ADMINS, []);
+    return (rows || []).map((r: any) => this.mapUserRow(r));
+  }
+
+  /**
+   * Create New Boutique Administrator Account (Admin Role Only)
+   */
+  public async createAdmin(adminData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password?: string;
+    phone?: string;
+    createdByAdminId?: string;
+    ip?: string;
+    device?: string;
+  }): Promise<MySQLUser> {
+    const cleanEmail = adminData.email.toLowerCase().trim();
+    const existing = await this.findUserByEmail(cleanEmail);
+    if (existing) {
+      throw new Error(`An account with email "${cleanEmail}" already exists in the MySQL database.`);
+    }
+
+    const userId = `usr-admin-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
+    const role = 'admin';
+
+    await executeQuery(SQL_REGISTER_USER, [
+      userId,
+      cleanEmail,
+      adminData.password || 'Admin@Bedtime2026!',
+      adminData.firstName.trim(),
+      adminData.lastName.trim(),
+      adminData.phone || '+973 1722 8844',
+      role,
+      0, // is_guest: false
+      0, // two_factor_enabled: false initially
+      JSON.stringify([]), // saved_addresses
+      JSON.stringify([]), // wishlist
+      JSON.stringify({ email: true }), // connected_providers
+    ]);
+
+    // Record security audit event
+    await this.logSecurityEvent({
+      userId,
+      action: 'admin_created',
+      ip: adminData.ip || '127.0.0.1',
+      location: 'Manama, Bahrain',
+      device: adminData.device || `Created by Administrator (${adminData.createdByAdminId || 'Staff'})`,
+    });
+
+    const createdAdmin = (await this.findUserById(userId))!;
+    return createdAdmin;
   }
 
   /**

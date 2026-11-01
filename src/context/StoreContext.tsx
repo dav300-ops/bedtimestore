@@ -422,7 +422,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       refreshData();
       return newCategory;
     } catch (err) {
-      console.warn('Error saving category to MongoDB server:', err);
+      console.warn('Error saving category to MySQL database:', err);
       return newCategory;
     }
   };

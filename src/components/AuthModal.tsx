@@ -27,6 +27,7 @@ interface AuthModalProps {
   onClose?: () => void;
   defaultMode?: 'signin' | 'signup' | 'forgot';
   embedded?: boolean; // if true, renders directly without modal backdrop
+  onNavigate?: (page: string, params?: any) => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
@@ -34,6 +35,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   defaultMode = 'signin',
   embedded = false,
+  onNavigate,
 }) => {
   const {
     login,
@@ -116,6 +118,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         }
       } else {
         if (onClose) onClose();
+        // Automatically redirect admin to the admin dashboard after authentication
+        if (res.user?.role === 'admin') {
+          onNavigate?.('admin');
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -745,8 +751,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <OAuthDialogModal
           provider={activeOAuthProvider}
           onClose={() => setActiveOAuthProvider(null)}
-          onSuccess={() => {
+          onSuccess={(oauthUser) => {
             if (onClose) onClose();
+            if (oauthUser?.role === 'admin') {
+              onNavigate?.('admin');
+            }
           }}
         />
       )}

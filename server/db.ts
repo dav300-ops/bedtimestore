@@ -220,6 +220,12 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         const user = memoryStore.users.get(id);
         return (user ? [user] : []) as T[];
       }
+      if (lower.includes('role in') || lower.includes("role = 'admin'") || lower.includes("role = 'superadmin'")) {
+        const admins = Array.from(memoryStore.users.values()).filter(
+          (u) => u.role === 'admin' || u.role === 'superadmin'
+        );
+        return admins as T[];
+      }
       return Array.from(memoryStore.users.values()) as T[];
     }
 
