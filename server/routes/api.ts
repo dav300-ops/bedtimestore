@@ -4,6 +4,7 @@ import { inventoryService } from '../services/inventoryService';
 import { categoryService } from '../services/categoryService';
 import { authService } from '../services/authService';
 import { salesService } from '../services/salesService';
+import { orderService } from '../services/orderService';
 import { getDatabaseStatus, executeQuery } from '../db';
 import * as MySQLQueries from '../queries/mysqlQueries';
 
@@ -463,6 +464,90 @@ router.post('/payments/webhook', async (req: Request, res: Response) => {
     return res.json({ received: true, verified: isValid });
   } catch (err) {
     return res.status(400).json({ error: 'Webhook processing error' });
+  }
+});
+
+// ============================================================================
+// 5b. Dynamic Orders Endpoints (MySQL Relational Storage)
+// ============================================================================
+
+/**
+ * Get all orders dynamically from MySQL
+ */
+router.get('/orders', async (_req: Request, res: Response) => {
+  try {
+    const orders = await orderService.getOrders();
+    return res.json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to fetch orders from MySQL' });
+  }
+});
+
+/**
+ * Get orders for a specific user ID or email from MySQL
+ */
+router.get('/orders/user/:userId', async (req: Request, res: Response) => {
+  try {
+    const email = (req.query.email as string) || '';
+    const orders = await orderService.getOrdersByUser(req.params.userId, email);
+    return res.json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to fetch user orders from MySQL' });
+  }
+});
+
+/**
+ * Create new order in MySQL
+ */
+router.post('/orders', async (req: Request, res: Response) => {
+  try {
+    const orderData = req.body;
+    if (!orderData || !orderData.orderNumber) {
+      return res.status(400).json({ error: 'Order data with orderNumber is required' });
+    }
+    const created = await orderService.createOrder(orderData);
+    return res.status(201).json({
+      success: true,
+      order: created,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to save order in MySQL' });
+  }
+});
+
+/**
+ * Update order status in MySQL
+ */
+router.put('/orders/:id/status', async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ error: 'status is required' });
+    }
+    const updated = await orderService.updateOrderStatus(req.params.id, status);
+    return res.json({ success: updated });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to update order status in MySQL' });
+  }
+});
+
+/**
+ * Confirm Pay-on-Delivery payment in MySQL
+ */
+router.post('/orders/:id/confirm-payment', async (req: Request, res: Response) => {
+  try {
+    const success = await orderService.confirmDeliveryPayment(req.params.id);
+    return res.json({ success, message: 'Payment confirmed in MySQL database' });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to confirm order payment in MySQL' });
   }
 });
 

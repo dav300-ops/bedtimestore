@@ -34,8 +34,7 @@ export const CategoryChips: React.FC<CategoryChipsProps> = ({
   return (
     <nav 
       aria-label="Category filter"
-      className="w-full bg-[#FFF8F6] py-4 px-4 sm:px-6 md:px-12 transition-colors border-b border-[#EEE4E4]"
-      style={{ backgroundColor: 'var(--bg-shop, #FFF8F6)' }}
+      className="w-full bg-[var(--color-bg)] py-4 px-4 sm:px-6 md:px-12 transition-colors border-b border-[var(--color-border)]"
     >
       <div className="flex items-center gap-[10px] overflow-x-auto pb-1 scrollbar-none select-none scroll-smooth">
         {STORE_CATEGORIES.map((cat) => {
@@ -48,16 +47,11 @@ export const CategoryChips: React.FC<CategoryChipsProps> = ({
               type="button"
               onClick={() => onSelectCategory(cat.id)}
               aria-pressed={isActive}
-              className={`h-[44px] rounded-[22px] px-[18px] text-[14px] whitespace-nowrap shrink-0 transition-all duration-150 flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] focus-visible:ring-offset-2 ${
+              className={`h-[44px] rounded-[22px] px-[18px] text-[14px] whitespace-nowrap shrink-0 transition-all duration-150 flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 ${
                 isActive
-                  ? 'bg-[#DDD3EA] text-[#2A1A20] font-semibold shadow-xs border border-[#CFC3C6]/50'
-                  : 'bg-white text-[#2A1A20] font-normal hover:bg-[#FFF8F6] hover:border-[#2A1A20]/40 border border-[#CFC3C6]'
+                  ? 'bg-[var(--color-primary)] text-white font-semibold shadow-xs border border-[var(--color-primary)]'
+                  : 'bg-[var(--color-card)] text-[var(--color-text)] font-normal hover:bg-[var(--color-bg)] hover:border-[var(--color-primary)] border border-[var(--color-border)]'
               }`}
-              style={{
-                backgroundColor: isActive ? 'var(--chip-lavender, #DDD3EA)' : '#FFFFFF',
-                borderColor: isActive ? 'transparent' : 'var(--border-shop, #CFC3C6)',
-                color: 'var(--text-shop-main, #2A1A20)',
-              }}
             >
               {label}
             </button>

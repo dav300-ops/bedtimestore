@@ -88,7 +88,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
 
   // Image handling
   const hasSecondImage = Boolean(product.images && product.images[1]);
-  const primaryImage = product.images?.[0] || '/images/hero_luxury_sleepwear_1791490145358.jpg';
+  const primaryImage = product.images?.[0] || '/images/hero_pic.jpeg';
   const secondaryImage = product.images?.[1] || primaryImage;
 
   // Direct quick add for single variant / free size
@@ -140,11 +140,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
         setIsHovered(false);
         setIsQuickAddOpen(false);
       }}
-      className="group bg-white rounded-[10px] overflow-hidden border border-[#CFC3C6]/60 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col relative select-none"
-      style={{
-        borderRadius: '10px',
-        borderColor: 'var(--border-shop, #CFC3C6)',
-      }}
+      className="group bg-[var(--color-card)] rounded-[10px] overflow-hidden border border-[var(--color-border)] shadow-xs hover:shadow-md hover:border-[var(--color-gold)] transition-all duration-200 flex flex-col relative select-none"
     >
       {/* Whole Card Click Link (Accessible) */}
       <a
@@ -154,11 +150,11 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
           onSelectProduct(product);
         }}
         aria-label={`${displayName} - ${formatBHD(product.salePrice || product.price)}`}
-        className="block relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] rounded-[10px]"
+        className="block relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] rounded-[10px]"
       >
         {/* Image Area: aspect-ratio 4/5 (approx 281 x 340 desktop), object-fit cover */}
         <div 
-          className="relative aspect-[4/5] w-full bg-[#FAF5F3] overflow-hidden"
+          className="relative aspect-[4/5] w-full bg-white overflow-hidden"
           style={{ aspectRatio: '4/5' }}
         >
           {/* Main Primary Image */}
@@ -192,7 +188,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
           {/* Image count badge: small "2" badge, drops on hover when crossfading */}
           {hasSecondImage && (
             <div
-              className={`absolute bottom-3 left-3 rtl:left-auto rtl:right-3 px-1.5 py-0.5 rounded-[4px] bg-black/60 text-white text-[11px] font-medium leading-none transition-opacity duration-200 pointer-events-none ${
+              className={`absolute bottom-3 left-3 rtl:left-auto rtl:right-3 px-1.5 py-0.5 rounded-[4px] bg-[var(--color-text)]/70 text-white text-[11px] font-medium leading-none transition-opacity duration-200 pointer-events-none ${
                 isHovered ? 'opacity-0' : 'opacity-100'
               }`}
             >
@@ -200,26 +196,24 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
             </div>
           )}
 
-          {/* Top-Left Badges: -X% on #B3261E or "New" on #6B1E3F */}
+          {/* Top-Left Badges: -X% or "New" with gold border */}
           <div className="absolute top-2 left-2 rtl:left-auto rtl:right-2 z-10 flex flex-col gap-1 pointer-events-none">
             {hasDiscount ? (
               <span
-                className="bg-[#B3261E] text-white text-[12px] font-semibold px-2 py-0.5 rounded-[4px] shadow-xs uppercase tracking-wider"
-                style={{ backgroundColor: 'var(--sale-red, #B3261E)' }}
+                className="bg-[var(--color-primary)] text-white text-[12px] font-semibold px-2 py-0.5 rounded-[4px] shadow-xs uppercase tracking-wider border border-[var(--color-gold)]/40"
               >
                 -{discountPercent}%
               </span>
             ) : product.newArrival ? (
               <span
-                className="bg-[#6B1E3F] text-white text-[12px] font-semibold px-2 py-0.5 rounded-[4px] shadow-xs uppercase tracking-wider"
-                style={{ backgroundColor: 'var(--brand-burgundy, #6B1E3F)' }}
+                className="bg-[var(--color-primary)] text-white text-[12px] font-semibold px-2 py-0.5 rounded-[4px] shadow-xs uppercase tracking-wider border border-[var(--color-gold)]/40"
               >
                 {language === 'ar' ? 'جديد' : language === 'ru' ? 'Новинка' : language === 'fr' ? 'Nouveau' : 'New'}
               </span>
             ) : null}
           </div>
 
-          {/* Top-Right: Wishlist Heart Button (44x44px white circle, burgundy icon, 8px from corner) */}
+          {/* Top-Right: Wishlist Heart Button with gold-accent border */}
           <button
             type="button"
             onClick={(e) => {
@@ -231,43 +225,36 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
               ? (language === 'ar' ? 'إزالة من المفضلة' : language === 'ru' ? 'Удалить из избранного' : language === 'fr' ? 'Retirer des favoris' : 'Remove from wishlist') 
               : (language === 'ar' ? 'إضافة إلى المفضلة' : language === 'ru' ? 'Добавить в избранное' : language === 'fr' ? 'Ajouter aux favoris' : 'Add to wishlist')}
             aria-pressed={isWishlisted}
-            className="absolute top-2 right-2 rtl:right-auto rtl:left-2 z-20 w-[44px] h-[44px] rounded-full bg-white shadow-sm flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+            className="absolute top-2 right-2 rtl:right-auto rtl:left-2 z-20 w-[44px] h-[44px] rounded-full bg-[var(--color-card)]/90 backdrop-blur-xs border border-[var(--color-gold)]/40 hover:border-[var(--color-gold)] shadow-sm flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
             title={language === 'ar' ? 'المفضلة' : language === 'ru' ? 'Избранное' : language === 'fr' ? 'Favoris' : 'Wishlist'}
           >
             <Heart
               className={`w-5 h-5 transition-colors ${
                 isWishlisted
-                  ? 'fill-[#6B1E3F] text-[#6B1E3F]'
-                  : 'text-[#6B1E3F] hover:text-[#B3261E]'
+                  ? 'fill-[var(--color-primary)] text-[var(--color-primary)]'
+                  : 'text-[var(--color-primary)] hover:text-[var(--color-primary-hover)]'
               }`}
-              style={{
-                color: 'var(--brand-burgundy, #6B1E3F)',
-                fill: isWishlisted ? 'var(--brand-burgundy, #6B1E3F)' : 'none',
-              }}
             />
           </button>
 
           {/* Bottom Action: Out of Stock label OR "+ Quick add" button */}
           {isOutOfStock ? (
             <div
-              className="absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[8px] bg-white/90 text-[#5F5357] text-[14px] font-semibold flex items-center justify-center select-none cursor-not-allowed border border-[#CFC3C6]"
+              className="absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[8px] bg-[var(--color-card)]/90 text-[var(--color-text-secondary)] text-[14px] font-semibold flex items-center justify-center select-none cursor-not-allowed border border-[var(--color-border)]"
             >
               {language === 'ar' ? 'نفدت الكمية' : language === 'ru' ? 'Распродано' : language === 'fr' ? 'Épuisé' : 'Sold out'}
             </div>
           ) : (
             <>
-              {/* Full-width "+ Quick add" button (44px tall, inset 12px, bg rgba(255,255,255,.95), text #2A1A20 14px weight 600, radius 8px) */}
+              {/* Full-width "+ Quick add" button */}
               <button
                 type="button"
                 onClick={handleDirectQuickAdd}
-                className={`absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[8px] px-4 text-[14px] font-semibold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] ${
+                className={`absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[8px] px-4 text-[14px] font-semibold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                   isSingleAddedFeedback
-                    ? 'bg-[#6B1E3F] text-white'
-                    : 'bg-white/95 hover:bg-white text-[#2A1A20] hover:text-[#6B1E3F] border border-[#CFC3C6]/60 hover:border-[#6B1E3F]'
+                    ? 'bg-[var(--color-primary-hover)] text-white'
+                    : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white'
                 }`}
-                style={{
-                  color: isSingleAddedFeedback ? '#FFFFFF' : 'var(--text-shop-main, #2A1A20)',
-                }}
               >
                 {isSingleAddedFeedback ? (
                   <>
@@ -298,28 +285,26 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
 
         {/* Content Below Image: padding 14px 16px 16px, 6px vertical gaps */}
         <div 
-          className="p-[14px_16px_16px] flex flex-col gap-[6px] bg-white text-left rtl:text-right"
+          className="p-[14px_16px_16px] flex flex-col gap-[6px] bg-[var(--color-card)] text-left rtl:text-right"
         >
-          {/* Category Label: 12px uppercase, letter-spacing .08em, #5F5357 */}
+          {/* Category Label */}
           <span 
-            className="text-[12px] uppercase tracking-[0.08em] font-medium truncate"
-            style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
+            className="text-[12px] uppercase tracking-[0.08em] font-medium truncate text-[var(--color-text-secondary)]"
           >
             {displayCategory}
           </span>
 
-          {/* Product Name: serif 17px, #2A1A20 */}
+          {/* Product Name */}
           <h3 
-            className="font-serif text-[17px] font-semibold leading-snug line-clamp-1 group-hover:text-[#6B1E3F] transition-colors"
+            className="font-serif text-[17px] font-semibold leading-snug line-clamp-1 text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors"
             style={{ 
-              fontFamily: '"Cormorant Garamond", Georgia, serif',
-              color: 'var(--text-shop-main, #2A1A20)'
+              fontFamily: '"Cormorant Garamond", Georgia, serif'
             }}
           >
             {displayName}
           </h3>
 
-          {/* Color Swatches: 16px circles with 1px #CFC3C6 border, plus "N shades" in 12px #5F5357 */}
+          {/* Color Swatches */}
           <div 
             onClick={(e) => {
               e.preventDefault();
@@ -339,68 +324,61 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 aria-label={language === 'ar' ? color.nameAr : color.nameEn}
                 className={`w-[16px] h-[16px] rounded-full border transition-all cursor-pointer ${
                   selectedColorIndex === idx
-                    ? 'border-[#2A1A20] ring-1 ring-[#2A1A20] scale-110'
-                    : 'border-[#CFC3C6] hover:scale-105'
+                    ? 'border-[var(--color-primary)] ring-1 ring-[var(--color-primary)] scale-110'
+                    : 'border-[var(--color-border)] hover:scale-105'
                 }`}
                 style={{
                   backgroundColor: color.hex,
-                  borderColor: selectedColorIndex === idx ? 'var(--text-shop-main, #2A1A20)' : 'var(--border-shop, #CFC3C6)',
                 }}
               />
             ))}
 
             {uniqueColors.length > 0 && (
               <span 
-                className="text-[12px] font-normal ml-1 rtl:ml-0 rtl:mr-1"
-                style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
+                className="text-[12px] font-normal ml-1 rtl:ml-0 rtl:mr-1 text-[var(--color-text-secondary)]"
               >
                 {uniqueColors.length} {language === 'ar' ? 'ألوان' : language === 'ru' ? 'оттенка' : language === 'fr' ? 'nuances' : 'shades'}
               </span>
             )}
           </div>
 
-          {/* 1px #EEE4E4 Divider */}
+          {/* Divider */}
           <div 
-            className="h-[1px] w-full my-0.5" 
-            style={{ backgroundColor: 'var(--divider-shop, #EEE4E4)' }} 
+            className="h-[1px] w-full my-0.5 bg-[var(--color-border)]" 
           />
 
           {/* Price & Rating Row */}
           <div className="flex items-baseline justify-between pt-0.5">
-            {/* Left: Current price bold 17px (#B3261E on sale, #2A1A20 otherwise), original price struck through 13px #5F5357 */}
+            {/* Left: Prices in main text color */}
             <div className="flex items-baseline gap-2">
               {hasDiscount ? (
                 <>
                   <span 
-                    className="text-[17px] font-bold tabular-nums"
-                    style={{ color: 'var(--sale-red, #B3261E)' }}
+                    className="text-[17px] font-bold tabular-nums text-[var(--color-text)]"
                   >
                     {formatBHD(product.salePrice!)}
                   </span>
                   <span 
-                    className="text-[13px] line-through tabular-nums"
-                    style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
+                    className="text-[13px] line-through tabular-nums text-[var(--color-text-secondary)]"
                   >
                     {formatBHD(product.price)}
                   </span>
                 </>
               ) : (
                 <span 
-                  className="text-[17px] font-bold tabular-nums"
-                  style={{ color: 'var(--text-shop-main, #2A1A20)' }}
+                  className="text-[17px] font-bold tabular-nums text-[var(--color-text)]"
                 >
                   {formatBHD(product.price)}
                 </span>
               )}
             </div>
 
-            {/* Right: "★ 4.9 (123)" at 13px #5F5357, with real rating and review count. Hide if no reviews */}
+            {/* Right: Reviews with gold star */}
             {typeof product.rating === 'number' && typeof product.reviewCount === 'number' && product.reviewCount > 0 && (
               <div 
-                className="text-[13px] font-normal tabular-nums flex items-center gap-1 shrink-0"
-                style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
+                className="text-[13px] font-normal tabular-nums flex items-center gap-1 shrink-0 text-[var(--color-text-secondary)]"
               >
-                <span className="text-[#8E7C49]">★</span>
+                <span className="text-[var(--color-gold)]">★</span>
                 <span>{product.rating.toFixed(1)}</span>
                 <span>({product.reviewCount})</span>
               </div>

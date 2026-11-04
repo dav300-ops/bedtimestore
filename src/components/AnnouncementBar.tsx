@@ -37,8 +37,8 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({ customText }) 
   return (
     <aside 
       aria-label="Store announcement"
-      className="h-[36px] bg-[#6B1E3F] text-white text-[13px] font-medium px-4 flex items-center justify-center text-center transition-colors select-none tracking-wide"
-      style={{ backgroundColor: 'var(--brand-burgundy, #6B1E3F)' }}
+      className="h-[36px] bg-[var(--color-primary)] text-[var(--color-btn-text)] text-[13px] font-medium px-4 flex items-center justify-center text-center transition-colors select-none tracking-wide"
+      style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-btn-text)' }}
     >
       <p className="truncate max-w-7xl mx-auto">
         {textToDisplay}

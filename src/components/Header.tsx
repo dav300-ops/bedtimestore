@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
       label: (t.nav as any).album || (language === 'ar' ? 'ألبوم الصور' : language === 'ru' ? 'Лукбук' : language === 'fr' ? 'Lookbook' : 'Lookbook Album'),
       subtitle: language === 'ar' ? 'جلسات تصوير وتنسيقات ملابس النوم الفاخرة' : language === 'ru' ? 'Стилизованные фотосессии и лукбук' : language === 'fr' ? 'Séances photos et silhouettes haute couture' : 'Curated styling & editorial photo sessions',
       badge: language === 'ar' ? 'معرض الصور' : language === 'ru' ? 'Галерея' : language === 'fr' ? 'Galerie' : 'Visual Gallery',
-      badgeColor: 'bg-[#DDD3EA] text-[#6B1E3F]',
+      badgeColor: 'bg-[var(--color-card)] text-[var(--color-primary)] font-semibold border border-[var(--color-border)]',
       icon: BookOpen,
       action: () => onNavigate('album'),
       isActive: currentPage === 'album',
@@ -97,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
       label: t.nav.bestSellers,
       subtitle: language === 'ar' ? 'القطع الأكثر طلباً وإعجاباً في البحرين' : language === 'ru' ? 'Самые популярные модели из шёлка и сатина' : language === 'fr' ? 'Les incontournables en soie et satin à Bahreïn' : 'Most-loved luxury silk & satin essentials',
       badge: language === 'ar' ? 'الأكثر طلباً' : language === 'ru' ? 'Хит' : language === 'fr' ? 'Culte' : 'Top Rated',
-      badgeColor: 'bg-amber-100 text-amber-900',
+      badgeColor: 'bg-[var(--color-card)] text-[var(--color-primary)] font-semibold border border-[var(--color-border)]',
       icon: Flame,
       action: () => onNavigate('shop', { filter: 'bestSeller' }),
       isActive: currentPage === 'shop' && currentParams?.filter === 'bestSeller',
@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
       label: t.nav.sale,
       subtitle: language === 'ar' ? 'تخفيضات وعروض حصرية على أطقم ملابس النوم' : language === 'ru' ? 'Эксклюзивные сезонные скидки на пижамы' : language === 'fr' ? 'Réductions saisonnières exclusives sur les pyjamas' : 'Exclusive seasonal promotions & special pricing',
       badge: language === 'ar' ? 'عروض خاصة' : language === 'ru' ? 'Скидки' : language === 'fr' ? 'Privilèges' : 'Special Offers',
-      badgeColor: 'bg-rose-100 text-[#B3261E]',
+      badgeColor: 'bg-[var(--color-card)] text-[var(--color-primary)] font-semibold border border-[var(--color-border)]',
       icon: Tag,
       action: () => onNavigate('shop', { filter: 'sale' }),
       isActive: currentPage === 'shop' && currentParams?.filter === 'sale',
@@ -118,26 +118,26 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
 
   return (
     <>
-      {/* 1. Announcement Bar (36px, #6B1E3F, 13px white text) */}
+      {/* 1. Announcement Bar (36px, var(--color-primary), 13px white text) */}
       <AnnouncementBar />
 
-      {/* 2. Sticky Header (68px, #FCEEEC, 48px side padding) */}
+      {/* 2. Sticky Header (68px, Burgundy background, gold hairline border) */}
       <header 
-        className="sticky top-0 z-40 bg-[#FCEEEC] border-b border-[#CFC3C6]/60 transition-colors"
+        className="sticky top-0 z-40 bg-[var(--color-primary)] border-b border-[var(--color-gold)]/30 transition-colors shadow-sm"
         style={{ 
-          backgroundColor: 'var(--header-blush, #FCEEEC)',
-          borderColor: 'var(--border-shop, #CFC3C6)'
+          backgroundColor: 'var(--color-primary)',
+          borderColor: 'rgba(184, 137, 58, 0.3)'
         }}
       >
         <div className="w-full px-4 sm:px-6 md:px-12">
           <div className="flex items-center justify-between h-[68px] w-full">
             
-            {/* Zone 1: Logo "BEDTIME STORE" on the left (serif, 28px, #6B1E3F, Georgia fallback) */}
+            {/* Zone 1: Logo "BEDTIME STORE" on the left */}
             <div className="flex items-center gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-[#2A1A20] hover:text-[#B3261E] transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+                className="lg:hidden p-2 text-white hover:text-[var(--color-gold-light)] transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
                 aria-label="Toggle Navigation Menu"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -146,18 +146,18 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className="text-left rtl:text-right group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] rounded-xs flex items-center gap-2.5 sm:gap-3"
+                className="text-left rtl:text-right group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs flex items-center gap-2.5 sm:gap-3"
               >
                 <img
                   src={boutiqueLogo}
                   alt="Bedtime Store Logo"
-                  className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-full shadow-xs border border-[#8E7C49]/40 group-hover:scale-105 transition-transform shrink-0"
+                  className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-full shadow-xs border border-[var(--color-gold-light)]/50 group-hover:scale-105 transition-transform shrink-0"
                 />
                 <span 
-                  className="font-serif text-[22px] sm:text-[28px] font-bold tracking-tight text-[#6B1E3F] leading-none select-none"
+                  className="font-serif text-[22px] sm:text-[28px] font-bold tracking-tight leading-none select-none text-white group-hover:text-[var(--color-gold-light)] transition-colors"
                   style={{ 
                     fontFamily: '"Cormorant Garamond", Georgia, serif',
-                    color: 'var(--brand-burgundy, #6B1E3F)'
+                    color: '#FFFFFF'
                   }}
                 >
                   BEDTIME STORE
@@ -165,72 +165,63 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               </button>
             </div>
 
-            {/* Zone 2: Center Nav HOME, SHOP, EXPLORE (15px, weight 600, letter-spacing .06em) */}
+            {/* Zone 2: Center Nav HOME, SHOP, EXPLORE (active underline in gold) */}
             <nav className="hidden lg:flex items-center gap-8 mx-auto">
-              {/* HOME link */}
+              {/* HOME link (active underline in gold #D4AF5F) */}
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] rounded-xs ${
+                className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs ${
                   currentPage === 'home'
-                    ? 'text-[#B3261E] after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-[#B3261E]'
-                    : 'text-[#2A1A20] hover:text-[#B3261E]'
+                    ? 'text-[var(--color-gold-light)] after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-[var(--color-gold-light)]'
+                    : 'text-white/90 hover:text-[var(--color-gold-light)]'
                 }`}
-                style={{
-                  color: currentPage === 'home' ? 'var(--sale-red, #B3261E)' : 'var(--text-shop-main, #2A1A20)',
-                }}
               >
                 {t.nav.home}
               </button>
 
-              {/* SHOP link (active on shop page with 2px underline in #B3261E) */}
+              {/* SHOP link (active on shop page with 2px underline in gold) */}
               <button
                 type="button"
                 onClick={() => onNavigate('shop')}
-                className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] rounded-xs ${
+                className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs ${
                   currentPage === 'shop'
-                    ? 'text-[#B3261E] after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-[#B3261E]'
-                    : 'text-[#2A1A20] hover:text-[#B3261E]'
+                    ? 'text-[var(--color-gold-light)] after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-[var(--color-gold-light)]'
+                    : 'text-white/90 hover:text-[var(--color-gold-light)]'
                 }`}
-                style={{
-                  color: currentPage === 'shop' ? 'var(--sale-red, #B3261E)' : 'var(--text-shop-main, #2A1A20)',
-                }}
               >
                 {t.nav.shop}
               </button>
 
-              {/* EXPLORE dropdown link (keeps current explore dropdown behavior) */}
+              {/* EXPLORE dropdown link */}
               <div className="relative" ref={exploreMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsExploreOpen(!isExploreOpen)}
                   aria-expanded={isExploreOpen}
                   aria-haspopup="true"
-                  className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] rounded-xs ${
+                  className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs ${
                     isExploreOpen || isExploreActive
-                      ? 'text-[#B3261E]'
-                      : 'text-[#2A1A20] hover:text-[#B3261E]'
+                      ? 'text-[var(--color-gold-light)]'
+                      : 'text-white/90 hover:text-[var(--color-gold-light)]'
                   }`}
-                  style={{
-                    color: isExploreOpen || isExploreActive ? 'var(--sale-red, #B3261E)' : 'var(--text-shop-main, #2A1A20)',
-                  }}
                 >
                   <span>{language === 'ar' ? 'استكشف' : 'EXPLORE'}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isExploreOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-[var(--color-gold-light)] transition-transform duration-200 ${isExploreOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Explore Dropdown Panel */}
                 {isExploreOpen && (
                   <div
-                    className={`absolute top-full mt-3 z-50 w-80 bg-white rounded-[10px] border border-[#CFC3C6] shadow-xl p-3 animate-in fade-in slide-in-from-top-2 duration-150 ${
+                    className={`absolute top-full mt-3 z-50 w-80 bg-[var(--color-card)] rounded-[10px] border border-[var(--color-border)] shadow-xl p-3 animate-in fade-in slide-in-from-top-2 duration-150 ${
                       isRtl ? 'left-0 text-right' : 'right-0 text-left'
                     }`}
                   >
-                    <div className="px-3 py-1.5 border-b border-[#EEE4E4] mb-2 flex items-center justify-between">
-                      <span className="text-[11px] uppercase font-bold tracking-wider text-[#5F5357]">
+                    <div className="px-3 py-1.5 border-b border-[var(--color-border)] mb-2 flex items-center justify-between">
+                      <span className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-text-secondary)]">
                         {language === 'ar' ? 'مختارات المتجر' : 'Curated Highlights'}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#DDD3EA] text-[#6B1E3F] font-semibold">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary)] text-white font-semibold">
                         3 {language === 'ar' ? 'أقسام' : 'Collections'}
                       </span>
                     </div>
@@ -248,11 +239,11 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                             }}
                             className={`w-full p-2.5 rounded-lg transition-all text-left rtl:text-right flex items-start gap-3 cursor-pointer ${
                               item.isActive
-                                ? 'bg-[#FFF8F6] border border-[#B3261E]/30 text-[#B3261E]'
-                                : 'hover:bg-[#FFF8F6] text-[#2A1A20] hover:text-[#B3261E]'
+                                ? 'bg-[var(--color-bg)] border border-[var(--color-accent)] text-[var(--color-primary)]'
+                                : 'hover:bg-[var(--color-bg)] text-[var(--color-text)] hover:text-[var(--color-primary)]'
                             }`}
                           >
-                            <div className="p-2 rounded-md bg-[#FCEEEC] text-[#6B1E3F] shrink-0 mt-0.5">
+                            <div className="p-2 rounded-md bg-[var(--color-bg)] text-[var(--color-primary)] shrink-0 mt-0.5">
                               <IconComponent className="w-4 h-4 stroke-[2]" />
                             </div>
 
@@ -261,11 +252,11 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                                 <span className="text-xs font-bold uppercase tracking-wider">
                                   {item.label}
                                 </span>
-                                <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded-xs ${item.badgeColor}`}>
+                                <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-xs bg-[var(--color-accent)] text-[var(--color-text)]">
                                   {item.badge}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-[#5F5357] leading-tight mt-0.5 truncate">
+                              <p className="text-[11px] text-[var(--color-text-secondary)] leading-tight mt-0.5 truncate">
                                 {item.subtitle}
                               </p>
                             </div>
@@ -274,12 +265,12 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                       })}
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-[#EEE4E4] px-2 flex items-center justify-between text-[11px] text-[#5F5357]">
-                      <span className="flex items-center gap-1 text-[#6B1E3F]">
-                        <Sparkles className="w-3 h-3 text-[#B3261E]" />
+                    <div className="mt-2 pt-2 border-t border-[var(--color-border)] px-2 flex items-center justify-between text-[11px] text-[var(--color-text-secondary)]">
+                      <span className="flex items-center gap-1 text-[var(--color-primary)]">
+                        <Sparkles className="w-3 h-3 text-[var(--color-accent)]" />
                         <span>{language === 'ar' ? 'توصيل مجاني فوق ٢٥ د.ب' : language === 'ru' ? 'Бесплатная доставка от 25 BHD' : 'Free delivery over 25 BHD'}</span>
                       </span>
-                      <span className="font-serif italic text-[#6B1E3F]">Bedtime Store</span>
+                      <span className="font-serif italic text-[var(--color-primary)]">Bedtime Store</span>
                     </div>
                   </div>
                 )}
@@ -299,12 +290,12 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={language === 'ar' ? 'بحث في المتجر...' : language === 'ru' ? 'Поиск в бутике...' : 'Search sleepwear...'}
-                      className="w-36 sm:w-56 px-3 py-1.5 text-xs bg-white text-[#2A1A20] border border-[#CFC3C6] rounded-md focus:outline-none focus:ring-2 focus:ring-[#B3261E]"
+                      className="w-36 sm:w-56 px-3 py-1.5 text-xs bg-white text-[var(--color-text)] border border-[var(--color-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
                     />
                     <button
                       type="button"
                       onClick={() => setIsSearchOpen(false)}
-                      className="p-1.5 text-[#5F5357] hover:text-[#B3261E]"
+                      className="p-1.5 text-white/80 hover:text-[var(--color-gold-light)]"
                       aria-label="Close search"
                     >
                       <X className="w-4 h-4" />
@@ -314,7 +305,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(true)}
-                    className="p-2 text-[#2A1A20] hover:text-[#B3261E] transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+                    className="p-2 text-white/90 hover:text-[var(--color-gold-light)] transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
                     aria-label="Search"
                     title="Search"
                   >
@@ -328,13 +319,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 <button
                   type="button"
                   onClick={() => onNavigate('account')}
-                  className="flex items-center gap-1.5 py-1 px-2.5 rounded-full border border-[#CFC3C6] hover:border-[#6B1E3F] bg-white transition-all text-xs text-[#2A1A20] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+                  className="flex items-center gap-1.5 py-1 px-2.5 rounded-full border border-[var(--color-gold-light)]/40 hover:border-[var(--color-gold-light)] bg-white/10 hover:bg-white/15 transition-all text-xs text-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
                   title={`${currentUser.firstName} (${t.nav.account})`}
                 >
                   <span className="hidden md:inline font-medium text-[12px] max-w-[80px] truncate">
                     {currentUser.firstName}
                   </span>
-                  <div className="w-5 h-5 rounded-full bg-[#6B1E3F] text-white flex items-center justify-center font-bold text-[10px]">
+                  <div className="w-5 h-5 rounded-full bg-[var(--color-gold-light)] text-[var(--color-primary)] flex items-center justify-center font-bold text-[10px]">
                     {currentUser.firstName.charAt(0)}
                   </div>
                 </button>
@@ -342,7 +333,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 <button
                   type="button"
                   onClick={() => openAuthModal('signin')}
-                  className="inline-flex items-center gap-1 py-1 px-2.5 text-[#2A1A20] hover:text-[#B3261E] rounded-md text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+                  className="inline-flex items-center gap-1.5 py-1 px-2.5 text-white/95 hover:text-[var(--color-gold-light)] border border-[var(--color-gold-light)]/30 hover:border-[var(--color-gold-light)] hover:bg-white/5 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
                   aria-label="Sign In"
                   title={t.account.signIn}
                 >
@@ -355,13 +346,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               <button
                 type="button"
                 onClick={() => onNavigate('account', { tab: 'wishlist' })}
-                className="p-2 text-[#2A1A20] hover:text-[#B3261E] transition-colors relative rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+                className="p-2 text-white/90 hover:text-[var(--color-gold-light)] transition-colors relative rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
                 aria-label="Wishlist"
                 title={t.nav.wishlist}
               >
                 <Heart className="w-5 h-5 stroke-[1.8]" />
                 {currentUser && currentUser.wishlist && currentUser.wishlist.length > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[16px] h-4 text-[10px] flex items-center justify-center bg-[#6B1E3F] text-white font-bold rounded-full px-1">
+                  <span className="absolute top-1 right-1 min-w-[16px] h-4 text-[10px] flex items-center justify-center bg-[var(--color-gold-light)] text-[var(--color-primary)] font-bold rounded-full px-1">
                     {currentUser.wishlist.length}
                   </span>
                 )}
@@ -371,15 +362,14 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
-                className="flex items-center gap-1.5 py-1.5 px-3 bg-white hover:bg-[#FFF8F6] text-[#2A1A20] hover:text-[#B3261E] border border-[#CFC3C6] rounded-md transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+                className="flex items-center gap-1.5 py-1.5 px-3 bg-[var(--color-primary-hover)] hover:bg-[#4a0815] text-white border border-[var(--color-gold-light)]/50 hover:border-[var(--color-gold-light)] rounded-md transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
                 aria-label={`Bag with ${cartCount} items`}
               >
                 <div className="relative">
                   <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
                   {cartCount > 0 && (
                     <span 
-                      className="absolute -top-2 -right-2 bg-[#B3261E] text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center tabular-nums shadow-xs"
-                      style={{ backgroundColor: 'var(--sale-red, #B3261E)' }}
+                      className="absolute -top-2 -right-2 bg-[var(--color-gold-light)] text-[var(--color-primary)] text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center tabular-nums shadow-xs"
                     >
                       {cartCount}
                     </span>
@@ -391,15 +381,15 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               </button>
 
               {/* 4-Language Switcher (EN · AR · RU · FR) & Admin shortcut */}
-              <div className="hidden lg:flex items-center gap-1.5 pl-2 rtl:pl-0 rtl:pr-2 border-l rtl:border-l-0 rtl:border-r border-[#CFC3C6]/60">
-                <div className="flex items-center bg-white/80 border border-[#CFC3C6] rounded-full p-0.5 shadow-2xs">
+              <div className="hidden lg:flex items-center gap-1.5 pl-2 rtl:pl-0 rtl:pr-2 border-l rtl:border-l-0 rtl:border-r border-[var(--color-gold-light)]/30">
+                <div className="flex items-center bg-black/20 border border-[var(--color-gold-light)]/30 rounded-full p-0.5 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setLanguage('en')}
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                       language === 'en'
-                        ? 'bg-[#6B1E3F] text-white shadow-xs'
-                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
+                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
                     }`}
                     title="English"
                   >
@@ -410,8 +400,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     onClick={() => setLanguage('ar')}
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                       language === 'ar'
-                        ? 'bg-[#6B1E3F] text-white shadow-xs'
-                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
+                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
                     }`}
                     title="العربية"
                   >
@@ -422,8 +412,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     onClick={() => setLanguage('ru')}
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                       language === 'ru'
-                        ? 'bg-[#6B1E3F] text-white shadow-xs'
-                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
+                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
                     }`}
                     title="Русский"
                   >
@@ -434,8 +424,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     onClick={() => setLanguage('fr')}
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                       language === 'fr'
-                        ? 'bg-[#6B1E3F] text-white shadow-xs'
-                        : 'text-[#5F5357] hover:text-[#6B1E3F]'
+                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
+                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
                     }`}
                     title="Français"
                   >
@@ -447,7 +437,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   <button
                     type="button"
                     onClick={() => onNavigate('admin')}
-                    className="p-1 text-[#B3261E] hover:bg-white rounded-full transition-colors ml-0.5"
+                    className="p-1 text-[var(--color-gold-light)] hover:text-white hover:bg-white/10 rounded-full transition-colors ml-0.5"
                     title="Admin"
                   >
                     <ShieldCheck className="w-4 h-4" />
@@ -462,7 +452,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-[#FCEEEC] border-t border-[#CFC3C6]/60 px-6 py-4 space-y-3 animate-in fade-in duration-150">
+          <div className="lg:hidden bg-[var(--color-card)] border-t border-[var(--color-border)] px-6 py-4 space-y-3 animate-in fade-in duration-150">
             <div className="flex flex-col space-y-2">
               <button
                 type="button"
@@ -471,7 +461,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   setIsMobileMenuOpen(false);
                 }}
                 className={`text-left rtl:text-right py-2 text-sm uppercase font-semibold tracking-wide ${
-                  currentPage === 'home' ? 'text-[#B3261E]' : 'text-[#2A1A20]'
+                  currentPage === 'home' ? 'text-[var(--color-primary)]' : 'text-[var(--color-text)]'
                 }`}
               >
                 {t.nav.home}
@@ -483,14 +473,14 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   setIsMobileMenuOpen(false);
                 }}
                 className={`text-left rtl:text-right py-2 text-sm uppercase font-semibold tracking-wide ${
-                  currentPage === 'shop' ? 'text-[#B3261E]' : 'text-[#2A1A20]'
+                  currentPage === 'shop' ? 'text-[var(--color-primary)]' : 'text-[var(--color-text)]'
                 }`}
               >
                 {t.nav.shop}
               </button>
 
-              <div className="pt-2 border-t border-[#CFC3C6]/40">
-                <span className="text-[11px] font-bold text-[#5F5357] uppercase tracking-wider block mb-1">
+              <div className="pt-2 border-t border-[var(--color-border)]">
+                <span className="text-[11px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-1">
                   {language === 'ar' ? 'استكشف المجموعات' : language === 'ru' ? 'Коллекции бутиков' : 'Explore Collections'}
                 </span>
                 {exploreItems.map((item) => (
@@ -501,10 +491,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                       item.action();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full text-left rtl:text-right py-1.5 text-xs text-[#2A1A20] hover:text-[#B3261E] flex items-center justify-between"
+                    className="w-full text-left rtl:text-right py-1.5 text-xs text-[var(--color-text)] hover:text-[var(--color-primary)] flex items-center justify-between"
                   >
                     <span>{item.label}</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded ${item.badgeColor}`}>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-[var(--color-accent)] text-[var(--color-text)]">
                       {item.badge}
                     </span>
                   </button>
@@ -512,8 +502,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               </div>
 
               {/* 4-Language Selector in Mobile Menu */}
-              <div className="pt-3 border-t border-[#CFC3C6]/40 space-y-2">
-                <span className="text-[11px] font-bold text-[#5F5357] uppercase tracking-wider block">
+              <div className="pt-3 border-t border-[var(--color-border)] space-y-2">
+                <span className="text-[11px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block">
                   {language === 'ar' ? 'اللغة' : language === 'ru' ? 'Язык' : language === 'fr' ? 'Langue' : 'Language'}
                 </span>
                 <div className="grid grid-cols-4 gap-1.5">
@@ -522,8 +512,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     onClick={() => setLanguage('en')}
                     className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
                       language === 'en'
-                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
-                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                        : 'bg-[var(--color-bg)] text-[var(--color-text)] border-[var(--color-border)]'
                     }`}
                   >
                     EN
@@ -533,8 +523,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     onClick={() => setLanguage('ar')}
                     className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
                       language === 'ar'
-                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
-                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                        : 'bg-[var(--color-bg)] text-[var(--color-text)] border-[var(--color-border)]'
                     }`}
                   >
                     العربية
@@ -544,8 +534,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     onClick={() => setLanguage('ru')}
                     className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
                       language === 'ru'
-                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
-                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                        : 'bg-[var(--color-bg)] text-[var(--color-text)] border-[var(--color-border)]'
                     }`}
                   >
                     RU
@@ -555,8 +545,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     onClick={() => setLanguage('fr')}
                     className={`py-1.5 px-1.5 text-xs font-semibold rounded-md border text-center transition-all ${
                       language === 'fr'
-                        ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
-                        : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                        : 'bg-[var(--color-bg)] text-[var(--color-text)] border-[var(--color-border)]'
                     }`}
                   >
                     FR
@@ -571,7 +561,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                         onNavigate('admin');
                         setIsMobileMenuOpen(false);
                       }}
-                      className="text-[#B3261E] font-semibold text-xs flex items-center gap-1.5"
+                      className="text-[var(--color-primary)] font-semibold text-xs flex items-center gap-1.5"
                     >
                       <ShieldCheck className="w-4 h-4" />
                       <span>{t.nav.admin}</span>

@@ -71,7 +71,7 @@ export function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBE7E3] text-[#340404]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-text)]">
       {/* If inside Admin view, render full-screen Admin Dashboard without store header/footer */}
       {currentPage === 'admin' ? (
         <AdminDashboard onReturnToStore={() => navigateTo('home')} />

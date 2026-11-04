@@ -69,11 +69,11 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
   ];
 
   return (
-    <div className="space-y-2 mt-1.5 p-3 bg-[#FBE7E3]/30 rounded-xs border border-[#E1D1E4]/70">
+    <div className="space-y-2 mt-1.5 p-3 bg-[var(--color-bg)]/30 rounded-xs border border-[var(--color-border)]/70">
       {/* Top Header: Score & Badge */}
       <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-1.5 font-medium text-[#340404]">
-          <Shield className="w-3.5 h-3.5 text-[#8E7C49]" />
+        <div className="flex items-center gap-1.5 font-medium text-[var(--color-text)]">
+          <Shield className="w-3.5 h-3.5 text-[var(--color-accent)]" />
           <span>{isAr ? 'قوة كلمة المرور:' : 'Password Security:'}</span>
         </div>
         <span
@@ -101,7 +101,7 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
 
       {/* Checklist */}
       {showChecklist && (
-        <div className="pt-1.5 border-t border-[#E1D1E4]/60 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
+        <div className="pt-1.5 border-t border-[var(--color-border)]/60 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
           {checklistItems.map((item) => (
             <div
               key={item.key}
@@ -122,7 +122,7 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
 
       {/* Warning if common */}
       {!analysis.checks.notCommon && (
-        <div className="flex items-center gap-1.5 text-[11px] text-[#E22001] bg-red-50 p-1.5 rounded-xs">
+        <div className="flex items-center gap-1.5 text-[11px] text-[var(--color-primary)] bg-red-50 p-1.5 rounded-xs">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           <span>
             {isAr

@@ -238,7 +238,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       }
 
-      // 3. Fetch inventory stock balances from MySQL
+      // 3. Fetch live dynamic orders from MySQL
+      const ordRes = await fetch('/api/orders');
+      if (ordRes.ok) {
+        const ordData = await ordRes.json();
+        if (ordData?.success && Array.isArray(ordData.orders) && ordData.orders.length > 0) {
+          setOrders(ordData.orders);
+        }
+      }
+
+      // 4. Fetch inventory stock balances from MySQL
       const invRes = await fetch('/api/inventory/balances');
       if (invRes.ok) {
         const invData = await invRes.json();
@@ -247,7 +256,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       }
 
-      // 4. Fetch MySQL status
+      // 5. Fetch MySQL status
       const dbRes = await fetch('/api/db/status');
       if (dbRes.ok) {
         const dbData = await dbRes.json();
@@ -256,7 +265,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       }
 
-      // 5. Fetch MySQL aggregated product sales analytics
+      // 6. Fetch MySQL aggregated product sales analytics
       const salesRes = await fetch('/api/sales/analytics');
       if (salesRes.ok) {
         const salesData = await salesRes.json();
@@ -484,6 +493,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const addOrder = (order: Order) => {
     setOrders((prev) => [order, ...prev]);
 
+    // Persist full order in MySQL
+    fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order),
+    }).catch((err) => console.warn('Failed to save order in MySQL:', err));
+
     // Asynchronously record individual product sales line items into MySQL
     recordSalesForOrder(order);
   };
@@ -508,6 +524,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
       })
     );
+
+    // Persist status change to MySQL
+    fetch(`/api/orders/${orderId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, note }),
+    }).catch((err) => console.warn('Failed to update order status in MySQL:', err));
   };
 
   const confirmDeliveryPayment = (
@@ -552,6 +575,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return o;
       })
     );
+
+    // Persist payment confirmation to MySQL
+    fetch(`/api/orders/${targetOrder.id}/confirm-payment`, {
+      method: 'POST',
+    }).catch((err) => console.warn('Failed to confirm order payment in MySQL:', err));
 
     return {
       success: true,

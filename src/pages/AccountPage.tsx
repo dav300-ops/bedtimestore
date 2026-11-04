@@ -152,7 +152,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   // If user is not logged in or is guest, show complete embedded auth system
   if (!currentUser || currentUser.isGuest) {
     return (
-      <div className="bg-[#FBE7E3] min-h-screen py-10 px-4">
+      <div className="bg-[var(--color-bg)] min-h-screen py-10 px-4">
         <div className="max-w-md mx-auto">
           <AuthModal
             embedded={true}
@@ -187,36 +187,36 @@ export const AccountPage: React.FC<AccountPageProps> = ({
   ];
 
   return (
-    <div className="bg-[#FBE7E3] min-h-screen py-10">
+    <div className="bg-[var(--color-bg)] min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* User Header Profile Card */}
-        <div className="bg-white p-6 sm:p-8 rounded-sm border border-[#E1D1E4] shadow-xs mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
             {currentUser.avatarUrl ? (
               <img
                 src={currentUser.avatarUrl}
                 alt={currentUser.firstName}
-                className="w-16 h-16 rounded-full object-cover border-2 border-[#8E7C49] shadow-xs shrink-0"
+                className="w-16 h-16 rounded-full object-cover border-2 border-[var(--color-accent)] shadow-xs shrink-0"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-[#340404] text-[#FBE7E3] flex items-center justify-center font-heading text-2xl font-bold shrink-0 border-2 border-[#8E7C49]">
+              <div className="w-16 h-16 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] flex items-center justify-center font-heading text-2xl font-bold shrink-0 border-2 border-[var(--color-accent)]">
                 {currentUser.firstName.charAt(0)}
               </div>
             )}
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#8E7C49]">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
                   {isAr ? 'عضوية ذا بدتايم ستور' : 'Boutique Client Profile'}
                 </span>
                 
               </div>
 
-              <h1 className="font-heading text-2xl sm:text-3xl font-semibold text-[#340404]">
+              <h1 className="font-heading text-2xl sm:text-3xl font-semibold text-[var(--color-text)]">
                 {t.account.welcome}, {currentUser.firstName} {currentUser.lastName}
               </h1>
-              <p className="text-xs text-[#340404]/70">
+              <p className="text-xs text-[var(--color-text)]/70">
                 {currentUser.email} · {currentUser.phone}
               </p>
             </div>
@@ -226,25 +226,25 @@ export const AccountPage: React.FC<AccountPageProps> = ({
             {isAdmin && (
               <button
                 onClick={onNavigateAdmin}
-                className="px-4 py-2 bg-[#340404] hover:bg-black text-[#FBE7E3] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <ShieldCheck className="w-4 h-4 text-[#E22001]" />
+                <ShieldCheck className="w-4 h-4 text-[var(--color-primary)]" />
                 <span>{t.nav.admin}</span>
               </button>
             )}
 
             <button
               onClick={logout}
-              className="px-4 py-2 bg-white border border-[#E1D1E4] hover:bg-[#FBE7E3] text-[#340404] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white border border-[var(--color-border)] hover:bg-[var(--color-bg)] text-[var(--color-text)] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5 text-[#E22001]" />
+              <LogOut className="w-3.5 h-3.5 text-[var(--color-primary)]" />
               <span>{t.account.logout}</span>
             </button>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-[#E1D1E4] mb-8 overflow-x-auto gap-2">
+        <div className="flex border-b border-[var(--color-border)] mb-8 overflow-x-auto gap-2">
           {[
             { id: 'orders', label: t.account.orders, icon: Package, count: userOrders.length },
             { id: 'wishlist', label: t.account.wishlist, icon: Heart, count: wishlistProducts.length },
@@ -259,14 +259,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`py-3 px-5 text-xs font-semibold uppercase tracking-wider rounded-t-xs transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-[#E22001] border-t-2 border-[#E22001] shadow-xs font-bold'
-                    : 'bg-[#E1D1E4]/50 text-[#340404] hover:bg-white'
+                    ? 'bg-[var(--color-card)] text-[var(--color-primary)] border-t-2 border-[var(--color-primary)] shadow-xs font-bold'
+                    : 'bg-[var(--color-border)]/50 text-[var(--color-text)] hover:bg-white'
                 }`}
               >
                 <Icon className="w-4 h-4" />
                 <span>{tab.label}</span>
                 {tab.count !== undefined && (
-                  <span className="px-1.5 py-0.2 bg-[#FBE7E3] text-[#340404] rounded-full text-[10px] tabular-nums">
+                  <span className="px-1.5 py-0.2 bg-[var(--color-bg)] text-[var(--color-text)] rounded-full text-[10px] tabular-nums">
                     {tab.count}
                   </span>
                 )}
@@ -286,55 +286,55 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           {activeTab === 'orders' && (
             <div className="space-y-4">
               {userOrders.length === 0 ? (
-                <div className="bg-white p-12 text-center rounded-sm border border-[#E1D1E4] space-y-2">
-                  <p className="text-sm font-semibold text-[#340404]">{t.account.noOrders}</p>
+                <div className="bg-[var(--color-card)] p-12 text-center rounded-sm border border-[var(--color-border)] space-y-2">
+                  <p className="text-sm font-semibold text-[var(--color-text)]">{t.account.noOrders}</p>
                 </div>
               ) : (
                 userOrders.map((ord) => (
                   <div
                     key={ord.id}
-                    className="bg-white p-6 rounded-sm border border-[#E1D1E4] shadow-xs space-y-4"
+                    className="bg-[var(--color-card)] p-6 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4"
                   >
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono font-bold text-sm text-[#340404]">{ord.orderNumber}</span>
+                          <span className="font-mono font-bold text-sm text-[var(--color-text)]">{ord.orderNumber}</span>
                           <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-xs ${
                             ord.orderStatus === 'Delivered'
                               ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-[#FBE7E3] text-[#8E7C49]'
+                              : 'bg-[var(--color-bg)] text-[var(--color-accent)]'
                           }`}>
                             {ord.orderStatus}
                           </span>
                           {ord.paymentMethod === 'pay_on_delivery' && ord.deliveryVerificationCode && (
-                            <span className="bg-[#8E7C49]/10 text-[#8E7C49] font-mono text-[10px] px-2 py-0.5 rounded-xs font-semibold">
+                            <span className="bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-mono text-[10px] px-2 py-0.5 rounded-xs font-semibold">
                               PIN: {ord.deliveryVerificationCode}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-[#340404]/70">
+                        <p className="text-xs text-[var(--color-text)]/70">
                           {new Date(ord.createdAt).toLocaleDateString()} · {ord.paymentMethod.replace('_', ' ').toUpperCase()}
                         </p>
-                        <p className="text-xs text-[#340404]/80">
+                        <p className="text-xs text-[var(--color-text)]/80">
                           {ord.shippingAddress.buildingNumber}, {ord.shippingAddress.roadNumber}, {ord.shippingAddress.area}, Bahrain
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2 sm:gap-3 self-end md:self-auto flex-wrap sm:flex-nowrap">
-                        <span className="font-bold text-base text-[#340404] tabular-nums mr-2 rtl:mr-0 rtl:ml-2">
+                        <span className="font-bold text-base text-[var(--color-text)] tabular-nums mr-2 rtl:mr-0 rtl:ml-2">
                           {formatBHD(ord.total)}
                         </span>
                         <button
                           onClick={() => setSelectedReceiptOrder(ord)}
-                          className="px-3 py-2 bg-white border border-[#E1D1E4] hover:bg-[#FBE7E3] text-[#340404] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                          className="px-3 py-2 bg-[var(--color-card)] border border-[var(--color-border)] hover:bg-[var(--color-bg)] text-[var(--color-text)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                           title="View & Send Purchase Receipt"
                         >
-                          <FileText className="w-3.5 h-3.5 text-[#8E7C49]" />
+                          <FileText className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                           <span>{isAr ? 'الإيصال' : 'Receipt'}</span>
                         </button>
                         <button
                           onClick={() => setInspectOrder(ord)}
-                          className="px-4 py-2 bg-[#E1D1E4] hover:bg-[#d8c3dc] text-[#340404] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
+                          className="px-4 py-2 bg-[var(--color-border)] hover:bg-[var(--color-card)] text-[var(--color-text)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
                         >
                           {isAr ? 'تتبع وتفاصيل' : 'Track Order'}
                         </button>
@@ -343,14 +343,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
                     {/* Product Identification Thumbnail Strip for Customer Recognition */}
                     {ord.items && ord.items.length > 0 && (
-                      <div className="pt-3 border-t border-[#E1D1E4]/60">
-                        <span className="text-[10px] uppercase font-semibold text-[#8E7C49] tracking-wider block mb-2">
+                      <div className="pt-3 border-t border-[var(--color-border)]/60">
+                        <span className="text-[10px] uppercase font-semibold text-[var(--color-accent)] tracking-wider block mb-2">
                           {isAr ? 'القطع المشمولة في هذا الطلب (انقري للتعرف على المنتج):' : 'Identified Items in this Order (Click to View):'}
                         </span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                           {ord.items.map((item, idx) => {
                             const matchedProd = products.find((p) => p.id === item.productId);
-                            const imgUrl = item.image || matchedProd?.images?.[0] || '/src/assets/images/hero_luxury_sleepwear_1791490145358.jpg';
+                            const imgUrl = item.image || matchedProd?.images?.[0] || '/images/hero_pic.jpeg';
 
                             return (
                               <div
@@ -358,30 +358,30 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                                 onClick={() => {
                                   if (matchedProd) onSelectProduct(matchedProd);
                                 }}
-                                className="flex items-center gap-3 p-2 bg-[#FAF5F2] hover:bg-[#FBE7E3] border border-[#E1D1E4] rounded-xs transition-colors cursor-pointer group"
+                                className="flex items-center gap-3 p-2 bg-[var(--color-bg)] hover:bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xs transition-colors cursor-pointer group"
                                 title={isAr ? 'انقري لعرض تفاصيل القطعة' : 'Click to view product details'}
                               >
-                                <div className="w-12 h-14 bg-white rounded-xs overflow-hidden border border-[#8E7C49]/40 shrink-0 relative shadow-2xs">
+                                <div className="w-12 h-14 bg-[var(--color-card)] rounded-xs overflow-hidden border border-[var(--color-accent)]/40 shrink-0 relative shadow-2xs">
                                   <img
                                     src={imgUrl}
                                     alt={isAr ? item.nameAr : item.nameEn}
                                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform"
                                   />
                                   {item.quantity > 1 && (
-                                    <span className="absolute bottom-0 right-0 bg-[#340404] text-white text-[9px] font-mono px-1 rounded-tl-xs">
+                                    <span className="absolute bottom-0 right-0 bg-[var(--color-text)] text-white text-[9px] font-mono px-1 rounded-tl-xs">
                                       x{item.quantity}
                                     </span>
                                   )}
                                 </div>
 
                                 <div className="min-w-0 flex-1">
-                                  <p className="font-semibold text-xs text-[#340404] truncate group-hover:text-[#E22001] transition-colors">
+                                  <p className="font-semibold text-xs text-[var(--color-text)] truncate group-hover:text-[var(--color-primary)] transition-colors">
                                     {isAr ? item.nameAr : item.nameEn}
                                   </p>
                                   <p className="text-[10px] text-gray-500 font-mono mt-0.5">
                                     {item.size} · {item.color}
                                   </p>
-                                  <p className="text-[11px] font-bold text-[#340404] mt-0.5 tabular-nums">
+                                  <p className="text-[11px] font-bold text-[var(--color-text)] mt-0.5 tabular-nums">
                                     {formatBHD(item.totalPrice || item.unitPrice * item.quantity)}
                                   </p>
                                 </div>
@@ -401,8 +401,8 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           {activeTab === 'wishlist' && (
             <div>
               {wishlistProducts.length === 0 ? (
-                <div className="bg-white p-12 text-center rounded-sm border border-[#E1D1E4] space-y-2">
-                  <p className="text-sm font-semibold text-[#340404]">{t.account.noWishlist}</p>
+                <div className="bg-[var(--color-card)] p-12 text-center rounded-sm border border-[var(--color-border)] space-y-2">
+                  <p className="text-sm font-semibold text-[var(--color-text)]">{t.account.noWishlist}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
@@ -423,12 +423,12 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           {activeTab === 'addresses' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                   {isAr ? 'عناوين التوصيل في مملكة البحرين' : 'Bahrain Delivery Addresses'}
                 </h3>
                 <button
                   onClick={() => setIsAddingAddress(!isAddingAddress)}
-                  className="px-4 py-2 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{isAr ? 'إضافة عنوان جديد' : 'Add New Address'}</span>
@@ -437,47 +437,47 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
               {/* Add Address Form */}
               {isAddingAddress && (
-                <form onSubmit={handleAddAddress} className="bg-white p-6 rounded-sm border border-[#E1D1E4] space-y-4">
+                <form onSubmit={handleAddAddress} className="bg-[var(--color-card)] p-6 rounded-sm border border-[var(--color-border)] space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#340404]">{t.checkout.building} *</label>
+                      <label className="font-semibold text-[var(--color-text)]">{t.checkout.building} *</label>
                       <input
                         type="text"
                         required
                         value={newBuilding}
                         onChange={(e) => setNewBuilding(e.target.value)}
-                        className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                        className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#340404]">{t.checkout.road} *</label>
+                      <label className="font-semibold text-[var(--color-text)]">{t.checkout.road} *</label>
                       <input
                         type="text"
                         required
                         value={newRoad}
                         onChange={(e) => setNewRoad(e.target.value)}
-                        className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                        className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#340404]">{t.checkout.block} *</label>
+                      <label className="font-semibold text-[var(--color-text)]">{t.checkout.block} *</label>
                       <input
                         type="text"
                         required
                         value={newBlock}
                         onChange={(e) => setNewBlock(e.target.value)}
-                        className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                        className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#340404]">{t.checkout.area} *</label>
+                      <label className="font-semibold text-[var(--color-text)]">{t.checkout.area} *</label>
                       <input
                         type="text"
                         required
                         value={newArea}
                         onChange={(e) => setNewArea(e.target.value)}
                         placeholder="e.g. Seef, Adliya, Saar"
-                        className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                        className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                       />
                     </div>
                   </div>
@@ -485,7 +485,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   <div className="flex gap-2">
                     <button
                       type="submit"
-                      className="px-5 py-2.5 bg-[#E22001] text-white text-xs font-semibold uppercase tracking-wider rounded-xs cursor-pointer"
+                      className="px-5 py-2.5 bg-[var(--color-primary)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs cursor-pointer"
                     >
                       {isAr ? 'حفظ العنوان' : 'Save Address'}
                     </button>
@@ -503,19 +503,19 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               {/* Address Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {currentUser.savedAddresses.map((addr, idx) => (
-                  <div key={idx} className="bg-white p-5 rounded-sm border border-[#E1D1E4] space-y-2 text-xs">
-                    <div className="flex items-center gap-2 text-[#8E7C49] font-bold uppercase tracking-wider">
+                  <div key={idx} className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] space-y-2 text-xs">
+                    <div className="flex items-center gap-2 text-[var(--color-accent)] font-bold uppercase tracking-wider">
                       <MapPin className="w-4 h-4" />
                       <span>{isAr ? `عنوان رقم ${idx + 1}` : `Address #${idx + 1}`}</span>
                     </div>
-                    <p className="font-semibold text-[#340404]">
+                    <p className="font-semibold text-[var(--color-text)]">
                       {addr.buildingNumber}, {addr.roadNumber}, {addr.blockNumber}
                     </p>
-                    <p className="text-[#340404]/80">
+                    <p className="text-[var(--color-text)]/80">
                       {addr.area}, {addr.city}, Bahrain
                     </p>
                     {addr.additionalInstructions && (
-                      <p className="text-[11px] text-[#340404]/60 italic">
+                      <p className="text-[11px] text-[var(--color-text)]/60 italic">
                         {addr.additionalInstructions}
                       </p>
                     )}
@@ -531,11 +531,11 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Section A: Change Password */}
-                <div className="bg-white p-6 sm:p-7 rounded-sm border border-[#E1D1E4] shadow-xs space-y-5">
-                  <div className="flex items-center gap-2.5 border-b border-[#E1D1E4] pb-3">
-                    <KeyRound className="w-5 h-5 text-[#8E7C49]" />
+                <div className="bg-[var(--color-card)] p-6 sm:p-7 rounded-sm border border-[var(--color-border)] shadow-xs space-y-5">
+                  <div className="flex items-center gap-2.5 border-b border-[var(--color-border)] pb-3">
+                    <KeyRound className="w-5 h-5 text-[var(--color-accent)]" />
                     <div>
-                      <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                      <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                         {t.account.changePassword}
                       </h3>
                       <p className="text-[11px] text-gray-500">
@@ -560,7 +560,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
                   <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#340404]">
+                      <label className="font-semibold text-[var(--color-text)]">
                         {t.account.currentPassword} *
                       </label>
                       <div className="relative">
@@ -570,7 +570,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                           value={currentPasswordInput}
                           onChange={(e) => setCurrentPasswordInput(e.target.value)}
                           placeholder="••••••••"
-                          className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs pr-10 rtl:pr-3 rtl:pl-10 outline-none focus:ring-1 focus:ring-[#E22001]"
+                          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs pr-10 rtl:pr-3 rtl:pl-10 outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                         />
                         <button
                           type="button"
@@ -583,7 +583,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#340404]">
+                      <label className="font-semibold text-[var(--color-text)]">
                         {t.account.newPassword} *
                       </label>
                       <div className="relative">
@@ -593,7 +593,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                           value={newPasswordInput}
                           onChange={(e) => setNewPasswordInput(e.target.value)}
                           placeholder="••••••••"
-                          className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs pr-10 rtl:pr-3 rtl:pl-10 outline-none focus:ring-1 focus:ring-[#E22001]"
+                          className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs pr-10 rtl:pr-3 rtl:pl-10 outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                         />
                         <button
                           type="button"
@@ -609,7 +609,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#340404]">
+                      <label className="font-semibold text-[var(--color-text)]">
                         {t.account.confirmNewPassword} *
                       </label>
                       <input
@@ -618,14 +618,14 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         value={confirmPasswordInput}
                         onChange={(e) => setConfirmPasswordInput(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs outline-none focus:ring-1 focus:ring-[#E22001]"
+                        className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={isChangingPass}
-                      className="w-full py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
+                      className="w-full py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
                     >
                       {isChangingPass ? (isAr ? 'جارٍ التحديث...' : 'Updating Security...') : t.account.updatePassword}
                     </button>
@@ -636,11 +636,11 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                 <div className="space-y-6">
                   
                   {/* Two-Factor Authentication Card */}
-                  <div className="bg-white p-6 sm:p-7 rounded-sm border border-[#E1D1E4] shadow-xs space-y-4">
-                    <div className="flex items-center justify-between border-b border-[#E1D1E4] pb-3">
+                  <div className="bg-[var(--color-card)] p-6 sm:p-7 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
+                    <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-5 h-5 text-[#8E7C49]" />
-                        <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                        <ShieldCheck className="w-5 h-5 text-[var(--color-accent)]" />
+                        <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                           {t.account.twoFactorAuth}
                         </h3>
                       </div>
@@ -661,7 +661,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
                     <div className="flex items-center justify-between pt-2">
                       <div className="flex items-center gap-2 text-xs">
-                        <Smartphone className="w-4 h-4 text-[#8E7C49]" />
+                        <Smartphone className="w-4 h-4 text-[var(--color-accent)]" />
                         <span className="font-medium">
                           {currentUser.twoFactorEnabled ? 'Google / Apple Authenticator' : (isAr ? 'غير مفعل' : 'Not configured')}
                         </span>
@@ -673,7 +673,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
                           currentUser.twoFactorEnabled
                             ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                            : 'bg-[#340404] hover:bg-black text-white'
+                            : 'bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-white'
                         }`}
                       >
                         {currentUser.twoFactorEnabled ? t.account.disable2FA : t.account.enable2FA}
@@ -682,9 +682,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   </div>
 
                   {/* Connected OAuth Accounts Card */}
-                  <div className="bg-white p-6 sm:p-7 rounded-sm border border-[#E1D1E4] shadow-xs space-y-4">
-                    <div className="border-b border-[#E1D1E4] pb-3">
-                      <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                  <div className="bg-[var(--color-card)] p-6 sm:p-7 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
+                    <div className="border-b border-[var(--color-border)] pb-3">
+                      <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                         {t.account.connectedAccounts}
                       </h3>
                       <p className="text-[11px] text-gray-500">
@@ -692,7 +692,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                       </p>
                     </div>
 
-                    <div className="divide-y divide-[#E1D1E4] text-xs">
+                    <div className="divide-y divide-[var(--color-border)] text-xs">
                       {/* Google */}
                       <div className="py-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -747,11 +747,11 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               </div>
 
               {/* Section C: Security Activity Audit Log */}
-              <div className="bg-white p-6 sm:p-7 rounded-sm border border-[#E1D1E4] shadow-xs space-y-4">
-                <div className="flex items-center justify-between border-b border-[#E1D1E4] pb-3">
+              <div className="bg-[var(--color-card)] p-6 sm:p-7 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
                   <div className="flex items-center gap-2">
-                    <History className="w-5 h-5 text-[#8E7C49]" />
-                    <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                    <History className="w-5 h-5 text-[var(--color-accent)]" />
+                    <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                       {t.account.securityLog}
                     </h3>
                   </div>
@@ -760,7 +760,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   </span>
                 </div>
 
-                <div className="divide-y divide-[#E1D1E4] text-xs">
+                <div className="divide-y divide-[var(--color-border)] text-xs">
                   {securityLogs.map((log) => {
                     const isSuccess = log.action === 'login_success' || log.action === 'oauth_connected' || log.action === '2fa_enabled';
                     return (
@@ -805,26 +805,26 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
       {/* Inspect Order Tracking Modal */}
       {inspectOrder && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/60 backdrop-blur-xs">
-          <div className="bg-white rounded-sm max-w-lg w-full p-6 sm:p-8 space-y-6 border border-[#E1D1E4]">
-            <div className="flex justify-between items-center border-b border-[#E1D1E4] pb-3">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
+          <div className="bg-[var(--color-card)] rounded-sm max-w-lg w-full p-6 sm:p-8 space-y-6 border border-[var(--color-border)]">
+            <div className="flex justify-between items-center border-b border-[var(--color-border)] pb-3">
               <div>
-                <h3 className="font-heading text-xl font-semibold text-[#340404]">
+                <h3 className="font-heading text-xl font-semibold text-[var(--color-text)]">
                   {isAr ? 'تتبع حالة الطلب' : 'Live Order Tracking'}
                 </h3>
-                <p className="font-mono text-xs text-[#8E7C49]">{inspectOrder.orderNumber}</p>
+                <p className="font-mono text-xs text-[var(--color-accent)]">{inspectOrder.orderNumber}</p>
               </div>
               <button
                 onClick={() => setInspectOrder(null)}
-                className="text-gray-400 hover:text-black cursor-pointer"
+                className="text-gray-400 hover:text-[var(--color-text)] cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             <div className="space-y-4">
-              <div className="p-3 bg-[#FBE7E3]/40 rounded-xs border border-[#E1D1E4] text-xs space-y-1">
-                <p><strong>{isAr ? 'الحالة الحالية:' : 'Current Status:'}</strong> <span className="text-[#E22001] font-bold">{inspectOrder.orderStatus}</span></p>
+              <div className="p-3 bg-[var(--color-bg)]/40 rounded-xs border border-[var(--color-border)] text-xs space-y-1">
+                <p><strong>{isAr ? 'الحالة الحالية:' : 'Current Status:'}</strong> <span className="text-[var(--color-primary)] font-bold">{inspectOrder.orderStatus}</span></p>
                 <p><strong>{isAr ? 'وسيلة الدفع:' : 'Payment:'}</strong> {inspectOrder.paymentMethod === 'pay_on_delivery' ? (isAr ? 'الدفع عند الاستلام' : 'Pay On Delivery') : inspectOrder.paymentMethod.replace('_', ' ').toUpperCase()} ({inspectOrder.paymentStatus})</p>
                 <p><strong>{isAr ? 'المبلغ الكلي:' : 'Total Amount:'}</strong> {formatBHD(inspectOrder.total)}</p>
               </div>
@@ -832,16 +832,16 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               {/* Product Visual Identification in Order Tracking */}
               {inspectOrder.items && inspectOrder.items.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-[#340404] flex items-center justify-between">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text)] flex items-center justify-between">
                     <span>{isAr ? 'القطع المشمولة في هذا الطلب:' : 'Items Included in this Order:'}</span>
-                    <span className="text-[10px] font-mono text-[#8E7C49]">
+                    <span className="text-[10px] font-mono text-[var(--color-accent)]">
                       {inspectOrder.items.length} {isAr ? 'قطع' : 'items'}
                     </span>
                   </h4>
-                  <div className="divide-y divide-[#E1D1E4] border border-[#E1D1E4] rounded-xs bg-[#FAF5F2] overflow-hidden max-h-48 overflow-y-auto">
+                  <div className="divide-y divide-[var(--color-border)] border border-[var(--color-border)] rounded-xs bg-[var(--color-bg)] overflow-hidden max-h-48 overflow-y-auto">
                     {inspectOrder.items.map((item, idx) => {
                       const matchedProd = products.find((p) => p.id === item.productId);
-                      const img = item.image || matchedProd?.images?.[0] || '/src/assets/images/hero_luxury_sleepwear_1791490145358.jpg';
+                      const img = item.image || matchedProd?.images?.[0] || '/images/hero_pic.jpeg';
 
                       return (
                         <div key={idx} className="p-2.5 flex items-center justify-between gap-3 text-xs bg-white">
@@ -852,7 +852,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                               className="w-10 h-12 object-cover rounded-xs border border-gray-200 shrink-0"
                             />
                             <div className="min-w-0">
-                              <p className="font-semibold text-[#340404] truncate">
+                              <p className="font-semibold text-[var(--color-text)] truncate">
                                 {isAr ? item.nameAr : item.nameEn}
                               </p>
                               <p className="text-[10px] text-gray-500 font-mono">
@@ -860,7 +860,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                               </p>
                             </div>
                           </div>
-                          <span className="font-bold text-[#340404] tabular-nums shrink-0">
+                          <span className="font-bold text-[var(--color-text)] tabular-nums shrink-0">
                             {formatBHD(item.totalPrice || item.unitPrice * item.quantity)}
                           </span>
                         </div>
@@ -871,10 +871,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({
               )}
 
               {inspectOrder.paymentMethod === 'pay_on_delivery' && inspectOrder.deliveryVerificationCode && (
-                <div className="p-4 bg-white rounded-xs border-2 border-[#8E7C49] space-y-3">
+                <div className="p-4 bg-white rounded-xs border-2 border-[var(--color-accent)] space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-bold text-[#340404]">
-                      <Truck className="w-4 h-4 text-[#8E7C49]" />
+                    <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-text)]">
+                      <Truck className="w-4 h-4 text-[var(--color-accent)]" />
                       <span>{isAr ? 'رمز وباركود التحقق عند الاستلام' : 'On-Delivery Verification PIN & QR'}</span>
                     </div>
                     {inspectOrder.paymentStatus === 'Paid' ? (
@@ -888,10 +888,10 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between bg-[#FBE7E3]/50 p-2.5 rounded-xs border border-[#E1D1E4]">
+                  <div className="flex items-center justify-between bg-[var(--color-bg)]/50 p-2.5 rounded-xs border border-[var(--color-border)]">
                     <div>
-                      <span className="text-[9px] text-[#8E7C49] uppercase font-mono block">6-Digit PIN</span>
-                      <span className="font-mono text-2xl font-extrabold text-[#340404] tracking-widest tabular-nums">
+                      <span className="text-[9px] text-[var(--color-accent)] uppercase font-mono block">6-Digit PIN</span>
+                      <span className="font-mono text-2xl font-extrabold text-[var(--color-text)] tracking-widest tabular-nums">
                         {inspectOrder.deliveryVerificationCode}
                       </span>
                     </div>
@@ -903,24 +903,24 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                       showDownload={true}
                     />
                   </div>
-                  <p className="text-[10px] text-[#340404]/70 leading-normal">
+                  <p className="text-[10px] text-[var(--color-text)]/70 leading-normal">
                     {isAr ? 'يرجى إبراز هذا الرمز أو ترك المندوب يمسح الباركود لتأكيد الدفع عند استلام الطرد.' : 'Present this PIN or let the delivery courier scan your QR code upon delivery.'}
                   </p>
                 </div>
               )}
 
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-[#340404]">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text)]">
                   {isAr ? 'سجل مراحل التوصيل' : 'Status Timeline'}
                 </h4>
-                <div className="space-y-2 border-l-2 rtl:border-l-0 rtl:border-r-2 border-[#8E7C49] pl-3 rtl:pl-0 rtl:pr-3">
+                <div className="space-y-2 border-l-2 rtl:border-l-0 rtl:border-r-2 border-[var(--color-accent)] pl-3 rtl:pl-0 rtl:pr-3">
                   {inspectOrder.statusHistory.map((h, i) => (
                     <div key={i} className="text-xs">
-                      <p className="font-semibold text-[#340404]">{h.status}</p>
-                      <p className="text-[11px] text-[#340404]/60">
+                      <p className="font-semibold text-[var(--color-text)]">{h.status}</p>
+                      <p className="text-[11px] text-[var(--color-text)]/60">
                         {new Date(h.timestamp).toLocaleString()}
                       </p>
-                      {h.note && <p className="text-[11px] text-[#8E7C49] mt-0.5">{h.note}</p>}
+                      {h.note && <p className="text-[11px] text-[var(--color-accent)] mt-0.5">{h.note}</p>}
                     </div>
                   ))}
                 </div>
@@ -934,7 +934,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   const ordToInspect = inspectOrder;
                   setSelectedReceiptOrder(ordToInspect);
                 }}
-                className="flex-1 py-2.5 bg-[#8E7C49] hover:bg-[#7a6b3f] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                className="flex-1 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
               >
                 <FileText className="w-4 h-4" />
                 <span>{isAr ? 'عرض وإرسال إيصال الشراء' : 'View & Send Receipt'}</span>
@@ -942,7 +942,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
 
               <button
                 onClick={() => setInspectOrder(null)}
-                className="px-6 py-2.5 bg-[#340404] hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xs cursor-pointer transition-colors"
+                className="px-6 py-2.5 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs cursor-pointer transition-colors"
               >
                 {isAr ? 'إغلاق' : 'Close'}
               </button>

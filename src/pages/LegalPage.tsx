@@ -15,21 +15,21 @@ export const LegalPage: React.FC<LegalPageProps> = ({
   const [activeSection, setActiveSection] = useState(initialSection);
 
   return (
-    <div className="bg-[#FBE7E3] min-h-screen py-12">
+    <div className="bg-[var(--color-bg)] min-h-screen py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-xl mx-auto mb-10 space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#8E7C49]">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
             {language === 'ar' ? 'مملكة البحرين · الشفافية والأمان' : 'Kingdom of Bahrain · Transparency'}
           </span>
-          <h1 className="font-heading text-3xl font-semibold text-[#340404]">
+          <h1 className="font-heading text-3xl font-semibold text-[var(--color-text)]">
             {language === 'ar' ? 'السياسات والشروط الرسمية' : 'Store Policies & Terms'}
           </h1>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-[#E1D1E4] mb-8 overflow-x-auto gap-2">
+        <div className="flex border-b border-[var(--color-border)] mb-8 overflow-x-auto gap-2">
           {[
             { id: 'shipping', label: t.footer.shippingPolicy, icon: Truck },
             { id: 'refund', label: t.footer.refundPolicy, icon: RefreshCw },
@@ -42,10 +42,10 @@ export const LegalPage: React.FC<LegalPageProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveSection(tab.id as any)}
-                className={`py-3 px-5 text-xs font-semibold uppercase tracking-wider rounded-t-xs transition-all flex items-center gap-2 whitespace-nowrap ${
+                className={`py-3 px-5 text-xs font-semibold uppercase tracking-wider rounded-t-xs transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-[#E22001] border-t-2 border-[#E22001] shadow-xs font-bold'
-                    : 'bg-[#E1D1E4]/50 text-[#340404] hover:bg-white'
+                    ? 'bg-[var(--color-card)] text-[var(--color-primary)] border-t-2 border-[var(--color-primary)] shadow-xs font-bold'
+                    : 'bg-[var(--color-card)]/40 text-[var(--color-text)] hover:bg-[var(--color-card)]/80'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -56,11 +56,11 @@ export const LegalPage: React.FC<LegalPageProps> = ({
         </div>
 
         {/* Content Box */}
-        <div className="bg-white p-8 sm:p-12 rounded-sm border border-[#E1D1E4] shadow-xs text-xs sm:text-sm text-[#340404]/80 leading-relaxed space-y-6">
+        <div className="bg-[var(--color-card)] p-8 sm:p-12 rounded-sm border border-[var(--color-border)] shadow-xs text-xs sm:text-sm text-[var(--color-text-secondary)] leading-relaxed space-y-6">
           
           {activeSection === 'shipping' && (
             <div className="space-y-4">
-              <h2 className="font-heading text-2xl font-semibold text-[#340404]">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text)]">
                 {language === 'ar' ? 'سياسة الشحن والتوصيل في مملكة البحرين' : 'Bahrain Shipping Policy'}
               </h2>
               <p>
@@ -69,16 +69,16 @@ export const LegalPage: React.FC<LegalPageProps> = ({
                   : 'THE BEDTIME STORE delivers luxury nightwear to all governorates and areas in the Kingdom of Bahrain using climate-controlled courier vehicles to maintain the delicate drape and pristine finish of pure silk.'}
               </p>
               <ul className="list-disc pl-5 rtl:pl-0 rtl:pr-5 space-y-2">
-                <li><strong>{language === 'ar' ? 'التوصيل العادي:' : 'Standard Delivery:'}</strong> {language === 'ar' ? 'خلال ٢٤ إلى ٤٨ ساعة بقيمة ١.٥٠٠ د.ب لجميع مناطق البحرين.' : 'Within 24-48 hours at a flat rate of 1.500 BHD.'}</li>
-                <li><strong>{language === 'ar' ? 'التوصيل المجاني:' : 'Complimentary Delivery:'}</strong> {language === 'ar' ? 'توصيل مجاني بالكامل للطلبات التي تتجاوز قيمتها ٢٥.٠٠٠ د.ب.' : 'Free standard delivery on all orders exceeding 25.000 BHD.'}</li>
-                <li><strong>{language === 'ar' ? 'التوصيل السريع (في نفس اليوم):' : 'Same-Day Express:'}</strong> {language === 'ar' ? 'للطلبات المقدمة قبل الساعة ٢ ظهرًا بقيمة ٢.٥٠٠ د.ب.' : 'For orders confirmed before 2:00 PM at 2.500 BHD.'}</li>
+                <li><strong className="text-[var(--color-text)]">{language === 'ar' ? 'التوصيل العادي:' : 'Standard Delivery:'}</strong> {language === 'ar' ? 'خلال ٢٤ إلى ٤٨ ساعة بقيمة ١.٥٠٠ د.ب لجميع مناطق البحرين.' : 'Within 24-48 hours at a flat rate of 1.500 BHD.'}</li>
+                <li><strong className="text-[var(--color-text)]">{language === 'ar' ? 'التوصيل المجاني:' : 'Complimentary Delivery:'}</strong> {language === 'ar' ? 'توصيل مجاني بالكامل للطلبات التي تتجاوز قيمتها ٢٥.٠٠٠ د.ب.' : 'Free standard delivery on all orders exceeding 25.000 BHD.'}</li>
+                <li><strong className="text-[var(--color-text)]">{language === 'ar' ? 'التوصيل السريع (في نفس اليوم):' : 'Same-Day Express:'}</strong> {language === 'ar' ? 'للطلبات المقدمة قبل الساعة ٢ ظهرًا بقيمة ٢.٥٠٠ د.ب.' : 'For orders confirmed before 2:00 PM at 2.500 BHD.'}</li>
               </ul>
             </div>
           )}
 
           {activeSection === 'refund' && (
             <div className="space-y-4">
-              <h2 className="font-heading text-2xl font-semibold text-[#340404]">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text)]">
                 {language === 'ar' ? 'سياسة الاستبدال والاسترجاع' : 'Refund & Returns Policy'}
               </h2>
               <p>
@@ -96,7 +96,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
 
           {activeSection === 'privacy' && (
             <div className="space-y-4">
-              <h2 className="font-heading text-2xl font-semibold text-[#340404]">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text)]">
                 {language === 'ar' ? 'سياسة الخصوصية وحماية البيانات' : 'Privacy & Data Protection'}
               </h2>
               <p>
@@ -109,7 +109,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
 
           {activeSection === 'terms' && (
             <div className="space-y-4">
-              <h2 className="font-heading text-2xl font-semibold text-[#340404]">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--color-text)]">
                 {language === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}
               </h2>
               <p>
@@ -120,10 +120,10 @@ export const LegalPage: React.FC<LegalPageProps> = ({
             </div>
           )}
 
-          <div className="pt-6 border-t border-[#E1D1E4]">
+          <div className="pt-6 border-t border-[var(--color-border)]">
             <button
               onClick={onReturnToStore}
-              className="px-6 py-2.5 bg-[#E22001] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[#c01b01] transition-colors"
+              className="px-6 py-2.5 bg-[var(--color-primary)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs hover:bg-[var(--color-primary-hover)] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
               {language === 'ar' ? 'العودة للتسوق' : 'Return to Boutique'}
             </button>

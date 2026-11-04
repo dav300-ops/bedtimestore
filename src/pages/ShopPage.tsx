@@ -322,11 +322,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
   return (
     <div 
-      className="min-h-screen bg-[#FFF8F6] text-[#2A1A20] flex flex-col transition-colors"
-      style={{ 
-        backgroundColor: 'var(--bg-shop, #FFF8F6)',
-        color: 'var(--text-shop-main, #2A1A20)'
-      }}
+      className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] flex flex-col transition-colors"
     >
       {/* 3. Category Chips Row (replaces old left sidebar completely) */}
       <CategoryChips
@@ -364,7 +360,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             <button
               type="button"
               onClick={handleLoadMore}
-              className="h-[48px] px-8 rounded-[8px] bg-white hover:bg-[#DDD3EA] text-[#2A1A20] font-semibold text-[14px] border border-[#CFC3C6] hover:border-[#6B1E3F] shadow-xs hover:shadow-sm transition-all duration-150 inline-flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+              className="h-[48px] px-8 rounded-[8px] bg-[var(--color-card)] hover:bg-[var(--color-bg)] text-[var(--color-text)] hover:text-[var(--color-primary)] font-semibold text-[14px] border border-[var(--color-border)] hover:border-[var(--color-primary)] shadow-xs hover:shadow-sm transition-all duration-150 inline-flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
               <span>
                 {language === 'ar' 
@@ -375,12 +371,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                       ? 'Charger plus de modèles'
                       : 'Load more products'}
               </span>
-              <ArrowDown className="w-4 h-4 text-[#6B1E3F]" />
+              <ArrowDown className="w-4 h-4 text-[var(--color-primary)]" />
             </button>
 
             <span 
-              className="text-[13px] font-medium tabular-nums"
-              style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
+              className="text-[13px] font-medium tabular-nums text-[var(--color-text-secondary)]"
             >
               {language === 'ar' 
                 ? `عرض ${displayedProducts.length} من أصل ${totalFilteredCount} منتج` 

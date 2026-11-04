@@ -63,10 +63,10 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
         e.preventDefault();
         e.stopPropagation();
       }}
-      className="absolute inset-x-3 bottom-3 z-30 bg-white/98 rounded-[8px] p-3 shadow-xl border border-[#CFC3C6] animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md"
+      className="absolute inset-x-3 bottom-3 z-30 bg-[var(--color-card)] rounded-[8px] p-3 shadow-xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md"
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[12px] font-semibold text-[#2A1A20] uppercase tracking-wider">
+        <span className="text-[12px] font-semibold text-[var(--color-text)] uppercase tracking-wider">
           {language === 'ar' ? 'اختاري المقاس:' : language === 'ru' ? 'Выберите размер:' : language === 'fr' ? 'Choisissez la taille :' : 'Select Size:'}
         </span>
         <button
@@ -76,7 +76,7 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
             e.stopPropagation();
             onClose();
           }}
-          className="text-[#5F5357] hover:text-[#2A1A20] p-1 rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B3261E]"
+          className="text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] p-1 rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent)]"
           aria-label="Close size picker"
         >
           <X className="w-3.5 h-3.5" />
@@ -100,12 +100,12 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
                   onSelectSize(size);
                 }
               }}
-              className={`h-9 px-3 rounded-md text-[13px] font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] ${
+              className={`h-9 px-3 rounded-md text-[13px] font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                 isJustAdded
-                  ? 'bg-[#6B1E3F] text-white shadow-xs'
+                  ? 'bg-[var(--color-primary-hover)] text-white shadow-xs'
                   : isOutOfStock
-                    ? 'bg-neutral-100 text-[#5F5357]/40 line-through cursor-not-allowed border border-neutral-200'
-                    : 'bg-white hover:bg-[#DDD3EA] text-[#2A1A20] border border-[#CFC3C6] hover:border-[#6B1E3F]'
+                    ? 'opacity-40 line-through cursor-not-allowed border border-[var(--color-border)] text-[var(--color-text-secondary)]'
+                    : 'bg-[var(--color-bg)] hover:bg-[var(--color-card)] text-[var(--color-text)] border border-[var(--color-border)] hover:border-[var(--color-primary)]'
               }`}
             >
               {isJustAdded && <Check className="w-3 h-3 text-white" />}
@@ -116,7 +116,7 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
       </div>
 
       {justAddedSize && (
-        <p className="mt-2 text-[11px] font-bold text-center text-[#6B1E3F] animate-in fade-in">
+        <p className="mt-2 text-[11px] font-bold text-center text-[var(--color-primary)] animate-in fade-in">
           {language === 'ar' ? 'تمت الإضافة إلى الحقيبة ✓' : language === 'ru' ? 'Добавлено в корзину ✓' : language === 'fr' ? 'Ajouté au panier ✓' : 'Added to bag ✓'}
         </p>
       )}

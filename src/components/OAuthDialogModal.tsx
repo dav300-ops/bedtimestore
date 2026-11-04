@@ -58,8 +58,8 @@ export const OAuthDialogModal: React.FC<OAuthDialogModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/60 backdrop-blur-xs">
-      <div className="bg-white rounded-md max-w-md w-full border border-gray-200 shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
+      <div className="bg-[var(--color-card)] rounded-md max-w-md w-full border border-gray-200 shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header with Provider Branding */}
         {provider === 'google' ? (
@@ -211,7 +211,7 @@ export const OAuthDialogModal: React.FC<OAuthDialogModalProps> = ({
                           className="w-8 h-8 rounded-full object-cover border"
                         />
                         <div>
-                          <p className="text-xs font-semibold text-gray-900 group-hover:text-black">
+                          <p className="text-xs font-semibold text-gray-900 group-hover:text-[var(--color-text)]">
                             {preset.name}
                           </p>
                           <p className="text-[11px] text-gray-500 font-mono">@{preset.handle}</p>

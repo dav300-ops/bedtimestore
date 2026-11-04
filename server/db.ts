@@ -44,9 +44,9 @@ function getMySQLConfig(): {
       return {
         host: parsed.hostname || 'localhost',
         port: Number(parsed.port || 3306),
-        user: parsed.username || 'root',
-        password: parsed.password || undefined,
-        database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : 'bedtime_store',
+        user: parsed.username || 'thebedtime_str',
+        password: parsed.password || 'zZ48ByGhTn7385hdjd',
+        database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : 'thebedtime_store',
       };
     } catch {
       // Fallback to discrete vars
@@ -56,9 +56,9 @@ function getMySQLConfig(): {
   return {
     host: process.env.MYSQL_HOST || 'localhost',
     port: Number(process.env.MYSQL_PORT || 3306),
-    user: process.env.MYSQL_USER || 'bedtime_admin',
-    password: process.env.MYSQL_PASSWORD || 'bedtime_secure_password_2026',
-    database: process.env.MYSQL_DATABASE || 'bedtime_store',
+    user: process.env.MYSQL_USER || 'thebedtime_str',
+    password: process.env.MYSQL_PASSWORD || 'zZ48ByGhTn7385hdjd',
+    database: process.env.MYSQL_DATABASE || 'thebedtime_store',
   };
 }
 
@@ -487,6 +487,31 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
       };
       memoryStore.orders.set(id, order);
       return [{ insertId: id, affectedRows: 1 }] as any;
+    }
+    if (lower.startsWith('update orders')) {
+      if (lower.includes('order_status = ?')) {
+        const [status, idOrNum] = params;
+        const ord = Array.from(memoryStore.orders.values()).find(
+          (o) => o.id === idOrNum || o.orderNumber === idOrNum
+        );
+        if (ord) {
+          ord.orderStatus = status;
+          ord.updatedAt = new Date().toISOString();
+        }
+        return [{ affectedRows: ord ? 1 : 0 }] as any;
+      }
+      if (lower.includes("payment_status = 'paid'")) {
+        const [idOrNum] = params;
+        const ord = Array.from(memoryStore.orders.values()).find(
+          (o) => o.id === idOrNum || o.orderNumber === idOrNum
+        );
+        if (ord) {
+          ord.paymentStatus = 'Paid';
+          ord.isDeliveryPaidConfirmed = true;
+          ord.updatedAt = new Date().toISOString();
+        }
+        return [{ affectedRows: ord ? 1 : 0 }] as any;
+      }
     }
   }
 

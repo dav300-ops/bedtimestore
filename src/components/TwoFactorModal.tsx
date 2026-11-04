@@ -66,14 +66,14 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/60 backdrop-blur-xs">
-      <div className="bg-white rounded-md max-w-lg w-full border border-[#E1D1E4] shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
+      <div className="bg-[var(--color-card)] rounded-md max-w-lg w-full border border-[var(--color-border)] shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="bg-[#340404] text-white p-5 flex items-center justify-between">
+        <div className="bg-[var(--color-text)] text-white p-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-5 h-5 text-[#8E7C49]" />
-            <h3 className="font-heading text-lg font-semibold text-[#FBE7E3]">
+            <ShieldCheck className="w-5 h-5 text-[var(--color-accent)]" />
+            <h3 className="font-heading text-lg font-semibold text-[var(--color-bg)]">
               {isAr ? 'إعداد المصادقة الثنائية (2FA)' : 'Two-Factor Authentication (2FA)'}
             </h3>
           </div>
@@ -85,14 +85,14 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 space-y-5 text-xs text-[#340404]">
+        <div className="p-6 space-y-5 text-xs text-[var(--color-text)]">
           {step === 1 ? (
             <div className="space-y-4">
-              <div className="p-4 bg-[#FBE7E3]/40 rounded-xs border border-[#E1D1E4] space-y-2">
-                <p className="font-semibold text-sm text-[#340404]">
+              <div className="p-4 bg-[var(--color-bg)]/40 rounded-xs border border-[var(--color-border)] space-y-2">
+                <p className="font-semibold text-sm text-[var(--color-text)]">
                   {isAr ? 'حماية إضافية لحسابك البوتيكي' : 'Add an Extra Layer of Boutique Security'}
                 </p>
-                <p className="text-[#340404]/80 leading-relaxed">
+                <p className="text-[var(--color-text)]/80 leading-relaxed">
                   {isAr
                     ? 'المصادقة الثنائية تطلب إدخال رمز أمان يتم توليده على هاتفكِ عبر تطبيق المصادقة (Google Authenticator أو 1Password) عند كل تسجيل دخول جديد.'
                     : 'Two-factor authentication requires entering a time-based 6-digit code from your authenticator app (Google Authenticator, Microsoft Authenticator, or 1Password) whenever you sign in.'}
@@ -100,13 +100,13 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-center">
-                <div className="p-3 bg-white border border-[#E1D1E4] rounded-xs space-y-1">
-                  <Smartphone className="w-5 h-5 text-[#8E7C49] mx-auto" />
+                <div className="p-3 bg-white border border-[var(--color-border)] rounded-xs space-y-1">
+                  <Smartphone className="w-5 h-5 text-[var(--color-accent)] mx-auto" />
                   <p className="font-semibold">{isAr ? 'تطبيق الهاتف' : 'Authenticator App'}</p>
                   <p className="text-[10px] text-gray-500">Google / Apple / MS</p>
                 </div>
-                <div className="p-3 bg-white border border-[#E1D1E4] rounded-xs space-y-1">
-                  <Key className="w-5 h-5 text-[#8E7C49] mx-auto" />
+                <div className="p-3 bg-white border border-[var(--color-border)] rounded-xs space-y-1">
+                  <Key className="w-5 h-5 text-[var(--color-accent)] mx-auto" />
                   <p className="font-semibold">{isAr ? 'رموز الطوارئ' : 'Backup Codes'}</p>
                   <p className="text-[10px] text-gray-500">6 Single-use Keys</p>
                 </div>
@@ -116,7 +116,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
                 type="button"
                 onClick={handleStartSetup}
                 disabled={isSettingUp}
-                className="w-full py-3 bg-[#E22001] hover:bg-[#c01b01] text-white font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
+                className="w-full py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
               >
                 {isSettingUp ? (isAr ? 'جارٍ التهيئة...' : 'Configuring Security...') : (isAr ? 'بدء تفعيل 2FA' : 'Start 2FA Configuration')}
               </button>
@@ -124,8 +124,8 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
           ) : (
             <div className="space-y-5">
               {/* Step 2: Scan QR & Backup Codes */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#FBE7E3]/30 p-4 rounded-xs border border-[#E1D1E4]">
-                <div className="bg-white p-2 rounded-xs border border-[#E1D1E4] shadow-xs">
+              <div className="flex flex-col sm:flex-row items-center gap-4 bg-[var(--color-bg)]/30 p-4 rounded-xs border border-[var(--color-border)]">
+                <div className="bg-[var(--color-card)] p-2 rounded-xs border border-[var(--color-border)] shadow-xs">
                   <DeliveryQrCode
                     orderNumber={currentUser?.email || 'bedtime-user'}
                     verificationCode={secret.slice(-6)}
@@ -162,14 +162,14 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
               {/* Emergency Backup Codes */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-xs flex items-center gap-1.5 text-[#340404]">
+                  <span className="font-semibold text-xs flex items-center gap-1.5 text-[var(--color-text)]">
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                     <span>{isAr ? '2. احفظي رموز الاسترداد للطوارئ:' : '2. Save Emergency Backup Codes:'}</span>
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyCodes}
-                    className="text-[11px] text-[#8E7C49] hover:text-[#E22001] flex items-center gap-1 font-semibold"
+                    className="text-[11px] text-[var(--color-accent)] hover:text-[var(--color-primary)] flex items-center gap-1 font-semibold"
                   >
                     {copiedCodes ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedCodes ? (isAr ? 'تم النسخ!' : 'Copied!') : (isAr ? 'نسخ الرموز' : 'Copy All')}</span>
@@ -187,7 +187,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
 
               {/* Verification Code from App */}
               <div className="space-y-1">
-                <label className="font-semibold text-xs text-[#340404]">
+                <label className="font-semibold text-xs text-[var(--color-text)]">
                   {isAr ? '3. أدخلي رمز التحقق من تطبيقك للتأكيد (6 أرقام):' : '3. Enter 6-digit code from app to verify:'}
                 </label>
                 <input
@@ -199,7 +199,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
                     setError('');
                   }}
                   placeholder="e.g. 492104"
-                  className="w-full px-3 py-2 bg-white border border-[#E1D1E4] rounded-xs font-mono tracking-widest text-center text-sm outline-none focus:ring-1 focus:ring-[#E22001]"
+                  className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs font-mono tracking-widest text-center text-sm outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
                 {error && <p className="text-[11px] text-red-600">{error}</p>}
               </div>
@@ -207,7 +207,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
               <button
                 type="button"
                 onClick={handleComplete}
-                className="w-full py-3 bg-[#E22001] hover:bg-[#c01b01] text-white font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
+                className="w-full py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold uppercase tracking-wider rounded-xs transition-colors shadow-xs"
               >
                 {isAr ? 'تأكيد وحفظ إعدادات 2FA' : 'Verify & Enable 2FA'}
               </button>

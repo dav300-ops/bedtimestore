@@ -123,7 +123,7 @@ export const DeliveryQrCode: React.FC<DeliveryQrCodeProps> = ({
 
   return (
     <div
-      className={`inline-flex flex-col items-center bg-white p-3 rounded-xs border border-[#E1D1E4] shadow-xs ${className}`}
+      className={`inline-flex flex-col items-center bg-white p-3 rounded-xs border border-[var(--color-border)] shadow-xs ${className}`}
     >
       <svg
         id={`qr-svg-${orderNumber}`}
@@ -145,24 +145,24 @@ export const DeliveryQrCode: React.FC<DeliveryQrCodeProps> = ({
                 y={(r + 2) * cellSize}
                 width={cellSize + 0.1}
                 height={cellSize + 0.1}
-                fill="#340404"
+                fill="var(--color-text)"
               />
             );
           })
         )}
       </svg>
       <div className="mt-2 text-center w-full">
-        <span className="text-[10px] uppercase font-mono tracking-wider text-[#8E7C49] block">
+        <span className="text-[10px] uppercase font-mono tracking-wider text-[var(--color-accent)] block">
           POD Scan Matrix
         </span>
-        <span className="text-xs font-mono font-bold tracking-widest text-[#340404] block">
+        <span className="text-xs font-mono font-bold tracking-widest text-[var(--color-text)] block">
           {verificationCode}
         </span>
         {showDownload && (
           <button
             type="button"
             onClick={handleDownload}
-            className="mt-2 w-full py-1 px-2 text-[10px] bg-[#FBE7E3] hover:bg-[#E1D1E4] text-[#340404] font-semibold rounded-xs border border-[#8E7C49]/40 transition-colors uppercase tracking-wider"
+            className="mt-2 w-full py-1 px-2 text-[10px] bg-[var(--color-bg)] hover:bg-[var(--color-border)] text-[var(--color-text)] font-semibold rounded-xs border border-[var(--color-accent)]/40 transition-colors uppercase tracking-wider"
           >
             Download SVG QR
           </button>

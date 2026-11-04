@@ -104,12 +104,8 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
   return (
     <section
       aria-labelledby="customer-reviews-heading"
-      className={`py-16 sm:py-24 bg-[#FAF5F2] border-t border-b border-[#E1D1E4] relative overflow-hidden transition-colors ${className}`}
+      className={`py-16 sm:py-24 border-t border-b relative overflow-hidden transition-colors bg-[var(--color-bg)] border-[var(--color-border)] ${className}`}
     >
-      {/* Background Ambient Glow Accents */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#8E7C49]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-10 w-80 h-80 bg-[#E22001]/5 rounded-full blur-3xl pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* =========================================================
@@ -117,35 +113,35 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
            ========================================================= */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
           
-          {/* Google Verified Reviews Badge Pill */}
-         
           {/* Section Main Title */}
           <h2
             id="customer-reviews-heading"
-            className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-[#340404] tracking-tight leading-tight"
+            className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight text-[var(--color-text)]"
           >
             {title}
           </h2>
 
           {/* Section Subtitle */}
-          <p className="text-sm sm:text-base text-[#340404]/75 font-light leading-relaxed max-w-2xl mx-auto">
+          <p 
+            className="text-sm sm:text-base font-light leading-relaxed max-w-2xl mx-auto text-[var(--color-text-secondary)]"
+          >
             {subtitle}
           </p>
 
           {/* Social Proof Key Pillars */}
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-2 text-xs text-[#340404]/80 font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-2 text-xs text-[var(--color-text-secondary)] font-medium">
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#8E7C49]" />
+              <ShieldCheck className="w-4 h-4 text-[var(--color-primary)]" />
               <span>100% Verified Google Feedback</span>
             </div>
-            <div className="hidden sm:inline text-[#E1D1E4]">·</div>
+            <div className="hidden sm:inline text-[var(--color-border)]">·</div>
             <div className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               <span>{reviewCount}+ Five-Star Ratings</span>
             </div>
-            <div className="hidden sm:inline text-[#E1D1E4]">·</div>
+            <div className="hidden sm:inline text-[var(--color-border)]">·</div>
             <div className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-[#E22001]" />
+              <Sparkles className="w-4 h-4 text-[var(--color-primary)]" />
               <span>Bahrain Clients</span>
             </div>
           </div>
@@ -158,8 +154,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
           
           {/* When using a configured widget ID (or testing the live ReactGoogleReviews widget component) */}
           {!useFallbackPreview ? (
-            <div className="bg-white p-4 sm:p-8 rounded-sm border border-[#E1D1E4] shadow-xs">
-              {/* Responsive Container: Custom overrides guarantee carousel on desktop and graceful wrap on mobile */}
+            <div className="bg-[var(--color-card)] p-4 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs">
               <div className="react-google-reviews-wrapper overflow-x-hidden">
                 <ReactGoogleReviews
                   layout="carousel"
@@ -175,20 +170,20 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
 
               {/* Developer / Admin Guide Note if widget ID is still the placeholder */}
               {isPlaceholderId && (
-                <div className="mt-6 p-4 rounded-xs bg-[#FBE7E3] border border-[#8E7C49]/40 text-xs text-[#340404] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="mt-6 p-4 rounded-xs bg-[var(--color-bg)] border border-[var(--color-border)] text-xs text-[var(--color-text)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="font-semibold flex items-center gap-1.5 text-[#340404]">
-                      <MessageSquare className="w-4 h-4 text-[#8E7C49]" />
+                    <p className="font-semibold flex items-center gap-1.5 text-[var(--color-text)]">
+                      <MessageSquare className="w-4 h-4 text-[var(--color-primary)]" />
                       <span>Currently using placeholder: <code>"{widgetId}"</code></span>
                     </p>
-                    <p className="text-[#340404]/80 text-[11px]">
+                    <p className="text-[var(--color-text-secondary)] text-[11px]">
                       To connect your real Google Business profile, sign up at <strong>Featurable.com</strong>, copy your free Widget ID, and pass it via the <code>widgetId</code> prop.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setUseFallbackPreview(true)}
-                    className="px-3.5 py-1.5 bg-[#340404] text-white hover:bg-black rounded-xs text-[11px] font-semibold whitespace-nowrap transition-colors cursor-pointer"
+                    className="px-3.5 py-1.5 bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] rounded-xs text-[11px] font-semibold whitespace-nowrap transition-colors cursor-pointer"
                   >
                     View Curated Preview
                   </button>
@@ -200,14 +195,11 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
                Responsive High-End E-Commerce Carousel & Mobile Stack
                ========================================================= */
             <div className="space-y-6">
-              {/* Responsive Grid / Horizontal Snap Track:
-                  - Mobile: Smooth horizontal swipe track with snap points
-                  - Desktop: Elegant 4-column cards matching luxury boutique aesthetic */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {FALLBACK_REVIEWS.map((rev, index) => (
                   <div
                     key={index}
-                    className="bg-white p-6 rounded-sm border border-[#E1D1E4] shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between space-y-4 group"
+                    className="bg-[var(--color-card)] p-6 rounded-sm border border-[var(--color-border)] hover:border-[var(--color-accent)] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between space-y-4 group"
                   >
                     <div className="space-y-3">
                       {/* Top: Google Icon + Star Rating */}
@@ -218,7 +210,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
                           ))}
                         </div>
                         {/* Google Icon Badge */}
-                        <div className="w-5 h-5 rounded-full bg-neutral-100 flex items-center justify-center border border-black/5">
+                        <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center border border-[var(--color-border)]">
                           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
                             <path
                               fill="#4285F4"
@@ -241,26 +233,26 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
                       </div>
 
                       {/* Review Comment */}
-                      <p className="text-xs sm:text-sm text-[#340404]/80 font-light leading-relaxed line-clamp-4 italic">
+                      <p className="text-xs sm:text-sm text-[var(--color-text)] font-light leading-relaxed line-clamp-4 italic">
                         "{rev.comment}"
                       </p>
                     </div>
 
                     {/* Reviewer Meta Footer */}
-                    <div className="pt-3 border-t border-[#E1D1E4]/60 flex items-center gap-3">
+                    <div className="pt-3 border-t border-[var(--color-border)]/60 flex items-center gap-3">
                       <img
                         src={rev.avatar}
                         alt={rev.author}
-                        className="w-9 h-9 rounded-full object-cover border border-[#8E7C49]/40 shrink-0"
+                        className="w-9 h-9 rounded-full object-cover border border-[var(--color-border)] shrink-0"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="font-heading text-xs font-semibold text-[#340404] truncate group-hover:text-[#E22001] transition-colors">
+                        <p className="font-heading text-xs font-semibold text-[var(--color-text)] truncate group-hover:text-[var(--color-primary)] transition-colors">
                           {rev.author}
                         </p>
-                        <p className="text-[10px] text-[#8E7C49] font-medium truncate">
+                        <p className="text-[10px] text-[var(--color-primary)] font-medium truncate">
                           {rev.role}
                         </p>
-                        <p className="text-[9px] text-[#340404]/50">
+                        <p className="text-[9px] text-[var(--color-text-secondary)]">
                           {rev.date}
                         </p>
                       </div>
@@ -269,23 +261,21 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
                 ))}
               </div>
 
-              {/* Toggle control to inspect real ReactGoogleReviews widget */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-[#340404]/70">
+              {/* Toggle control */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-[var(--color-text-secondary)]">
                 <span className="text-[11px]">
                   Showing verified customer reviews for <strong>{brandName}</strong>.
                 </span>
 
                 <div className="flex items-center gap-3">
-                  
-
                   <a
                     href={googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#340404] hover:text-[#E22001] transition-colors"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors"
                   >
                     <span>Write a Review on Google</span>
-                    <ExternalLink className="w-3 h-3 text-[#8E7C49]" />
+                    <ExternalLink className="w-3 h-3 text-[var(--color-primary)]" />
                   </a>
                 </div>
               </div>
@@ -297,7 +287,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
         {/* =========================================================
             3. FOOTER TRUST STRIP
            ========================================================= */}
-        <div className="mt-12 pt-8 border-t border-[#E1D1E4]/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#340404]/70">
+        <div className="mt-12 pt-8 border-t border-[var(--color-border)]/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--color-text-secondary)]">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-medium">
@@ -306,9 +296,9 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
-            <span className="font-semibold text-[#340404]">Average Rating: 4.9 ★★★★★</span>
+            <span className="font-semibold text-[var(--color-text)]">Average Rating: 4.9 ★★★★★</span>
             <span>·</span>
-            <span className="text-[#8E7C49]">Kingdom of Bahrain </span>
+            <span className="text-[var(--color-primary)]">Kingdom of Bahrain </span>
           </div>
         </div>
 

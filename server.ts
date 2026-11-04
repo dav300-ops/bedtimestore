@@ -9,6 +9,7 @@ import apiRouter from './server/routes/api';
 
 import { authService } from './server/services/authService';
 import { salesService } from './server/services/salesService';
+import { orderService } from './server/services/orderService';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ async function startServer() {
       await authService.seedDefaultUsers();
       await categoryService.seedIfNeeded();
       await inventoryService.seedIfNeeded();
+      await orderService.seedIfNeeded();
       await salesService.seedInitialSalesIfNeeded();
     })
     .catch((err) => {

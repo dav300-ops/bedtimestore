@@ -76,49 +76,59 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
   const displayedProducts = filteredKidsProducts.slice(currentPageIndex * 4, currentPageIndex * 4 + 4);
 
   return (
-    <section className="bg-[#FAF5F2] py-16 sm:py-20 border-y border-[#E1D1E4]/80">
+    <section 
+      className="py-16 sm:py-20 border-y transition-colors bg-[var(--color-bg)] border-[var(--color-border)]"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#8E7C49]/15 text-[#8E7C49] rounded-full text-xs font-semibold uppercase tracking-wider">
+          <div 
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-[var(--color-card)] text-[var(--color-primary)] border border-[var(--color-gold)]/40"
+          >
             <Baby className="w-3.5 h-3.5" />
             <span>{t.kidsCollection.badge}</span>
           </div>
 
-          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#340404] tracking-tight">
+          <h2 
+            className="font-heading text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[var(--color-heading)]"
+          >
             {t.kidsCollection.title}
           </h2>
 
-          <p className="text-sm sm:text-base text-[#340404]/80 leading-relaxed font-light max-w-2xl mx-auto">
+          <p 
+            className="text-sm sm:text-base leading-relaxed font-light max-w-2xl mx-auto text-[var(--color-text-secondary)]"
+          >
             {t.kidsCollection.subtitle}
           </p>
 
           {/* Fabric certification pill */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-xs text-[#8E7C49]">
+          <div 
+            className="pt-2 flex flex-wrap items-center justify-center gap-3 text-xs text-[var(--color-primary)]"
+          >
             <span className="flex items-center gap-1">
-              <ShieldCheck className="w-4 h-4 text-[#8E7C49]" />
+              <ShieldCheck className="w-4 h-4" />
               {t.kidsCollection.safetyPledge}
             </span>
           </div>
         </div>
 
         {/* Age Filter Tabs & Size Guide Trigger */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-4 border-b border-[#E1D1E4]/70">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-4 border-b border-[var(--color-border)]">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
             {ageBrackets.map((bracket) => (
               <button
                 key={bracket.id}
                 onClick={() => handleAgeChange(bracket.id)}
-                className={`px-4 py-2 text-xs sm:text-sm font-medium rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-4 py-2 text-xs sm:text-sm font-medium rounded-full transition-all flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                   selectedAge === bracket.id
-                    ? 'bg-[#340404] text-[#FBE7E3] shadow-sm'
-                    : 'bg-white text-[#340404] hover:bg-[#FBE7E3] border border-[#E1D1E4]'
+                    ? 'bg-[var(--color-primary)] text-white shadow-sm'
+                    : 'bg-[var(--color-card)] text-[var(--color-text)] hover:bg-[var(--color-bg)] border border-[var(--color-border)]'
                 }`}
               >
                 <span>{language === 'ar' ? bracket.labelAr : bracket.labelEn}</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
-                  selectedAge === bracket.id ? 'bg-white/20 text-white' : 'bg-[#8E7C49]/15 text-[#8E7C49]'
+                  selectedAge === bracket.id ? 'bg-white/20 text-white' : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)]'
                 }`}>
                   {bracket.range}
                 </span>
@@ -128,7 +138,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
 
           <button
             onClick={() => setIsSizeChartOpen(true)}
-            className="inline-flex items-center gap-1.5 text-xs text-[#8E7C49] hover:text-[#340404] font-medium underline underline-offset-4 py-1 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] font-medium underline underline-offset-4 py-1 transition-colors cursor-pointer"
           >
             <Ruler className="w-3.5 h-3.5" />
             <span>{t.kidsCollection.sizeGuideTitle}</span>
@@ -137,19 +147,19 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
 
         {/* Selected Age Highlight Banner */}
         {selectedAge !== 'all' && (
-          <div className="bg-white p-4 sm:p-5 rounded-sm border border-[#E1D1E4] mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="bg-[var(--color-card)] p-4 sm:p-5 rounded-sm border border-[var(--color-border)] mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-[#E22001]/10 text-[#E22001] text-xs font-bold rounded-xs">
+                <span className="px-2 py-0.5 bg-[var(--color-primary)] text-white text-xs font-bold rounded-xs">
                   {language === 'ar' 
                     ? t.kidsCollection.ageRanges[selectedAge]
                     : t.kidsCollection.ageRanges[selectedAge]}
                 </span>
-                <p className="text-xs sm:text-sm font-semibold text-[#340404]">
+                <p className="text-xs sm:text-sm font-semibold text-[var(--color-text)]">
                   {language === 'ar' ? ageGuidelines[selectedAge].heightAr : ageGuidelines[selectedAge].heightEn}
                 </p>
               </div>
-              <p className="text-xs text-[#340404]/75">
+              <p className="text-xs text-[var(--color-text-secondary)]">
                 {language === 'ar' 
                   ? t.kidsCollection.ageDescriptions[selectedAge] 
                   : t.kidsCollection.ageDescriptions[selectedAge]}
@@ -158,7 +168,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
 
             <button
               onClick={() => onNavigate('shop', { category: 'cat-kids-sleepwear', ageGroup: selectedAge })}
-              className="text-xs font-semibold uppercase tracking-wider text-[#E22001] hover:text-[#c01b01] inline-flex items-center gap-1 whitespace-nowrap self-start sm:self-center cursor-pointer"
+              className="text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] inline-flex items-center gap-1 whitespace-nowrap self-start sm:self-center cursor-pointer"
             >
               <span>{language === 'ar' ? 'عرض كافة المقاسات والألوان' : 'View All in this Age'}</span>
               {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
@@ -166,7 +176,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
           </div>
         )}
 
-        {/* Curated Products Grid - Displaying ONLY 4 products at a time */}
+        {/* Curated Products Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {displayedProducts.map((product) => (
             <div key={product.id} className="relative group">
@@ -178,7 +188,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
               {/* Overlay Age Badge */}
               {product.ageGroup && (
                 <div className="absolute top-2.5 left-2.5 rtl:left-auto rtl:right-2.5 z-10 pointer-events-none">
-                  <span className="bg-[#340404]/90 backdrop-blur-xs text-[#FBE7E3] text-[10px] font-bold px-2 py-0.5 rounded-xs shadow-xs tracking-wide">
+                  <span className="bg-[var(--color-primary)] text-white text-[10px] font-bold px-2 py-0.5 rounded-xs shadow-xs tracking-wide">
                     {language === 'ar'
                       ? t.kidsCollection.ageRanges[product.ageGroup]
                       : t.kidsCollection.ageRanges[product.ageGroup]}
@@ -189,14 +199,14 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
           ))}
         </div>
 
-        {/* 4-Item Pagination Navigation Bar */}
+        {/* Pagination Navigation Bar */}
         {totalPages > 1 && (
           <div className="mt-8 flex items-center justify-center gap-4 select-none">
             <button
               type="button"
               disabled={currentPageIndex === 0}
               onClick={() => setCurrentPageIndex((prev) => Math.max(0, prev - 1))}
-              className="p-2.5 rounded-full bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#FBE7E3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-xs"
+              className="p-2.5 rounded-full bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-bg)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
               aria-label="Previous 4 curated products"
             >
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
@@ -210,8 +220,8 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
                   onClick={() => setCurrentPageIndex(idx)}
                   className={`w-2.5 h-2.5 rounded-full transition-all cursor-pointer ${
                     currentPageIndex === idx
-                      ? 'bg-[#E22001] w-6'
-                      : 'bg-[#CFC3C6] hover:bg-[#8E7C49]'
+                      ? 'bg-[var(--color-primary)] w-6'
+                      : 'bg-[var(--color-border)] hover:bg-[var(--color-accent)]'
                   }`}
                   aria-label={`Go to page ${idx + 1}`}
                 />
@@ -222,7 +232,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
               type="button"
               disabled={currentPageIndex >= totalPages - 1}
               onClick={() => setCurrentPageIndex((prev) => Math.min(totalPages - 1, prev + 1))}
-              className="p-2.5 rounded-full bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#FBE7E3] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-xs"
+              className="p-2.5 rounded-full bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-bg)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
               aria-label="Next 4 curated products"
             >
               {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
@@ -234,12 +244,12 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
         <div className="mt-12 text-center space-y-4">
           <button
             onClick={() => onNavigate('shop', { category: 'cat-kids-sleepwear', ageGroup: selectedAge !== 'all' ? selectedAge : undefined })}
-            className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#340404] hover:bg-[#E22001] text-[#FBE7E3] text-xs uppercase font-semibold tracking-widest rounded-xs transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs uppercase font-semibold tracking-widest rounded-xs transition-colors shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
           >
             <span>{t.kidsCollection.viewAll}</span>
             {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
-          <p className="text-xs text-[#340404]/70">
+          <p className="text-xs text-[var(--color-text-secondary)]">
             {language === 'ar'
               ? 'تغليف هدايا فاخر متاح مع كل طلب لأعياد الميلاد والمناسبات الخاصة في البحرين'
               : 'Complimentary luxury gift wrapping with satin bows available on all kids bedtime orders.'}
@@ -250,59 +260,59 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
 
       {/* Children Size Guide Modal */}
       {isSizeChartOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-sm border border-[#E1D1E4] max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-[#E1D1E4] pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
+          <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
               <div className="flex items-center gap-2">
-                <Ruler className="w-5 h-5 text-[#8E7C49]" />
-                <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                <Ruler className="w-5 h-5 text-[var(--color-primary)]" />
+                <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                   {t.kidsCollection.sizeGuideTitle}
                 </h3>
               </div>
               <button
                 onClick={() => setIsSizeChartOpen(false)}
-                className="text-[#340404]/60 hover:text-[#340404] text-sm p-1"
+                className="text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] text-sm p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-[#340404]/80">
+            <p className="text-xs text-[var(--color-text-secondary)]">
               {t.kidsCollection.sizeGuideDesc}
             </p>
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left rtl:text-right border border-[#E1D1E4]">
-                <thead className="bg-[#FAF5F2] text-[#340404] font-semibold">
+              <table className="w-full text-xs text-left rtl:text-right border border-[var(--color-border)]">
+                <thead className="bg-[var(--color-bg)] text-[var(--color-text)] font-semibold">
                   <tr>
-                    <th className="p-2.5 border-b border-[#E1D1E4]">{language === 'ar' ? 'الفئة العمرية' : 'Age Bracket'}</th>
-                    <th className="p-2.5 border-b border-[#E1D1E4]">{language === 'ar' ? 'المقاس الموصى به' : 'Size'}</th>
-                    <th className="p-2.5 border-b border-[#E1D1E4]">{language === 'ar' ? 'طول الطفل (سم)' : 'Height (cm)'}</th>
-                    <th className="p-2.5 border-b border-[#E1D1E4]">{language === 'ar' ? 'الوزن التقريبي (كغ)' : 'Weight (kg)'}</th>
+                    <th className="p-2.5 border-b border-[var(--color-border)]">{language === 'ar' ? 'الفئة العمرية' : 'Age Bracket'}</th>
+                    <th className="p-2.5 border-b border-[var(--color-border)]">{language === 'ar' ? 'المقاس الموصى به' : 'Size'}</th>
+                    <th className="p-2.5 border-b border-[var(--color-border)]">{language === 'ar' ? 'طول الطفل (سم)' : 'Height (cm)'}</th>
+                    <th className="p-2.5 border-b border-[var(--color-border)]">{language === 'ar' ? 'الوزن التقريبي (كغ)' : 'Weight (kg)'}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E1D1E4] text-[#340404]/90">
-                  <tr className="hover:bg-[#FBE7E3]/30">
-                    <td className="p-2.5 font-bold text-[#E22001]">{language === 'ar' ? '٣ إلى ٥ سنوات' : '3 to 5 Years'}</td>
+                <tbody className="divide-y divide-[var(--color-border)] text-[var(--color-text)]">
+                  <tr className="hover:bg-[var(--color-bg)]/50">
+                    <td className="p-2.5 font-bold text-[var(--color-primary)]">{language === 'ar' ? '٣ إلى ٥ سنوات' : '3 to 5 Years'}</td>
                     <td className="p-2.5 font-semibold">3-4Y / 4-5Y</td>
                     <td className="p-2.5">98 – 110 cm</td>
                     <td className="p-2.5">14 – 19 kg</td>
                   </tr>
-                  <tr className="hover:bg-[#FBE7E3]/30">
-                    <td className="p-2.5 font-bold text-[#E22001]">{language === 'ar' ? '٥ إلى ٧ سنوات' : '5 to 7 Years'}</td>
+                  <tr className="hover:bg-[var(--color-bg)]/50">
+                    <td className="p-2.5 font-bold text-[var(--color-primary)]">{language === 'ar' ? '٥ إلى ٧ سنوات' : '5 to 7 Years'}</td>
                     <td className="p-2.5 font-semibold">5-6Y / 6-7Y</td>
                     <td className="p-2.5">110 – 122 cm</td>
                     <td className="p-2.5">19 – 24 kg</td>
                   </tr>
-                  <tr className="hover:bg-[#FBE7E3]/30">
-                    <td className="p-2.5 font-bold text-[#E22001]">{language === 'ar' ? '٨ إلى ٩ سنوات' : '8 to 9 Years'}</td>
+                  <tr className="hover:bg-[var(--color-bg)]/50">
+                    <td className="p-2.5 font-bold text-[var(--color-primary)]">{language === 'ar' ? '٨ إلى ٩ سنوات' : '8 to 9 Years'}</td>
                     <td className="p-2.5 font-semibold">8-9Y</td>
                     <td className="p-2.5">125 – 135 cm</td>
                     <td className="p-2.5">25 – 32 kg</td>
                   </tr>
-                  <tr className="hover:bg-[#FBE7E3]/30">
-                    <td className="p-2.5 font-bold text-[#E22001]">{language === 'ar' ? '١٠ إلى ١٢ سنة' : '10 to 12 Years'}</td>
+                  <tr className="hover:bg-[var(--color-bg)]/50">
+                    <td className="p-2.5 font-bold text-[var(--color-primary)]">{language === 'ar' ? '١٠ إلى ١٢ سنة' : '10 to 12 Years'}</td>
                     <td className="p-2.5 font-semibold">10-12Y</td>
                     <td className="p-2.5">138 – 152 cm</td>
                     <td className="p-2.5">33 – 45 kg</td>
@@ -311,11 +321,11 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
               </table>
             </div>
 
-            <div className="bg-[#FAF5F2] p-3 rounded-xs text-[11px] text-[#340404]/80 space-y-1">
-              <p className="font-semibold text-[#8E7C49]">
+            <div className="bg-[var(--color-bg)] p-3 rounded-xs text-[11px] text-[var(--color-text)] space-y-1 border border-[var(--color-border)]">
+              <p className="font-semibold text-[var(--color-primary)]">
                 {language === 'ar' ? 'نصيحة أخصائيي المقاسات في متجرنا:' : 'Atelier Fitting Tip:'}
               </p>
-              <p>
+              <p className="text-[var(--color-text-secondary)]">
                 {language === 'ar'
                   ? 'إذا كان طفلك بين مقاسين، نوصي باختيار المقاس الأكبر لضمان حرية حركة مريحة ونوم عميق بدون قيود.'
                   : 'If your child is between sizes, we recommend sizing up for comfortable airflow and room to grow during peaceful sleep.'}
@@ -325,7 +335,7 @@ export const KidsCollectionSection: React.FC<KidsCollectionSectionProps> = ({
             <div className="text-right rtl:text-left pt-2">
               <button
                 onClick={() => setIsSizeChartOpen(false)}
-                className="px-5 py-2 bg-[#340404] text-white text-xs font-semibold rounded-xs hover:bg-[#E22001] transition-colors"
+                className="px-5 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold rounded-xs transition-colors cursor-pointer"
               >
                 {language === 'ar' ? 'إغلاق الدليل' : 'Close Chart'}
               </button>

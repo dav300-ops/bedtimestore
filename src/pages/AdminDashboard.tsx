@@ -595,17 +595,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#FBE7E3]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[var(--color-bg)]">
       
       {/* 1. Sidebar - Black Bean background with Dogwood text */}
-      <aside className="w-full md:w-64 bg-[#340404] text-[#FBE7E3] p-6 flex flex-col justify-between shrink-0 border-r border-[#8E7C49]/30">
+      <aside className="w-full md:w-64 bg-[var(--color-text)] text-[var(--color-bg)] p-6 flex flex-col justify-between shrink-0 border-r border-[var(--color-accent)]/30">
         <div className="space-y-8">
           {/* Brand Wordmark */}
           <div>
             <span className="font-heading text-xl font-bold tracking-wider text-white uppercase block">
               {t.storeName}
             </span>
-            <span className="text-[11px] text-[#8E7C49] tracking-widest uppercase font-semibold">
+            <span className="text-[11px] text-[var(--color-accent)] tracking-widest uppercase font-semibold">
               {t.admin.portalTitle}
             </span>
           </div>
@@ -632,8 +632,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                   onClick={() => setActiveTab(item.id as any)}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xs transition-colors text-left rtl:text-right font-medium ${
                     isSelected
-                      ? 'bg-[#E22001] text-white font-bold'
-                      : 'hover:bg-white/10 text-[#FBE7E3]/80 hover:text-white'
+                      ? 'bg-[var(--color-primary)] text-white font-bold'
+                      : 'hover:bg-white/10 text-[var(--color-bg)]/80 hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -641,7 +641,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                     <span>{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
-                    <span className="px-1.5 py-0.5 bg-white text-[#340404] text-[10px] font-bold rounded-full tabular-nums">
+                    <span className="px-1.5 py-0.5 bg-white text-[var(--color-text)] text-[10px] font-bold rounded-full tabular-nums">
                       {item.badge}
                     </span>
                   )}
@@ -655,11 +655,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
         <div className="pt-6 border-t border-white/10 space-y-3">
           <button
             onClick={onReturnToStore}
-            className="w-full py-2.5 bg-white/10 hover:bg-white text-white hover:text-[#340404] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors text-center"
+            className="w-full py-2.5 bg-white/10 hover:bg-white text-white hover:text-[var(--color-text)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors text-center"
           >
             {language === 'ar' ? 'العودة للمتجر الرئيسي' : 'Return to Boutique'}
           </button>
-          <p className="text-[10px] text-[#FBE7E3]/50 text-center">
+          <p className="text-[10px] text-[var(--color-bg)]/50 text-center">
             {currentUser?.email} (Admin)
           </p>
         </div>
@@ -669,9 +669,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
       <main className="flex-1 p-6 md:p-10 overflow-y-auto">
         
         {/* Top bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[#E1D1E4] mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[var(--color-border)] mb-8 gap-4">
           <div>
-            <h1 className="font-heading text-2xl sm:text-3xl font-semibold text-[#340404] capitalize">
+            <h1 className="font-heading text-2xl sm:text-3xl font-semibold text-[var(--color-text)] capitalize">
               {activeTab === 'overview' && t.admin.sidebarOverview}
               {activeTab === 'sales' && (language === 'ar' ? 'سجلات ومبيعات المنتجات' : language === 'ru' ? 'Продажи товаров' : 'Product Sales')}
               {activeTab === 'customers' && (language === 'ar' ? 'مشتريات العميلات وسجل المنتجات' : language === 'ru' ? 'Покупки клиентов и купленные товары' : 'Customer Purchases & Products Bought')}
@@ -690,7 +690,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
             <button
               type="button"
               onClick={() => setIsCreateAdminModalOpen(true)}
-              className="px-4 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+              className="px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
             >
               <UserPlus className="w-4 h-4" />
               <span>{language === 'ar' ? 'إضافة مشرف جديد' : language === 'ru' ? 'Создать администратора' : 'Create New Admin'}</span>
@@ -703,7 +703,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
               <button
                 type="button"
                 onClick={() => setIsCreatingProduct(true)}
-                className="px-3.5 py-2 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs"
+                className="px-3.5 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{language === 'ar' ? 'إضافة منتج' : 'Add Product'}</span>
@@ -714,7 +714,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
           {activeTab === 'products' && (
             <button
               onClick={() => setIsCreatingProduct(true)}
-              className="px-4 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs"
+              className="px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>{t.admin.addNewProduct}</span>
@@ -730,56 +730,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
             {/* Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {t.admin.totalSales}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {formatBHD(totalSales)}
                 </p>
-                <div className="flex items-center gap-1 text-[11px] text-[#8E7C49]">
+                <div className="flex items-center gap-1 text-[11px] text-[var(--color-accent)]">
                   <TrendingUp className="w-3 h-3" />
                   <span>+18.4% vs last month</span>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {t.admin.totalOrders}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {totalOrdersCount}
                 </p>
-                <div className="flex items-center gap-1 text-[11px] text-[#340404]/60">
+                <div className="flex items-center gap-1 text-[11px] text-[var(--color-text)]/60">
                   <span>{orders.filter((o) => o.paymentStatus === 'Paid').length} Completed</span>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#E22001]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)]">
                   {t.admin.pendingFulfillment}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#E22001] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-primary)] tabular-nums">
                   {pendingOrdersCount}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">Requires dispatch</p>
+                <p className="text-[11px] text-[var(--color-text)]/60">Requires dispatch</p>
               </div>
 
               <div 
                 onClick={() => setActiveTab('inventory')}
-                className="bg-white p-5 rounded-sm border border-[#E1D1E4] hover:border-[#8E7C49] shadow-xs space-y-1.5 cursor-pointer transition-colors"
+                className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] hover:border-[var(--color-accent)] shadow-xs space-y-1.5 cursor-pointer transition-colors"
                 title="Click to manage stock balances"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                     {language === 'ar' ? 'رصيد المخزون' : 'Inventory Valuation'}
                   </span>
-                  <Database className="w-3.5 h-3.5 text-[#8E7C49]" />
+                  <Database className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                 </div>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {formatBHD(totalInventoryValuation)}
                 </p>
-                <div className="flex items-center justify-between text-[11px] text-[#8E7C49]">
+                <div className="flex items-center justify-between text-[11px] text-[var(--color-accent)]">
                   <span>{totalStockUnits} {language === 'ar' ? 'قطعة بالمستودع' : 'units in warehouse'}</span>
                 </div>
               </div>
@@ -789,37 +789,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                   setActiveTab('inventory');
                   setInventoryStockFilter('low_stock');
                 }}
-                className="bg-white p-5 rounded-sm border border-[#E1D1E4] hover:border-[#E22001] shadow-xs space-y-1.5 cursor-pointer transition-colors"
+                className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] hover:border-[var(--color-primary)] shadow-xs space-y-1.5 cursor-pointer transition-colors"
                 title="Click to view low stock items"
               >
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#E22001]">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)]">
                   {t.admin.lowStockAlerts}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#E22001] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-primary)] tabular-nums">
                   {lowStockProducts.length}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">{outOfStockProducts.length} out of stock</p>
+                <p className="text-[11px] text-[var(--color-text)]/60">{outOfStockProducts.length} out of stock</p>
               </div>
 
             </div>
 
             {/* Pay On Delivery Verification Action Banner */}
             {orders.some((o) => o.paymentMethod === 'pay_on_delivery' && o.paymentStatus === 'Pending') && (
-              <div className="bg-[#340404] text-[#FBE7E3] p-5 rounded-sm border-2 border-[#8E7C49] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+              <div className="bg-[var(--color-text)] text-[var(--color-bg)] p-5 rounded-sm border-2 border-[var(--color-accent)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
                 <div className="flex items-center gap-3.5">
-                  <div className="p-3 bg-[#8E7C49]/20 rounded-xs border border-[#8E7C49] text-[#8E7C49]">
-                    <QrCode className="w-6 h-6 text-[#8E7C49]" />
+                  <div className="p-3 bg-[var(--color-accent)]/20 rounded-xs border border-[var(--color-accent)] text-[var(--color-accent)]">
+                    <QrCode className="w-6 h-6 text-[var(--color-accent)]" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="bg-[#E22001] text-white text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-xs tracking-wider">
+                      <span className="bg-[var(--color-primary)] text-white text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-xs tracking-wider">
                         Action Required
                       </span>
                       <h4 className="font-heading text-lg font-bold text-white">
                         {language === 'ar' ? 'طلبات بانتظار تأكيد استلام الدفع عند الاستلام' : 'Pending Pay On Delivery Collections'}
                       </h4>
                     </div>
-                    <p className="text-xs text-[#FBE7E3]/85 mt-1">
+                    <p className="text-xs text-[var(--color-bg)]/85 mt-1">
                       {language === 'ar'
                         ? `يوجد ${orders.filter((o) => o.paymentMethod === 'pay_on_delivery' && o.paymentStatus === 'Pending').length} طلب بانتظار تأكيد السداد عبر الرمز المكون من ٦ أرقام أو مسح رمز QR.`
                         : `${orders.filter((o) => o.paymentMethod === 'pay_on_delivery' && o.paymentStatus === 'Pending').length} order(s) awaiting payment collection verification via customer 6-digit PIN or optical QR code scan.`}
@@ -834,7 +834,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                       setActiveTab('orders');
                       setIsQrScannerModalOpen(true);
                     }}
-                    className="flex-1 md:flex-none px-4 py-2.5 bg-[#8E7C49] hover:bg-[#78683b] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                    className="flex-1 md:flex-none px-4 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                   >
                     <Camera className="w-4 h-4" />
                     <span>{language === 'ar' ? 'تشغيل ماسح QR' : 'Launch QR Scanner'}</span>
@@ -842,7 +842,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                   <button
                     type="button"
                     onClick={() => setActiveTab('orders')}
-                    className="flex-1 md:flex-none px-4 py-2.5 bg-[#FBE7E3] hover:bg-white text-[#340404] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors"
+                    className="flex-1 md:flex-none px-4 py-2.5 bg-[var(--color-bg)] hover:bg-white text-[var(--color-text)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors"
                   >
                     <span>{language === 'ar' ? 'إدارة الطلبات' : 'View Orders'}</span>
                   </button>
@@ -851,21 +851,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
             )}
 
             {/* Boutique Administrator Role & Staff Management Card */}
-            <div className="bg-[#FAF5F2] border border-[#8E7C49]/40 p-5 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
+            <div className="bg-[var(--color-bg)] border border-[var(--color-accent)]/40 p-5 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs">
               <div className="flex items-start sm:items-center gap-3.5">
-                <div className="w-12 h-12 rounded-full bg-[#340404] text-[#FBE7E3] flex items-center justify-center shrink-0 border border-[#8E7C49]/50 shadow-xs">
-                  <ShieldCheck className="w-6 h-6 text-[#8E7C49]" />
+                <div className="w-12 h-12 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] flex items-center justify-center shrink-0 border border-[var(--color-accent)]/50 shadow-xs">
+                  <ShieldCheck className="w-6 h-6 text-[var(--color-accent)]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="bg-[#8E7C49]/20 text-[#8E7C49] font-bold text-[10px] uppercase px-2 py-0.5 rounded-xs border border-[#8E7C49]/30">
+                    <span className="bg-[var(--color-accent)]/20 text-[var(--color-accent)] font-bold text-[10px] uppercase px-2 py-0.5 rounded-xs border border-[var(--color-accent)]/30">
                       {language === 'ar' ? 'صلاحية المشرف' : 'Administrator Role'}
                     </span>
-                    <h4 className="font-heading text-base sm:text-lg font-bold text-[#340404]">
+                    <h4 className="font-heading text-base sm:text-lg font-bold text-[var(--color-text)]">
                       {language === 'ar' ? 'إدارة المشرفين وتعيين حسابات إدارية جديدة' : 'Administrator Management & Role Assignment'}
                     </h4>
                   </div>
-                  <p className="text-xs text-[#340404]/75 mt-0.5">
+                  <p className="text-xs text-[var(--color-text)]/75 mt-0.5">
                     {language === 'ar'
                       ? `بصفتك مشرفاً معتمداً، يمكنك إنشاء حسابات مشرفين جديدة للمتجر وحفظها في MySQL. المشرفون الجدد سيتم توجيههم تلقائياً إلى هذه اللوحة فور تسجيل الدخول.`
                       : `You have the authority to create new store administrators. All administrators are registered in MySQL and automatically redirected to this dashboard upon login.`}
@@ -877,7 +877,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                 <button
                   type="button"
                   onClick={() => setIsCreateAdminModalOpen(true)}
-                  className="flex-1 md:flex-none px-4 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                  className="flex-1 md:flex-none px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4" />
                   <span>{language === 'ar' ? 'إنشاء مشرف جديد' : 'Create New Admin'}</span>
@@ -885,7 +885,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                 <button
                   type="button"
                   onClick={() => setActiveTab('admins')}
-                  className="flex-1 md:flex-none px-4 py-2.5 border border-[#8E7C49] text-[#340404] hover:bg-[#340404] hover:text-[#FBE7E3] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
+                  className="flex-1 md:flex-none px-4 py-2.5 border border-[var(--color-accent)] text-[var(--color-text)] hover:bg-[var(--color-text)] hover:text-[var(--color-bg)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors cursor-pointer"
                 >
                   <span>{language === 'ar' ? `فريق الإدارة (${adminList.length})` : `View Admins (${adminList.length})`}</span>
                 </button>
@@ -896,9 +896,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
               {/* Revenue Performance by Category (Live from MySQL SQL_SELECT_SALES_BY_CATEGORY) */}
-              <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-sm border border-[#E1D1E4] shadow-xs space-y-6">
+              <div className="lg:col-span-7 bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                  <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                     {t.admin.salesOverview}
                   </h3>
                  
@@ -914,18 +914,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                         { categoryName: 'Bridal Robes & Kimonos', percentage: 10, totalRevenueBHD: 91.500 },
                       ]
                   ).map((cat: any, idx: number) => {
-                    const colors = ['#E22001', '#8E7C49', '#340404', '#C58C85', '#5C1D24'];
+                    const colors = ['var(--color-primary)', 'var(--color-accent)', 'var(--color-text)', 'var(--color-text-secondary)', 'var(--color-primary)'];
                     const color = colors[idx % colors.length];
                     const pct = Number(cat.percentage || 0);
                     return (
                       <div key={cat.categoryName || idx} className="space-y-1.5 text-xs">
-                        <div className="flex justify-between font-medium text-[#340404]">
+                        <div className="flex justify-between font-medium text-[var(--color-text)]">
                           <span className="truncate pr-2">{cat.categoryName}</span>
                           <span className="tabular-nums font-bold shrink-0">
                             {formatBHD(cat.totalRevenueBHD)} ({pct}%)
                           </span>
                         </div>
-                        <div className="w-full bg-[#FBE7E3] h-2 rounded-full overflow-hidden">
+                        <div className="w-full bg-[var(--color-bg)] h-2 rounded-full overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all duration-700"
                             style={{ width: `${Math.max(4, Math.min(100, pct))}%`, backgroundColor: color }}
@@ -938,12 +938,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
               </div>
 
               {/* Best Selling Products (Live from MySQL SQL_SELECT_TOP_SELLING_PRODUCTS) */}
-              <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-sm border border-[#E1D1E4] shadow-xs space-y-4">
+              <div className="lg:col-span-5 bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                  <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                     {language === 'ar' ? 'القطع الأكثر طلبًا بالبحرين' : 'Best Performing Pieces'}
                   </h3>
-                  <span className="text-[10px] bg-[#FAF5F2] px-2 py-0.5 rounded-xs border border-[#E1D1E4] text-[#8E7C49] font-mono uppercase">
+                  <span className="text-[10px] bg-[var(--color-bg)] px-2 py-0.5 rounded-xs border border-[var(--color-border)] text-[var(--color-accent)] font-mono uppercase">
                     BEST SALES
                   </span>
                 </div>
@@ -976,23 +976,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                         image: p.images[0],
                       }))
                   ).map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-2 rounded-xs hover:bg-[#FBE7E3]/30">
+                    <div key={item.id} className="flex items-center gap-3 p-2 rounded-xs hover:bg-[var(--color-bg)]/30">
                       <img
                         src={item.image}
                         alt=""
-                        className="w-10 h-12 object-cover rounded-xs border border-[#E1D1E4]"
+                        className="w-10 h-12 object-cover rounded-xs border border-[var(--color-border)]"
                       />
                       <div className="flex-1 min-w-0 text-xs">
-                        <p className="font-semibold text-[#340404] truncate">
+                        <p className="font-semibold text-[var(--color-text)] truncate">
                           {language === 'ar' ? item.nameAr : item.nameEn}
                         </p>
-                        <div className="flex items-center gap-2 text-[11px] text-[#340404]/70">
-                          <span className="text-[#8E7C49] font-medium tabular-nums">{formatBHD(item.revenue)}</span>
+                        <div className="flex items-center gap-2 text-[11px] text-[var(--color-text)]/70">
+                          <span className="text-[var(--color-accent)] font-medium tabular-nums">{formatBHD(item.revenue)}</span>
                           <span>•</span>
                           <span>{item.unitsSold} {language === 'ar' ? 'مباع' : 'sold'}</span>
                         </div>
                       </div>
-                      <div className="text-right text-[11px] text-[#340404]/60 tabular-nums">
+                      <div className="text-right text-[11px] text-[var(--color-text)]/60 tabular-nums">
                         ★ {item.rating}
                       </div>
                     </div>
@@ -1003,16 +1003,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
             </div>
 
             {/* Recent Orders Table */}
-            <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden">
-              <div className="p-6 border-b border-[#E1D1E4]">
-                <h3 className="font-heading text-lg font-semibold text-[#340404]">
+            <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] shadow-xs overflow-hidden">
+              <div className="p-6 border-b border-[var(--color-border)]">
+                <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                   {t.admin.recentOrders}
                 </h3>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left rtl:text-right text-xs">
-                  <thead className="bg-[#FBE7E3]/50 text-[#340404] font-semibold uppercase tracking-wider">
+                  <thead className="bg-[var(--color-bg)]/50 text-[var(--color-text)] font-semibold uppercase tracking-wider">
                     <tr>
                       <th className="p-4">Order #</th>
                       <th className="p-4">{t.admin.customer}</th>
@@ -1022,13 +1022,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                       <th className="p-4">{t.admin.actions}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E1D1E4]">
+                  <tbody className="divide-y divide-[var(--color-border)]">
                     {orders.slice(0, 5).map((o) => (
-                      <tr key={o.id} className="hover:bg-[#FBE7E3]/20">
-                        <td className="p-4 font-mono font-bold text-[#340404]">{o.orderNumber}</td>
-                        <td className="p-4 font-medium text-[#340404]">{o.customerName}</td>
-                        <td className="p-4 text-[#340404]/70">{new Date(o.createdAt).toLocaleDateString()}</td>
-                        <td className="p-4 font-bold text-[#340404] tabular-nums">{formatBHD(o.total)}</td>
+                      <tr key={o.id} className="hover:bg-[var(--color-bg)]/20">
+                        <td className="p-4 font-mono font-bold text-[var(--color-text)]">{o.orderNumber}</td>
+                        <td className="p-4 font-medium text-[var(--color-text)]">{o.customerName}</td>
+                        <td className="p-4 text-[var(--color-text)]/70">{new Date(o.createdAt).toLocaleDateString()}</td>
+                        <td className="p-4 font-bold text-[var(--color-text)] tabular-nums">{formatBHD(o.total)}</td>
                         <td className="p-4">
                           <span className={`px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase ${
                             o.orderStatus === 'Delivered'
@@ -1044,7 +1044,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                           <select
                             value={o.orderStatus}
                             onChange={(e) => updateOrderStatus(o.id, e.target.value as OrderStatus)}
-                            className="text-[11px] p-1 border border-[#E1D1E4] rounded-xs bg-white text-[#340404]"
+                            className="text-[11px] p-1 border border-[var(--color-border)] rounded-xs bg-white text-[var(--color-text)]"
                           >
                             <option value="Confirmed">Confirmed</option>
                             <option value="Preparing">Preparing</option>
@@ -1072,59 +1072,59 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
 
             {/* Top Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'إجمالي المبيعات' : 'Gross Sales Revenue'}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {formatBHD(salesAnalytics?.summary?.grossRevenueBHD ?? totalSales)}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">BHD (Bahraini Dinar)</p>
+                <p className="text-[11px] text-[var(--color-text)]/60">BHD (Bahraini Dinar)</p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'القطع المباعة' : 'Total Units Sold'}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {salesAnalytics?.summary?.totalUnitsSold ?? salesRecords.reduce((s, r) => s + (r.quantity || 1), 0)}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">Across all orders</p>
+                <p className="text-[11px] text-[var(--color-text)]/60">Across all orders</p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'سجلات المبيعات' : 'Line-Item Sales Rows'}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {salesAnalytics?.summary?.totalSaleItems ?? salesRecords.length}
                 </p>
-                <p className="text-[11px] text-[#340404]/60 font-mono">product_sales table</p>
+                <p className="text-[11px] text-[var(--color-text)]/60 font-mono">product_sales table</p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'منتجات مميزة مباعة' : 'Distinct SKUs Sold'}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {salesAnalytics?.summary?.distinctProductsSold ?? 4}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">From luxury catalog</p>
+                <p className="text-[11px] text-[var(--color-text)]/60">From luxury catalog</p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'متوسط سعر القطعة' : 'Avg Item Value'}
                 </span>
-                <p className="text-xl sm:text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {formatBHD(salesAnalytics?.summary?.averageItemValueBHD ?? 32.500)}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">Per line-item unit</p>
+                <p className="text-[11px] text-[var(--color-text)]/60">Per line-item unit</p>
               </div>
             </div>
 
             {/* View Mode Switcher */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-[#E1D1E4] pb-3">
+            <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] pb-3">
               {[
                 { id: 'table', label: language === 'ar' ? 'جدول سجلات المبيعات (product_sales)' : 'Line-Item Sales Table', icon: Boxes },
                 { id: 'leaderboard', label: language === 'ar' ? 'القطع الأكثر مبيعًا' : 'Top Products Leaderboard', icon: TrendingUp },
@@ -1139,8 +1139,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                     onClick={() => setSalesViewMode(m.id as any)}
                     className={`px-3.5 py-2 text-xs font-semibold rounded-xs flex items-center gap-2 transition-colors cursor-pointer ${
                       isCurrent
-                        ? 'bg-[#340404] text-white shadow-xs'
-                        : 'bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#FBE7E3]'
+                        ? 'bg-[var(--color-text)] text-white shadow-xs'
+                        : 'bg-white border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-bg)]'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -1152,10 +1152,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
 
             {/* SUB-VIEW 1: LINE ITEM SALES TABLE */}
             {salesViewMode === 'table' && (
-              <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden space-y-4">
+              <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] shadow-xs overflow-hidden space-y-4">
                 
                 {/* Search & Filters */}
-                <div className="p-4 bg-[#FAF5F2] border-b border-[#E1D1E4] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div className="p-4 bg-[var(--color-bg)] border-b border-[var(--color-border)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <div className="relative flex-1 max-w-md">
                     <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5 rtl:left-auto rtl:right-3" />
                     <input
@@ -1163,7 +1163,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                       value={salesSearch}
                       onChange={(e) => setSalesSearch(e.target.value)}
                       placeholder={language === 'ar' ? 'بحث بالمنتج أو رمز SKU أو رقم الطلب...' : 'Search by SKU, Product Name, Order #, or Customer...'}
-                      className="w-full pl-9 pr-3 rtl:pr-9 rtl:pl-3 py-1.5 text-xs bg-white border border-[#E1D1E4] rounded-xs outline-none focus:ring-1 focus:ring-[#E22001]"
+                      className="w-full pl-9 pr-3 rtl:pr-9 rtl:pl-3 py-1.5 text-xs bg-white border border-[var(--color-border)] rounded-xs outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                     />
                   </div>
 
@@ -1171,7 +1171,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                     <select
                       value={salesAreaFilter}
                       onChange={(e) => setSalesAreaFilter(e.target.value)}
-                      className="px-2.5 py-1.5 text-xs bg-white border border-[#E1D1E4] rounded-xs text-[#340404]"
+                      className="px-2.5 py-1.5 text-xs bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)]"
                     >
                       <option value="all">{language === 'ar' ? 'جميع مناطق البحرين' : 'All Bahrain Areas'}</option>
                       <option value="Adliya">Adliya (العدلية)</option>
@@ -1185,7 +1185,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                     <select
                       value={salesPaymentFilter}
                       onChange={(e) => setSalesPaymentFilter(e.target.value)}
-                      className="px-2.5 py-1.5 text-xs bg-white border border-[#E1D1E4] rounded-xs text-[#340404]"
+                      className="px-2.5 py-1.5 text-xs bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)]"
                     >
                       <option value="all">{language === 'ar' ? 'جميع طرق الدفع' : 'All Payment Methods'}</option>
                       <option value="benefit_pay">BenefitPay</option>
@@ -1199,7 +1199,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                 {/* Table */}
                 <div className="overflow-x-auto">
                   <table className="w-full text-left rtl:text-right text-xs">
-                    <thead className="bg-[#FBE7E3]/50 text-[#340404] font-semibold uppercase tracking-wider">
+                    <thead className="bg-[var(--color-bg)]/50 text-[var(--color-text)] font-semibold uppercase tracking-wider">
                       <tr>
                         <th className="p-3.5">Order # / Sale ID</th>
                         <th className="p-3.5">Product & SKU</th>
@@ -1212,7 +1212,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                         <th className="p-3.5">Date</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E1D1E4]">
+                    <tbody className="divide-y divide-[var(--color-border)]">
                       {salesRecords
                         .filter((s) => {
                           const query = salesSearch.toLowerCase().trim();
@@ -1228,16 +1228,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                           return matchSearch && matchArea && matchPayment;
                         })
                         .map((s, idx) => (
-                          <tr key={s.id || idx} className="hover:bg-[#FBE7E3]/20 transition-colors">
+                          <tr key={s.id || idx} className="hover:bg-[var(--color-bg)]/20 transition-colors">
                             <td className="p-3.5 font-mono">
-                              <span className="font-bold text-[#340404] block">{s.orderNumber}</span>
+                              <span className="font-bold text-[var(--color-text)] block">{s.orderNumber}</span>
                               <span className="text-[10px] text-gray-400 block truncate max-w-[120px]">{s.id}</span>
                             </td>
                             <td className="p-3.5">
-                              <span className="font-semibold text-[#340404] block">
+                              <span className="font-semibold text-[var(--color-text)] block">
                                 {language === 'ar' ? s.productNameAr || s.productNameEn : s.productNameEn}
                               </span>
-                              <span className="text-[10px] font-mono text-[#8E7C49] block">{s.productSku}</span>
+                              <span className="text-[10px] font-mono text-[var(--color-accent)] block">{s.productSku}</span>
                             </td>
                             <td className="p-3.5">
                               <div className="flex items-center gap-1.5">
@@ -1245,24 +1245,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                                   {s.variantSize || 'M'}
                                 </span>
                                 <span
-                                  className="w-3 h-3 rounded-full border border-black/20"
-                                  style={{ backgroundColor: s.variantColorHex || '#340404' }}
+                                  className="w-3 h-3 rounded-full border border-[var(--color-border)]"
+                                  style={{ backgroundColor: s.variantColorHex || 'var(--color-text)' }}
                                   title={s.variantColorName}
                                 />
                                 <span className="text-[11px] text-gray-600">{s.variantColorName}</span>
                               </div>
                             </td>
-                            <td className="p-3.5 text-right rtl:text-left tabular-nums font-medium text-[#340404]">
+                            <td className="p-3.5 text-right rtl:text-left tabular-nums font-medium text-[var(--color-text)]">
                               {formatBHD(s.unitPrice)}
                             </td>
-                            <td className="p-3.5 text-center tabular-nums font-bold text-[#340404]">
+                            <td className="p-3.5 text-center tabular-nums font-bold text-[var(--color-text)]">
                               {s.quantity}
                             </td>
-                            <td className="p-3.5 text-right rtl:text-left tabular-nums font-bold text-[#E22001]">
+                            <td className="p-3.5 text-right rtl:text-left tabular-nums font-bold text-[var(--color-primary)]">
                               {formatBHD(s.totalAmount)}
                             </td>
                             <td className="p-3.5">
-                              <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold bg-[#FAF5F2] border border-[#E1D1E4] text-[#8E7C49]">
+                              <span className="px-2 py-0.5 rounded-xs text-[10px] font-semibold bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-accent)]">
                                 {s.customerArea || 'Manama'}
                               </span>
                             </td>
@@ -1299,22 +1299,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                   return (
                     <div
                       key={tp.productId || idx}
-                      className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs flex flex-col justify-between space-y-4 hover:border-[#8E7C49] transition-colors"
+                      className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs flex flex-col justify-between space-y-4 hover:border-[var(--color-accent)] transition-colors"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${
                             idx === 0
-                              ? 'bg-[#E22001] text-white shadow-xs'
+                              ? 'bg-[var(--color-primary)] text-white shadow-xs'
                               : idx === 1
-                              ? 'bg-[#8E7C49] text-white'
+                              ? 'bg-[var(--color-accent)] text-white'
                               : 'bg-gray-100 text-gray-700'
                           }`}>
                             #{idx + 1}
                           </span>
                           <div>
-                            <span className="text-[10px] font-mono uppercase text-[#8E7C49] block">{tp.productSku}</span>
-                            <h4 className="font-heading font-semibold text-sm text-[#340404]">
+                            <span className="text-[10px] font-mono uppercase text-[var(--color-accent)] block">{tp.productSku}</span>
+                            <h4 className="font-heading font-semibold text-sm text-[var(--color-text)]">
                               {language === 'ar' ? tp.productNameAr || tp.productNameEn : tp.productNameEn}
                             </h4>
                           </div>
@@ -1323,34 +1323,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                           <img
                             src={matched.images[0]}
                             alt=""
-                            className="w-12 h-14 object-cover rounded-xs border border-[#E1D1E4]"
+                            className="w-12 h-14 object-cover rounded-xs border border-[var(--color-border)]"
                           />
                         )}
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 bg-[#FAF5F2] p-2.5 rounded-xs border border-[#E1D1E4] text-center text-xs">
+                      <div className="grid grid-cols-3 gap-2 bg-[var(--color-bg)] p-2.5 rounded-xs border border-[var(--color-border)] text-center text-xs">
                         <div>
                           <span className="text-[10px] text-gray-500 block uppercase font-mono">Units Sold</span>
-                          <span className="font-bold text-[#340404] text-sm tabular-nums">{tp.unitsSold}</span>
+                          <span className="font-bold text-[var(--color-text)] text-sm tabular-nums">{tp.unitsSold}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-gray-500 block uppercase font-mono">Orders</span>
-                          <span className="font-bold text-[#340404] text-sm tabular-nums">{tp.ordersCount}</span>
+                          <span className="font-bold text-[var(--color-text)] text-sm tabular-nums">{tp.ordersCount}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-gray-500 block uppercase font-mono">Gross BHD</span>
-                          <span className="font-bold text-[#E22001] text-sm tabular-nums">{formatBHD(tp.totalRevenueBHD)}</span>
+                          <span className="font-bold text-[var(--color-primary)] text-sm tabular-nums">{formatBHD(tp.totalRevenueBHD)}</span>
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-[11px] text-gray-600">
                           <span>Catalog Category</span>
-                          <span className="font-semibold text-[#340404]">{tp.categoryNameEn || 'Luxury Nightwear'}</span>
+                          <span className="font-semibold text-[var(--color-text)]">{tp.categoryNameEn || 'Luxury Nightwear'}</span>
                         </div>
-                        <div className="w-full bg-[#FBE7E3] h-1.5 rounded-full overflow-hidden">
+                        <div className="w-full bg-[var(--color-bg)] h-1.5 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-[#E22001] rounded-full"
+                            className="h-full bg-[var(--color-primary)] rounded-full"
                             style={{
                               width: `${Math.min(100, Math.max(15, (Number(tp.unitsSold) / 20) * 100))}%`,
                             }}
@@ -1365,13 +1365,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
 
             {/* SUB-VIEW 3:  QUERIES & SCHEMA INSPECTOR */}
             {salesViewMode === 'queries' && (
-              <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden">
-                <div className="p-4 bg-[#340404] text-[#FBE7E3] border-b border-[#8E7C49]/40 flex flex-wrap items-center justify-between gap-3">
+              <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] shadow-xs overflow-hidden">
+                <div className="p-4 bg-[var(--color-text)] text-[var(--color-bg)] border-b border-[var(--color-accent)]/40 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h4 className="font-heading font-semibold text-sm text-white">
                        Relational Queries & DDL Schema (`product_sales`)
                     </h4>
-                    <p className="text-[11px] text-[#FBE7E3]/75">
+                    <p className="text-[11px] text-[var(--color-bg)]/75">
                       Production SQL queries executed via the  connection pool (``) with parameterization.
                     </p>
                   </div>
@@ -1390,8 +1390,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                         onClick={() => setActiveQueryTab(q.id as any)}
                         className={`px-2.5 py-1 text-[11px] font-mono rounded-xs transition-colors cursor-pointer ${
                           activeQueryTab === q.id
-                            ? 'bg-[#E22001] text-white font-bold'
-                            : 'bg-white/10 text-[#FBE7E3] hover:bg-white/20'
+                            ? 'bg-[var(--color-primary)] text-white font-bold'
+                            : 'bg-white/10 text-[var(--color-bg)] hover:bg-white/20'
                         }`}
                       >
                         {q.label}
@@ -1400,7 +1400,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                   </div>
                 </div>
 
-                <div className="p-6 bg-[#1a0f0f] text-emerald-400 font-mono text-xs overflow-x-auto leading-relaxed">
+                <div className="p-6 bg-[var(--color-text)] text-emerald-400 font-mono text-xs overflow-x-auto leading-relaxed">
                   <pre>
                     {activeQueryTab === 'insert' && `/* Parameterized Query executed when customer completes checkout in Bahrain */
 INSERT INTO product_sales (
@@ -1514,48 +1514,48 @@ CREATE TABLE IF NOT EXISTS product_sales (
           <div className="space-y-6">
             {/* Top Stat Highlights */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'إجمالي العميلات المشترين' : language === 'ru' ? 'Всего покупателей' : 'Total Purchasing Customers'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {customerPurchases.length}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">
+                <p className="text-[11px] text-[var(--color-text)]/60">
                   {language === 'ar' ? 'عميلات مسجلات وطلبات زوار' : language === 'ru' ? 'Зарегистрированные и гости' : 'Registered & Guest Buyers'}
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'إجمالي القطع المشتراة' : language === 'ru' ? 'Куплено единиц' : 'Total Products Purchased'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {customerPurchases.reduce((sum, c) => sum + (Number(c.totalItemsPurchased) || 0), 0)}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">
+                <p className="text-[11px] text-[var(--color-text)]/60">
                   {language === 'ar' ? 'قطع نوم فاخرة مسلمة' : language === 'ru' ? 'Единиц роскошной одежды' : 'Units of luxury nightwear'}
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'إجمالي مبيعات العميلات' : language === 'ru' ? 'Общая сумма покупок' : 'Total Customer Spend'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {formatBHD(customerPurchases.reduce((sum, c) => sum + (Number(c.totalSpendBHD) || 0), 0))}
                 </p>
-                <div className="flex items-center gap-1 text-[11px] text-[#8E7C49]">
+                <div className="flex items-center gap-1 text-[11px] text-[var(--color-accent)]">
                   <TrendingUp className="w-3 h-3" />
                   <span>{language === 'ar' ? 'إيرادات محققة في البحرين' : language === 'ru' ? 'Выручка в Бахрейне' : 'Revenue generated in Bahrain'}</span>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'متوسط إنفاق العميلة' : language === 'ru' ? 'Средний чек клиента' : 'Avg Customer Spend'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {customerPurchases.length > 0
                     ? formatBHD(
                         customerPurchases.reduce((sum, c) => sum + (Number(c.totalSpendBHD) || 0), 0) /
@@ -1563,23 +1563,23 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       )
                     : formatBHD(0)}
                 </p>
-                <p className="text-[11px] text-[#340404]/60">
+                <p className="text-[11px] text-[var(--color-text)]/60">
                   {language === 'ar' ? 'عبر جميع الطلبات السابقة' : language === 'ru' ? 'По всей истории заказов' : 'Across lifetime purchases'}
                 </p>
               </div>
             </div>
 
             {/* Controls Bar: Search & View Mode Switch */}
-            <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="inline-flex rounded-xs border border-[#E1D1E4] p-0.5 bg-[#FBE7E3]/30">
+                <div className="inline-flex rounded-xs border border-[var(--color-border)] p-0.5 bg-[var(--color-bg)]/30">
                   <button
                     type="button"
                     onClick={() => setCustomerViewMode('by_customer')}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-xs transition-colors flex items-center gap-1.5 ${
                       customerViewMode === 'by_customer'
-                        ? 'bg-[#340404] text-white shadow-xs'
-                        : 'text-[#340404] hover:bg-white'
+                        ? 'bg-[var(--color-text)] text-white shadow-xs'
+                        : 'text-[var(--color-text)] hover:bg-white'
                     }`}
                   >
                     <UserCheck className="w-3.5 h-3.5" />
@@ -1590,8 +1590,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     onClick={() => setCustomerViewMode('by_product')}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-xs transition-colors flex items-center gap-1.5 ${
                       customerViewMode === 'by_product'
-                        ? 'bg-[#340404] text-white shadow-xs'
-                        : 'text-[#340404] hover:bg-white'
+                        ? 'bg-[var(--color-text)] text-white shadow-xs'
+                        : 'text-[var(--color-text)] hover:bg-white'
                     }`}
                   >
                     <Package className="w-3.5 h-3.5" />
@@ -1602,7 +1602,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
               {/* Search */}
               <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 text-[#8E7C49] absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
+                <Search className="w-4 h-4 text-[var(--color-accent)] absolute left-3 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-3" />
                 <input
                   type="text"
                   value={customerSearch}
@@ -1612,12 +1612,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       ? (language === 'ar' ? 'البحث باسم العميلة، البريد، أو المنطقة...' : language === 'ru' ? 'Поиск покупателя по имени, email или району...' : 'Search by customer name, email, or area...')
                       : (language === 'ar' ? 'البحث باسم المنتج أو الرمز SKU...' : language === 'ru' ? 'Поиск товара по названию или SKU...' : 'Search product by name or SKU...')
                   }
-                  className="w-full pl-9 pr-4 rtl:pl-4 rtl:pr-9 py-2 text-xs border border-[#E1D1E4] rounded-xs bg-[#FBE7E3]/20 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                  className="w-full pl-9 pr-4 rtl:pl-4 rtl:pr-9 py-2 text-xs border border-[var(--color-border)] rounded-xs bg-[var(--color-bg)]/20 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                 />
                 {customerSearch && (
                   <button
                     onClick={() => setCustomerSearch('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rtl:right-auto rtl:left-3 text-gray-400 hover:text-black"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rtl:right-auto rtl:left-3 text-gray-400 hover:text-[var(--color-text)]"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -1627,19 +1627,19 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
             {/* VIEW MODE 1: BY CUSTOMER */}
             {customerViewMode === 'by_customer' && (
-              <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden">
-                <div className="p-4 bg-[#FBE7E3]/30 border-b border-[#E1D1E4] flex items-center justify-between">
-                  <span className="font-heading text-sm font-bold text-[#340404]">
+              <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] shadow-xs overflow-hidden">
+                <div className="p-4 bg-[var(--color-bg)]/30 border-b border-[var(--color-border)] flex items-center justify-between">
+                  <span className="font-heading text-sm font-bold text-[var(--color-text)]">
                     {language === 'ar' ? 'سجل العميلات والمنتجات المشتراة' : language === 'ru' ? 'Список покупателей и купленные ими товары' : 'Customer Purchasing Profiles & Associated Products'}
                   </span>
-                  <span className="text-xs text-[#8E7C49] font-medium">
+                  <span className="text-xs text-[var(--color-accent)] font-medium">
                     {customerPurchases.length} {language === 'ar' ? 'عميلة مسجلة في قاعدة البيانات' : language === 'ru' ? 'клиентов в базе данных' : 'customers in MySQL database'}
                   </span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left rtl:text-right text-xs">
-                    <thead className="bg-[#FBE7E3]/50 text-[#340404] font-semibold uppercase tracking-wider">
+                    <thead className="bg-[var(--color-bg)]/50 text-[var(--color-text)] font-semibold uppercase tracking-wider">
                       <tr>
                         <th className="p-4">{language === 'ar' ? 'العميلة' : language === 'ru' ? 'Покупатель' : 'Customer'}</th>
                         <th className="p-4">{language === 'ar' ? 'المنطقة / العنوان' : language === 'ru' ? 'Район / Город' : 'Area / City'}</th>
@@ -1651,11 +1651,11 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         <th className="p-4 text-right rtl:text-left">{language === 'ar' ? 'تفاصيل المنتجات' : language === 'ru' ? 'Товары' : 'Products Bought'}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E1D1E4]">
+                    <tbody className="divide-y divide-[var(--color-border)]">
                       {isLoadingCustomers ? (
                         <tr>
                           <td colSpan={8} className="p-8 text-center text-gray-500">
-                            <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#8E7C49]" />
+                            <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[var(--color-accent)]" />
                             <span>{language === 'ar' ? 'جاري تحميل سجلات العميلات من MySQL...' : language === 'ru' ? 'Загрузка профилей покупателей...' : 'Loading customer purchasing data from MySQL...'}</span>
                           </td>
                         </tr>
@@ -1681,21 +1681,21 @@ CREATE TABLE IF NOT EXISTS product_sales (
                             const isExpanded = selectedCustomerEmail === cust.customerEmail;
                             return (
                               <React.Fragment key={cust.customerEmail || cust.customerId}>
-                                <tr className={`hover:bg-[#FBE7E3]/20 transition-colors ${isExpanded ? 'bg-[#FBE7E3]/30' : ''}`}>
+                                <tr className={`hover:bg-[var(--color-bg)]/20 transition-colors ${isExpanded ? 'bg-[var(--color-bg)]/30' : ''}`}>
                                   <td className="p-4">
                                     <div className="flex items-center gap-2.5">
-                                      <div className="w-8 h-8 rounded-full bg-[#340404] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                      <div className="w-8 h-8 rounded-full bg-[var(--color-text)] text-white flex items-center justify-center font-bold text-xs shrink-0">
                                         {(cust.customerName || cust.customerEmail || 'C').charAt(0).toUpperCase()}
                                       </div>
                                       <div>
-                                        <p className="font-bold text-[#340404]">
+                                        <p className="font-bold text-[var(--color-text)]">
                                           {cust.customerName || 'Boutique Shopper'}
                                         </p>
-                                        <p className="text-[11px] text-[#340404]/70 font-mono">
+                                        <p className="text-[11px] text-[var(--color-text)]/70 font-mono">
                                           {cust.customerEmail}
                                         </p>
                                         {cust.customerId && (
-                                          <span className="text-[10px] text-[#8E7C49] font-mono">
+                                          <span className="text-[10px] text-[var(--color-accent)] font-mono">
                                             ID: {cust.customerId.slice(0, 14)}
                                           </span>
                                         )}
@@ -1707,19 +1707,19 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                       {cust.customerArea || 'Manama'}, {cust.customerCity || 'Bahrain'}
                                     </span>
                                   </td>
-                                  <td className="p-4 text-center font-semibold text-[#340404] tabular-nums">
+                                  <td className="p-4 text-center font-semibold text-[var(--color-text)] tabular-nums">
                                     {cust.totalOrders}
                                   </td>
-                                  <td className="p-4 text-center font-bold text-[#E22001] tabular-nums">
+                                  <td className="p-4 text-center font-bold text-[var(--color-primary)] tabular-nums">
                                     {cust.totalItemsPurchased}
                                   </td>
-                                  <td className="p-4 text-center text-[#8E7C49] font-medium tabular-nums">
+                                  <td className="p-4 text-center text-[var(--color-accent)] font-medium tabular-nums">
                                     {cust.distinctProductsCount}
                                   </td>
-                                  <td className="p-4 font-bold text-[#340404] tabular-nums">
+                                  <td className="p-4 font-bold text-[var(--color-text)] tabular-nums">
                                     {formatBHD(cust.totalSpendBHD)}
                                   </td>
-                                  <td className="p-4 text-[11px] text-[#340404]/70 tabular-nums">
+                                  <td className="p-4 text-[11px] text-[var(--color-text)]/70 tabular-nums">
                                     {cust.lastPurchaseDate || 'Recent'}
                                   </td>
                                   <td className="p-4 text-right rtl:text-left">
@@ -1728,8 +1728,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                       onClick={() => handleSelectCustomer(cust.customerEmail)}
                                       className={`px-3 py-1.5 text-xs font-semibold rounded-xs transition-all flex items-center gap-1 ml-auto rtl:ml-0 rtl:mr-auto cursor-pointer ${
                                         isExpanded
-                                          ? 'bg-[#340404] text-white'
-                                          : 'bg-white border border-[#E1D1E4] text-[#340404] hover:border-[#8E7C49] hover:bg-[#FBE7E3]/30'
+                                          ? 'bg-[var(--color-text)] text-white'
+                                          : 'bg-white border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)] hover:bg-[var(--color-bg)]/30'
                                       }`}
                                     >
                                       <span>
@@ -1744,27 +1744,27 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
                                 {/* Expanded Products Drawer for this customer */}
                                 {isExpanded && (
-                                  <tr className="bg-[#FFF8F6]">
-                                    <td colSpan={8} className="p-4 border-y-2 border-[#8E7C49]/30">
+                                  <tr className="bg-[var(--color-bg)]">
+                                    <td colSpan={8} className="p-4 border-y-2 border-[var(--color-accent)]/30">
                                       <div className="space-y-3">
-                                        <div className="flex items-center justify-between pb-2 border-b border-[#E1D1E4]">
+                                        <div className="flex items-center justify-between pb-2 border-b border-[var(--color-border)]">
                                           <div className="flex items-center gap-2">
-                                            <Package className="w-4 h-4 text-[#8E7C49]" />
-                                            <span className="font-bold text-[#340404] text-xs">
+                                            <Package className="w-4 h-4 text-[var(--color-accent)]" />
+                                            <span className="font-bold text-[var(--color-text)] text-xs">
                                               {language === 'ar' ? 'جميع المنتجات التي اشترتها العميلة:' : language === 'ru' ? 'Все товары, купленные этим клиентом:' : 'All Products Purchased by this Customer:'}
                                             </span>
-                                            <span className="text-[11px] text-[#8E7C49] font-medium">
+                                            <span className="text-[11px] text-[var(--color-accent)] font-medium">
                                               ({cust.customerName || cust.customerEmail})
                                             </span>
                                           </div>
-                                          <span className="text-[11px] text-[#340404]/70">
+                                          <span className="text-[11px] text-[var(--color-text)]/70">
                                             {customerDetailSales.length} {language === 'ar' ? 'بند منتج مسجل' : language === 'ru' ? 'позиций в заказах' : 'recorded line items'}
                                           </span>
                                         </div>
 
                                         {isLoadingCustomerDetail ? (
                                           <div className="py-6 text-center text-gray-500">
-                                            <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-1 text-[#8E7C49]" />
+                                            <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-1 text-[var(--color-accent)]" />
                                             <span>{language === 'ar' ? 'جاري استرجاع تفاصيل المنتجات من MySQL...' : language === 'ru' ? 'Загрузка позиций...' : 'Retrieving purchase details from MySQL...'}</span>
                                           </div>
                                         ) : customerDetailSales.length === 0 ? (
@@ -1781,46 +1781,46 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                               return (
                                                 <div
                                                   key={item.id || `${item.orderNumber}-${idx}`}
-                                                  className="bg-white p-3 rounded-xs border border-[#E1D1E4] shadow-2xs flex items-start gap-3 hover:border-[#8E7C49] transition-all"
+                                                  className="bg-[var(--color-card)] p-3 rounded-xs border border-[var(--color-border)] shadow-2xs flex items-start gap-3 hover:border-[var(--color-accent)] transition-all"
                                                 >
                                                   <img
                                                     src={img}
                                                     alt=""
-                                                    className="w-14 h-16 object-cover rounded-xs border border-[#E1D1E4] shrink-0"
+                                                    className="w-14 h-16 object-cover rounded-xs border border-[var(--color-border)] shrink-0"
                                                     onError={(e) => {
                                                       (e.target as HTMLImageElement).src = ROSE_SATIN_IMAGE;
                                                     }}
                                                   />
                                                   <div className="flex-1 min-w-0 space-y-1">
                                                     <div className="flex items-start justify-between gap-1">
-                                                      <h6 className="font-heading font-semibold text-xs text-[#340404] truncate">
+                                                      <h6 className="font-heading font-semibold text-xs text-[var(--color-text)] truncate">
                                                         {itemName}
                                                       </h6>
-                                                      <span className="text-[11px] font-bold text-[#E22001] tabular-nums shrink-0">
+                                                      <span className="text-[11px] font-bold text-[var(--color-primary)] tabular-nums shrink-0">
                                                         {formatBHD(item.totalAmount)}
                                                       </span>
                                                     </div>
 
-                                                    <div className="flex items-center gap-1 text-[10px] text-[#8E7C49] font-mono">
+                                                    <div className="flex items-center gap-1 text-[10px] text-[var(--color-accent)] font-mono">
                                                       <span>SKU: {item.productSku}</span>
                                                       <span>·</span>
-                                                      <span className="font-bold text-[#340404]">
+                                                      <span className="font-bold text-[var(--color-text)]">
                                                         {item.orderNumber}
                                                       </span>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2 text-[10px] text-[#340404]/80 flex-wrap">
+                                                    <div className="flex items-center gap-2 text-[10px] text-[var(--color-text)]/80 flex-wrap">
                                                       <span className="px-1.5 py-0.2 bg-gray-100 rounded-xs">
                                                         {language === 'ar' ? 'المقاس' : language === 'ru' ? 'Разм.' : 'Size'}: <strong>{item.variantSize || 'M'}</strong>
                                                       </span>
                                                       <span className="flex items-center gap-1 px-1.5 py-0.2 bg-gray-100 rounded-xs">
                                                         <span
                                                           className="w-2 h-2 rounded-full border border-gray-400 inline-block"
-                                                          style={{ backgroundColor: item.variantColorHex || '#340404' }}
+                                                          style={{ backgroundColor: item.variantColorHex || 'var(--color-text)' }}
                                                         />
                                                         <span>{item.variantColorName || 'Standard'}</span>
                                                       </span>
-                                                      <span className="px-1.5 py-0.2 bg-rose-50 text-[#E22001] font-bold rounded-xs">
+                                                      <span className="px-1.5 py-0.2 bg-rose-50 text-[var(--color-primary)] font-bold rounded-xs">
                                                         ×{item.quantity}
                                                       </span>
                                                     </div>
@@ -1854,16 +1854,16 @@ CREATE TABLE IF NOT EXISTS product_sales (
             {/* VIEW MODE 2: BY PRODUCT & BUYERS MATRIX */}
             {customerViewMode === 'by_product' && (
               <div className="space-y-4">
-                <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs flex items-center justify-between">
+                <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] shadow-xs flex items-center justify-between">
                   <div>
-                    <h4 className="font-heading text-sm font-bold text-[#340404]">
+                    <h4 className="font-heading text-sm font-bold text-[var(--color-text)]">
                       {language === 'ar' ? 'سجل مشتري المنتجات (Product Buyers Matrix)' : language === 'ru' ? 'Матрица товаров и покупателей' : 'Product-to-Buyers Association Matrix'}
                     </h4>
-                    <p className="text-xs text-[#340404]/70">
+                    <p className="text-xs text-[var(--color-text)]/70">
                       {language === 'ar' ? 'اضغطي على أي منتج لعرض جميع العميلات اللاتي اشترين هذا المنتج وتفاصيل طلباتهن.' : language === 'ru' ? 'Нажмите на товар, чтобы увидеть всех клиентов, которые его купили.' : 'Click on any product to inspect all customers who purchased it and their order details.'}
                     </p>
                   </div>
-                  <span className="px-2.5 py-1 bg-[#340404] text-white text-xs font-semibold rounded-xs">
+                  <span className="px-2.5 py-1 bg-[var(--color-text)] text-white text-xs font-semibold rounded-xs">
                     {products.length} {language === 'ar' ? 'منتج بالمتجر' : language === 'ru' ? 'товаров' : 'Catalog Products'}
                   </span>
                 </div>
@@ -1892,36 +1892,36 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       return (
                         <div
                           key={prod.id}
-                          className={`bg-white rounded-sm border transition-all overflow-hidden ${
-                            isSelected ? 'border-[#340404] ring-2 ring-[#340404]/20 shadow-md' : 'border-[#E1D1E4] hover:border-[#8E7C49] shadow-xs'
+                          className={`bg-[var(--color-card)] rounded-sm border transition-all overflow-hidden ${
+                            isSelected ? 'border-[var(--color-text)] ring-2 ring-[var(--color-text)]/20 shadow-md' : 'border-[var(--color-border)] hover:border-[var(--color-accent)] shadow-xs'
                           }`}
                         >
                           <div className="p-4 flex items-start gap-3">
                             <img
                               src={prod.images[0] || ROSE_SATIN_IMAGE}
                               alt=""
-                              className="w-16 h-20 object-cover rounded-xs border border-[#E1D1E4] shrink-0"
+                              className="w-16 h-20 object-cover rounded-xs border border-[var(--color-border)] shrink-0"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = ROSE_SATIN_IMAGE;
                               }}
                             />
                             <div className="flex-1 min-w-0 space-y-1">
-                              <span className="text-[10px] text-[#8E7C49] font-mono block">
+                              <span className="text-[10px] text-[var(--color-accent)] font-mono block">
                                 {prod.sku} · {prod.categoryNameEn}
                               </span>
-                              <h5 className="font-heading font-bold text-xs text-[#340404] line-clamp-1">
+                              <h5 className="font-heading font-bold text-xs text-[var(--color-text)] line-clamp-1">
                                 {prodName}
                               </h5>
-                              <p className="text-xs font-bold text-[#E22001] tabular-nums">
+                              <p className="text-xs font-bold text-[var(--color-primary)] tabular-nums">
                                 {formatBHD(prod.salePrice ?? prod.price)}
                               </p>
 
                               <div className="flex items-center gap-2 pt-1 text-[11px]">
-                                <span className="px-1.5 py-0.5 bg-gray-100 rounded-xs font-semibold text-[#340404]">
+                                <span className="px-1.5 py-0.5 bg-gray-100 rounded-xs font-semibold text-[var(--color-text)]">
                                   {totalSold} {language === 'ar' ? 'قطعة بيعت' : language === 'ru' ? 'продано' : 'units sold'}
                                 </span>
                                 {totalRevenue > 0 && (
-                                  <span className="text-[#8E7C49] font-bold tabular-nums">
+                                  <span className="text-[var(--color-accent)] font-bold tabular-nums">
                                     {formatBHD(totalRevenue)}
                                   </span>
                                 )}
@@ -1929,14 +1929,14 @@ CREATE TABLE IF NOT EXISTS product_sales (
                             </div>
                           </div>
 
-                          <div className="px-4 py-2.5 bg-[#FBE7E3]/20 border-t border-[#E1D1E4] flex items-center justify-between">
+                          <div className="px-4 py-2.5 bg-[var(--color-bg)]/20 border-t border-[var(--color-border)] flex items-center justify-between">
                             <button
                               type="button"
                               onClick={() => handleSelectProductBuyers(prod.id)}
                               className={`w-full py-1.5 px-3 text-xs font-semibold rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
                                 isSelected
-                                  ? 'bg-[#340404] text-white'
-                                  : 'bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#340404] hover:text-white'
+                                  ? 'bg-[var(--color-text)] text-white'
+                                  : 'bg-white border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-text)] hover:text-white'
                               }`}
                             >
                               <Users className="w-3.5 h-3.5" />
@@ -1950,17 +1950,17 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
                           {/* Buyers List Drawer for this Product */}
                           {isSelected && (
-                            <div className="p-4 bg-[#FFF8F6] border-t border-[#8E7C49]/30 space-y-3">
-                              <div className="flex items-center justify-between text-xs font-bold text-[#340404]">
+                            <div className="p-4 bg-[var(--color-bg)] border-t border-[var(--color-accent)]/30 space-y-3">
+                              <div className="flex items-center justify-between text-xs font-bold text-[var(--color-text)]">
                                 <span>{language === 'ar' ? 'سجل العميلات اللاتي اشترين هذا المنتج:' : language === 'ru' ? 'Покупатели этого товара:' : 'Customers who bought this product:'}</span>
-                                <span className="text-[10px] text-[#8E7C49] font-mono">
+                                <span className="text-[10px] text-[var(--color-accent)] font-mono">
                                   {productBuyersList.length} {language === 'ar' ? 'مشترية' : language === 'ru' ? 'покупателей' : 'buyers'}
                                 </span>
                               </div>
 
                               {isLoadingProductBuyers ? (
                                 <div className="py-4 text-center text-xs text-gray-500">
-                                  <RefreshCw className="w-3.5 h-3.5 animate-spin mx-auto mb-1 text-[#8E7C49]" />
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin mx-auto mb-1 text-[var(--color-accent)]" />
                                   <span>{language === 'ar' ? 'جاري الاستعلام من قاعدة البيانات...' : language === 'ru' ? 'Загрузка...' : 'Querying MySQL...'}</span>
                                 </div>
                               ) : productBuyersList.length === 0 ? (
@@ -1972,13 +1972,13 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                   {productBuyersList.map((buyer, bIdx) => (
                                     <div
                                       key={`${buyer.orderNumber}-${bIdx}`}
-                                      className="p-2.5 bg-white rounded-xs border border-[#E1D1E4] text-[11px] space-y-1"
+                                      className="p-2.5 bg-white rounded-xs border border-[var(--color-border)] text-[11px] space-y-1"
                                     >
                                       <div className="flex items-center justify-between">
-                                        <span className="font-bold text-[#340404]">
+                                        <span className="font-bold text-[var(--color-text)]">
                                           {buyer.customerName || 'Shopper'}
                                         </span>
-                                        <span className="text-[#E22001] font-bold tabular-nums">
+                                        <span className="text-[var(--color-primary)] font-bold tabular-nums">
                                           {formatBHD(buyer.totalAmount)}
                                         </span>
                                       </div>
@@ -1988,7 +1988,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                       </div>
                                       <div className="flex items-center justify-between text-gray-600 text-[10px] pt-1 border-t border-gray-100">
                                         <span>
-                                          Order: <strong className="font-mono text-[#340404]">{buyer.orderNumber}</strong> (×{buyer.quantity})
+                                          Order: <strong className="font-mono text-[var(--color-text)]">{buyer.orderNumber}</strong> (×{buyer.quantity})
                                         </span>
                                         <span className="px-1.5 py-0.2 bg-green-50 text-green-700 font-semibold rounded-xs">
                                           {buyer.variantSize || 'M'} · {buyer.saleDate || 'Recent'}
@@ -2013,10 +2013,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
         {/* TAB 2: PRODUCT MANAGEMENT */}
         {activeTab === 'products' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden">
+            <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] shadow-xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left rtl:text-right text-xs">
-                  <thead className="bg-[#FBE7E3]/50 text-[#340404] font-semibold uppercase tracking-wider">
+                  <thead className="bg-[var(--color-bg)]/50 text-[var(--color-text)] font-semibold uppercase tracking-wider">
                     <tr>
                       <th className="p-4">Image</th>
                       <th className="p-4">Product Name (EN / AR)</th>
@@ -2026,45 +2026,45 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       <th className="p-4">{t.admin.actions}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E1D1E4]">
+                  <tbody className="divide-y divide-[var(--color-border)]">
                     {products.map((p) => {
                       const totalStock = p.variants.reduce((s, v) => s + v.stock, 0);
                       return (
-                        <tr key={p.id} className="hover:bg-[#FBE7E3]/20">
+                        <tr key={p.id} className="hover:bg-[var(--color-bg)]/20">
                           <td className="p-4">
                             <img src={p.images[0]} alt="" className="w-10 h-12 object-cover rounded-xs border" />
                           </td>
                           <td className="p-4">
-                            <p className="font-semibold text-[#340404]">{p.nameEn}</p>
-                            <p className="text-[11px] text-[#340404]/70">{p.nameAr}</p>
+                            <p className="font-semibold text-[var(--color-text)]">{p.nameEn}</p>
+                            <p className="text-[11px] text-[var(--color-text)]/70">{p.nameAr}</p>
                           </td>
-                          <td className="p-4 text-[#8E7C49] font-medium">{p.categoryNameEn}</td>
-                          <td className="p-4 font-bold text-[#340404] tabular-nums">
+                          <td className="p-4 text-[var(--color-accent)] font-medium">{p.categoryNameEn}</td>
+                          <td className="p-4 font-bold text-[var(--color-text)] tabular-nums">
                             {formatBHD(p.salePrice ?? p.price)}
                           </td>
                           <td className="p-4 tabular-nums">
-                            <span className={totalStock <= 4 ? 'text-[#E22001] font-bold' : 'text-[#340404]'}>
+                            <span className={totalStock <= 4 ? 'text-[var(--color-primary)] font-bold' : 'text-[var(--color-text)]'}>
                               {totalStock} units
                             </span>
                           </td>
                           <td className="p-4 flex items-center gap-2">
                             <button
                               onClick={() => duplicateProduct(p.id)}
-                              className="p-1.5 text-gray-500 hover:text-black"
+                              className="p-1.5 text-gray-500 hover:text-[var(--color-text)]"
                               title="Duplicate"
                             >
                               <Copy className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setEditingProduct(p)}
-                              className="p-1.5 text-[#8E7C49] hover:text-[#340404]"
+                              className="p-1.5 text-[var(--color-accent)] hover:text-[var(--color-text)]"
                               title="Edit"
                             >
                               <Edit3 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => deleteProduct(p.id)}
-                              className="p-1.5 text-[#E22001] hover:text-red-700"
+                              className="p-1.5 text-[var(--color-primary)] hover:text-red-700"
                               title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -2094,7 +2094,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 <button
                   type="button"
                   onClick={() => setStockFeedback(null)}
-                  className="text-emerald-700 hover:text-black cursor-pointer font-bold"
+                  className="text-emerald-700 hover:text-[var(--color-text)] cursor-pointer font-bold"
                 >
                   ✕
                 </button>
@@ -2107,50 +2107,50 @@ CREATE TABLE IF NOT EXISTS product_sales (
             {/* Inventory KPI Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'إجمالي القطع بالمخزون' : 'Total Units Available'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
-                  {totalStockUnits} <span className="text-xs font-normal text-[#340404]/60">{language === 'ar' ? 'قطعة' : 'units'}</span>
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
+                  {totalStockUnits} <span className="text-xs font-normal text-[var(--color-text)]/60">{language === 'ar' ? 'قطعة' : 'units'}</span>
                 </p>
-                <p className="text-[11px] text-[#340404]/60">
+                <p className="text-[11px] text-[var(--color-text)]/60">
                   {language === 'ar' ? `موزعة على ${totalVariantsCount} موديل ومقاس` : `Across ${totalVariantsCount} distinct varieties`}
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'قيمة رصيد المخزون (بالدينار)' : 'Total Inventory Valuation'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {formatBHD(totalInventoryValuation)}
                 </p>
-                <p className="text-[11px] text-[#8E7C49] font-medium">
+                <p className="text-[11px] text-[var(--color-accent)] font-medium">
                   {language === 'ar' ? 'وفق سعر البيع الفعلي الحالي' : 'Calculated at current active retail prices'}
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#E22001]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-primary)]">
                   {language === 'ar' ? 'تنبيهات انخفاض المخزون' : 'Low Stock Alert'}
                 </span>
-                <p className="text-2xl font-bold text-[#E22001] tabular-nums">
-                  {lowStockProducts.length} <span className="text-xs font-normal text-[#340404]/60">{language === 'ar' ? 'منتجات' : 'products'}</span>
+                <p className="text-2xl font-bold text-[var(--color-primary)] tabular-nums">
+                  {lowStockProducts.length} <span className="text-xs font-normal text-[var(--color-text)]/60">{language === 'ar' ? 'منتجات' : 'products'}</span>
                 </p>
-                <p className="text-[11px] text-[#340404]/60">
+                <p className="text-[11px] text-[var(--color-text)]/60">
                   {language === 'ar' ? 'أقل من ٥ قطع بالمستودع' : 'Stock level at or below 4 units'}
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#340404]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text)]">
                   {language === 'ar' ? 'المنتجات المنتهية' : 'Out of Stock Varieties'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
-                  {outOfStockProducts.length} <span className="text-xs font-normal text-[#340404]/60">{language === 'ar' ? 'منتجات' : 'products'}</span>
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
+                  {outOfStockProducts.length} <span className="text-xs font-normal text-[var(--color-text)]/60">{language === 'ar' ? 'منتجات' : 'products'}</span>
                 </p>
-                <p className="text-[11px] text-[#340404]/60">
+                <p className="text-[11px] text-[var(--color-text)]/60">
                   {language === 'ar' ? 'تحتاج إلى إعادة تزويد عاجل' : 'Needs immediate warehouse restocking'}
                 </p>
               </div>
@@ -2158,15 +2158,15 @@ CREATE TABLE IF NOT EXISTS product_sales (
             </div>
 
             {/* Search & Stock Filter Toolbar */}
-            <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="relative w-full md:w-80">
-                <Search className="w-4 h-4 text-[#8E7C49] absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-[var(--color-accent)] absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={inventorySearch}
                   onChange={(e) => setInventorySearch(e.target.value)}
                   placeholder={language === 'ar' ? 'ابحثي باسم المنتج أو رمز SKU...' : 'Search product or SKU...'}
-                  className="w-full pl-9 pr-3 rtl:pl-3 rtl:pr-9 py-2 text-xs bg-white text-[#340404] border border-[#E1D1E4] rounded-xs focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                  className="w-full pl-9 pr-3 rtl:pl-3 rtl:pr-9 py-2 text-xs bg-white text-[var(--color-text)] border border-[var(--color-border)] rounded-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                 />
               </div>
 
@@ -2183,12 +2183,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     onClick={() => setInventoryStockFilter(f.id as any)}
                     className={`px-3 py-1.5 rounded-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                       inventoryStockFilter === f.id
-                        ? 'bg-[#340404] text-[#FBE7E3]'
-                        : 'bg-white border border-[#E1D1E4] text-[#340404] hover:bg-[#FBE7E3]'
+                        ? 'bg-[var(--color-text)] text-[var(--color-bg)]'
+                        : 'bg-white border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-bg)]'
                     }`}
                   >
                     <span>{f.label}</span>
-                    <span className="ml-1.5 rtl:ml-0 rtl:mr-1.5 px-1.5 py-0.2 bg-black/10 rounded-full text-[10px]">
+                    <span className="ml-1.5 rtl:ml-0 rtl:mr-1.5 px-1.5 py-0.2 bg-[var(--color-text)]/10 rounded-full text-[10px]">
                       {f.count}
                     </span>
                   </button>
@@ -2197,22 +2197,22 @@ CREATE TABLE IF NOT EXISTS product_sales (
             </div>
 
             {/* Dynamic Product Balances & Live Stock Table */}
-            <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden">
-              <div className="p-4 bg-[#FBE7E3]/40 border-b border-[#E1D1E4] flex items-center justify-between">
+            <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] shadow-xs overflow-hidden">
+              <div className="p-4 bg-[var(--color-bg)]/40 border-b border-[var(--color-border)] flex items-center justify-between">
                 <div>
-                  <h3 className="font-heading text-base font-bold text-[#340404]">
+                  <h3 className="font-heading text-base font-bold text-[var(--color-text)]">
                     {language === 'ar' ? 'أرصدة المنتجات ومخزون الموديلات' : 'Live Product Balances & Variety Stock Table'}
                   </h3>
-                  <p className="text-xs text-[#340404]/70">
+                  <p className="text-xs text-[var(--color-text)]/70">
                     {language === 'ar' ? 'يمكنك زيادة أو تعديل المخزون مباشرة لكل مقاس ولون، وتنعكس التحديثات فوراً في متجر العملاء وقاعدة بيانات MySQL' : 'Adjust units directly per size and color. Updates are reflected immediately in customer store & MySQL database.'}
                   </p>
                 </div>
-                <span className="text-xs text-[#8E7C49] font-mono font-semibold">
+                <span className="text-xs text-[var(--color-accent)] font-mono font-semibold">
                   {products.length} {language === 'ar' ? 'منتجات مسجلة' : 'Products Synced'}
                 </span>
               </div>
 
-              <div className="divide-y divide-[#E1D1E4]">
+              <div className="divide-y divide-[var(--color-border)]">
                 {products
                   .filter((p) => {
                     const matchesSearch =
@@ -2244,21 +2244,21 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     const isProductLow = totalUnits > 0 && totalUnits <= 4;
 
                     return (
-                      <div key={product.id} className="p-5 hover:bg-[#FBE7E3]/15 transition-colors space-y-4">
+                      <div key={product.id} className="p-5 hover:bg-[var(--color-bg)]/15 transition-colors space-y-4">
                         {/* Product Header Row */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-3.5">
                             <img
                               src={product.images[0]}
                               alt=""
-                              className="w-14 h-16 object-cover rounded-xs border border-[#E1D1E4] shrink-0"
+                              className="w-14 h-16 object-cover rounded-xs border border-[var(--color-border)] shrink-0"
                             />
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-mono text-[11px] font-bold text-[#8E7C49] bg-[#8E7C49]/10 px-2 py-0.5 rounded-xs">
+                                <span className="font-mono text-[11px] font-bold text-[var(--color-accent)] bg-[var(--color-accent)]/10 px-2 py-0.5 rounded-xs">
                                   {product.sku}
                                 </span>
-                                <span className="text-[11px] text-[#340404]/60 uppercase tracking-wider font-semibold">
+                                <span className="text-[11px] text-[var(--color-text)]/60 uppercase tracking-wider font-semibold">
                                   {language === 'ar' ? product.categoryNameAr : product.categoryNameEn}
                                 </span>
                                 <span
@@ -2278,37 +2278,37 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                 </span>
                               </div>
 
-                              <h4 className="font-heading text-base font-semibold text-[#340404] mt-1">
+                              <h4 className="font-heading text-base font-semibold text-[var(--color-text)] mt-1">
                                 {language === 'ar' ? product.nameAr : product.nameEn}
                               </h4>
                             </div>
                           </div>
 
                           {/* Balances Summary for this Product */}
-                          <div className="flex items-center gap-6 self-end sm:self-auto text-right rtl:text-left bg-white p-3 rounded-xs border border-[#E1D1E4]/70">
+                          <div className="flex items-center gap-6 self-end sm:self-auto text-right rtl:text-left bg-white p-3 rounded-xs border border-[var(--color-border)]/70">
                             <div>
-                              <span className="text-[10px] uppercase tracking-wider text-[#8E7C49] block">
+                              <span className="text-[10px] uppercase tracking-wider text-[var(--color-accent)] block">
                                 {language === 'ar' ? 'سعر الوحدة' : 'Retail Price'}
                               </span>
-                              <span className="font-bold text-xs text-[#340404] tabular-nums">
+                              <span className="font-bold text-xs text-[var(--color-text)] tabular-nums">
                                 {formatBHD(unitPrice)}
                               </span>
                             </div>
 
-                            <div className="border-l rtl:border-l-0 rtl:border-r border-[#E1D1E4] pl-4 rtl:pl-0 rtl:pr-4">
-                              <span className="text-[10px] uppercase tracking-wider text-[#8E7C49] block">
+                            <div className="border-l rtl:border-l-0 rtl:border-r border-[var(--color-border)] pl-4 rtl:pl-0 rtl:pr-4">
+                              <span className="text-[10px] uppercase tracking-wider text-[var(--color-accent)] block">
                                 {language === 'ar' ? 'الرصيد المتاح' : 'Available Stock'}
                               </span>
-                              <span className={`text-base font-bold tabular-nums ${isProductOut ? 'text-red-600' : isProductLow ? 'text-amber-700' : 'text-[#340404]'}`}>
+                              <span className={`text-base font-bold tabular-nums ${isProductOut ? 'text-red-600' : isProductLow ? 'text-amber-700' : 'text-[var(--color-text)]'}`}>
                                 {totalUnits} <span className="text-[11px] font-normal">{language === 'ar' ? 'قطعة' : 'units'}</span>
                               </span>
                             </div>
 
-                            <div className="border-l rtl:border-l-0 rtl:border-r border-[#E1D1E4] pl-4 rtl:pl-0 rtl:pr-4">
-                              <span className="text-[10px] uppercase tracking-wider text-[#8E7C49] block">
+                            <div className="border-l rtl:border-l-0 rtl:border-r border-[var(--color-border)] pl-4 rtl:pl-0 rtl:pr-4">
+                              <span className="text-[10px] uppercase tracking-wider text-[var(--color-accent)] block">
                                 {language === 'ar' ? 'قيمة الرصيد' : 'Balance Value'}
                               </span>
-                              <span className="font-bold text-sm text-[#340404] tabular-nums text-emerald-800">
+                              <span className="font-bold text-sm text-[var(--color-text)] tabular-nums text-emerald-800">
                                 {formatBHD(totalValuation)}
                               </span>
                             </div>
@@ -2316,10 +2316,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         </div>
 
                         {/* Variants Stock Breakdown & Adjustment Controls */}
-                        <div className="bg-[#FBE7E3]/30 rounded-xs border border-[#E1D1E4] p-3 overflow-x-auto">
+                        <div className="bg-[var(--color-bg)]/30 rounded-xs border border-[var(--color-border)] p-3 overflow-x-auto">
                           <table className="w-full text-left rtl:text-right text-xs">
                             <thead>
-                              <tr className="text-[10px] uppercase tracking-wider text-[#8E7C49] border-b border-[#E1D1E4]/60">
+                              <tr className="text-[10px] uppercase tracking-wider text-[var(--color-accent)] border-b border-[var(--color-border)]/60">
                                 <th className="pb-2">{language === 'ar' ? 'الموديل / اللون' : 'Variety / Color'}</th>
                                 <th className="pb-2">{language === 'ar' ? 'المقاس' : 'Size'}</th>
                                 <th className="pb-2">Variant SKU</th>
@@ -2328,7 +2328,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                 <th className="pb-2 text-right rtl:text-left">{language === 'ar' ? 'إجراءات التعديل والإضافة' : 'Quick Stock Adjuster'}</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#E1D1E4]/50">
+                            <tbody className="divide-y divide-[var(--color-border)]/50">
                               {product.variants.map((variant, vIdx) => {
                                 const variantKey = `${product.id}-${variant.sku || variant.size}-${variant.colorHex}`;
                                 const vStock = Number(variant.stock) || 0;
@@ -2339,19 +2339,19 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
                                 return (
                                   <tr key={vIdx} className="hover:bg-white/60">
-                                    <td className="py-2.5 font-medium text-[#340404]">
+                                    <td className="py-2.5 font-medium text-[var(--color-text)]">
                                       <div className="flex items-center gap-2">
                                         <span
-                                          className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-xs shrink-0"
+                                          className="w-3.5 h-3.5 rounded-full border border-[var(--color-border)] shadow-xs shrink-0"
                                           style={{ backgroundColor: variant.colorHex }}
                                         />
                                         <span>{language === 'ar' ? variant.colorNameAr : variant.colorNameEn}</span>
                                       </div>
                                     </td>
-                                    <td className="py-2.5 font-bold font-mono text-[#340404]">
+                                    <td className="py-2.5 font-bold font-mono text-[var(--color-text)]">
                                       {variant.size}
                                     </td>
-                                    <td className="py-2.5 font-mono text-[11px] text-[#340404]/60">
+                                    <td className="py-2.5 font-mono text-[11px] text-[var(--color-text)]/60">
                                       {variant.sku || `${product.sku}-${variant.size}`}
                                     </td>
                                     <td className="py-2.5">
@@ -2367,7 +2367,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                         {vStock} {language === 'ar' ? 'قطعة' : 'units'}
                                       </span>
                                     </td>
-                                    <td className="py-2.5 tabular-nums font-semibold text-[#340404]">
+                                    <td className="py-2.5 tabular-nums font-semibold text-[var(--color-text)]">
                                       {formatBHD(vValuation)}
                                     </td>
                                     <td className="py-2.5 text-right rtl:text-left">
@@ -2384,7 +2384,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                               -1
                                             )
                                           }
-                                          className="px-2 py-1 bg-white border border-[#E1D1E4] hover:bg-red-50 text-[#340404] hover:text-red-700 rounded-xs text-[11px] font-bold cursor-pointer disabled:opacity-30"
+                                          className="px-2 py-1 bg-white border border-[var(--color-border)] hover:bg-red-50 text-[var(--color-text)] hover:text-red-700 rounded-xs text-[11px] font-bold cursor-pointer disabled:opacity-30"
                                           title="Deduct 1 unit"
                                         >
                                           -1
@@ -2401,7 +2401,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                               1
                                             )
                                           }
-                                          className="px-2 py-1 bg-white border border-[#E1D1E4] hover:bg-emerald-50 text-[#340404] hover:text-emerald-700 rounded-xs text-[11px] font-bold cursor-pointer"
+                                          className="px-2 py-1 bg-white border border-[var(--color-border)] hover:bg-emerald-50 text-[var(--color-text)] hover:text-emerald-700 rounded-xs text-[11px] font-bold cursor-pointer"
                                           title="Add 1 unit"
                                         >
                                           +1
@@ -2418,7 +2418,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                               5
                                             )
                                           }
-                                          className="px-2 py-1 bg-[#8E7C49]/15 hover:bg-[#8E7C49] text-[#8E7C49] hover:text-white rounded-xs text-[11px] font-bold cursor-pointer transition-colors"
+                                          className="px-2 py-1 bg-[var(--color-accent)]/15 hover:bg-[var(--color-accent)] text-[var(--color-accent)] hover:text-white rounded-xs text-[11px] font-bold cursor-pointer transition-colors"
                                           title="Add 5 units to stock"
                                         >
                                           +5
@@ -2435,7 +2435,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                               10
                                             )
                                           }
-                                          className="px-2 py-1 bg-[#340404] hover:bg-black text-[#FBE7E3] rounded-xs text-[11px] font-bold cursor-pointer transition-colors"
+                                          className="px-2 py-1 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] rounded-xs text-[11px] font-bold cursor-pointer transition-colors"
                                           title="Restock +10 units"
                                         >
                                           +10
@@ -2454,7 +2454,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                                 [variantKey]: isNaN(val) ? 0 : val,
                                               }));
                                             }}
-                                            className="w-14 px-1.5 py-1 text-center bg-white border border-[#E1D1E4] rounded-xs text-xs font-mono font-bold text-[#340404]"
+                                            className="w-14 px-1.5 py-1 text-center bg-white border border-[var(--color-border)] rounded-xs text-xs font-mono font-bold text-[var(--color-text)]"
                                           />
                                           {inputVal !== undefined && inputVal !== vStock && (
                                             <button
@@ -2473,7 +2473,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                                   return next;
                                                 });
                                               }}
-                                              className="px-2 py-1 bg-[#E22001] text-white text-[10px] font-bold uppercase rounded-xs cursor-pointer shadow-xs"
+                                              className="px-2 py-1 bg-[var(--color-primary)] text-white text-[10px] font-bold uppercase rounded-xs cursor-pointer shadow-xs"
                                             >
                                               Set
                                             </button>
@@ -2506,21 +2506,21 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 className={`p-4 rounded-xs text-xs font-semibold flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200 ${
                   categoryFeedback.success
                     ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                    : 'bg-red-50 text-[#E22001] border border-red-200'
+                    : 'bg-red-50 text-[var(--color-primary)] border border-red-200'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   {categoryFeedback.success ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   ) : (
-                    <AlertTriangle className="w-4 h-4 text-[#E22001] shrink-0" />
+                    <AlertTriangle className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
                   )}
                   <span>{categoryFeedback.text}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setCategoryFeedback(null)}
-                  className="text-gray-400 hover:text-black cursor-pointer text-sm"
+                  className="text-gray-400 hover:text-[var(--color-text)] cursor-pointer text-sm"
                 >
                   ✕
                 </button>
@@ -2529,15 +2529,15 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
             {/* Category Metrics Summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#340404]/60 block">
+              <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] shadow-xs">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text)]/60 block">
                   {language === 'ar' ? 'إجمالي الأقسام' : 'Total Categories'}
                 </span>
-                <span className="text-2xl font-bold text-[#340404] tabular-nums">
+                <span className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {categories.length}
                 </span>
               </div>
-              <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs">
+              <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] shadow-xs">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 block">
                   {language === 'ar' ? 'أقسام نشطة في المتجر' : 'Active Storefront'}
                 </span>
@@ -2545,7 +2545,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   {categories.filter((c) => c.active).length}
                 </span>
               </div>
-              <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs">
+              <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] shadow-xs">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 block">
                   {language === 'ar' ? 'أقسام مخفية / مسودة' : 'Hidden / Draft'}
                 </span>
@@ -2557,7 +2557,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
             </div>
 
             {/* Filter and Search Bar */}
-            <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] shadow-xs flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] shadow-xs flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -2569,13 +2569,13 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       ? 'البحث باسم القسم، الرابط، أو الوصف...'
                       : 'Search categories by name, slug, or keyword...'
                   }
-                  className="w-full pl-9 pr-3 rtl:pl-3 rtl:pr-9 py-2 bg-[#FBE7E3]/30 border border-[#E1D1E4] rounded-xs text-xs text-[#340404] focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                  className="w-full pl-9 pr-3 rtl:pl-3 rtl:pr-9 py-2 bg-[var(--color-bg)]/30 border border-[var(--color-border)] rounded-xs text-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                 />
                 {categorySearch && (
                   <button
                     type="button"
                     onClick={() => setCategorySearch('')}
-                    className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black text-xs"
+                    className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[var(--color-text)] text-xs"
                   >
                     ✕
                   </button>
@@ -2583,14 +2583,14 @@ CREATE TABLE IF NOT EXISTS product_sales (
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex bg-[#FBE7E3]/40 p-1 rounded-xs border border-[#E1D1E4] text-xs">
+                <div className="flex bg-[var(--color-bg)]/40 p-1 rounded-xs border border-[var(--color-border)] text-xs">
                   <button
                     type="button"
                     onClick={() => setCategoryFilter('all')}
                     className={`px-3 py-1 rounded-xs font-semibold cursor-pointer transition-colors ${
                       categoryFilter === 'all'
-                        ? 'bg-[#340404] text-white shadow-xs'
-                        : 'text-[#340404]/70 hover:text-[#340404]'
+                        ? 'bg-[var(--color-text)] text-white shadow-xs'
+                        : 'text-[var(--color-text)]/70 hover:text-[var(--color-text)]'
                     }`}
                   >
                     {language === 'ar' ? 'الكل' : 'All'} ({categories.length})
@@ -2600,8 +2600,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     onClick={() => setCategoryFilter('active')}
                     className={`px-3 py-1 rounded-xs font-semibold cursor-pointer transition-colors ${
                       categoryFilter === 'active'
-                        ? 'bg-[#340404] text-white shadow-xs'
-                        : 'text-[#340404]/70 hover:text-[#340404]'
+                        ? 'bg-[var(--color-text)] text-white shadow-xs'
+                        : 'text-[var(--color-text)]/70 hover:text-[var(--color-text)]'
                     }`}
                   >
                     {language === 'ar' ? 'النشطة' : 'Active'} (
@@ -2612,8 +2612,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     onClick={() => setCategoryFilter('inactive')}
                     className={`px-3 py-1 rounded-xs font-semibold cursor-pointer transition-colors ${
                       categoryFilter === 'inactive'
-                        ? 'bg-[#340404] text-white shadow-xs'
-                        : 'text-[#340404]/70 hover:text-[#340404]'
+                        ? 'bg-[var(--color-text)] text-white shadow-xs'
+                        : 'text-[var(--color-text)]/70 hover:text-[var(--color-text)]'
                     }`}
                   >
                     {language === 'ar' ? 'المخفية' : 'Hidden'} (
@@ -2624,7 +2624,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 <button
                   type="button"
                   onClick={() => setIsCreatingCategory(true)}
-                  className="px-4 py-2 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+                  className="px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>{language === 'ar' ? 'إضافة قسم' : 'Add Category'}</span>
@@ -2653,13 +2653,13 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
               if (filteredCategories.length === 0) {
                 return (
-                  <div className="bg-white p-12 text-center rounded-sm border border-[#E1D1E4] shadow-xs space-y-4">
+                  <div className="bg-[var(--color-card)] p-12 text-center rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
                     <Layers className="w-12 h-12 text-gray-300 mx-auto" />
                     <div className="space-y-1">
-                      <h4 className="font-heading text-lg font-semibold text-[#340404]">
+                      <h4 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                         {language === 'ar' ? 'لم يتم العثور على أقسام مطابقة' : 'No matching categories found'}
                       </h4>
-                      <p className="text-xs text-[#340404]/60 max-w-sm mx-auto">
+                      <p className="text-xs text-[var(--color-text)]/60 max-w-sm mx-auto">
                         {categorySearch
                           ? language === 'ar'
                             ? `لا توجد نتائج بحث مطابقة لـ "${categorySearch}". جربي كلمة بحث أخرى أو إعادة تعيين الفلاتر.`
@@ -2676,7 +2676,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                           setCategorySearch('');
                           setCategoryFilter('all');
                         }}
-                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#340404] text-xs font-semibold rounded-xs cursor-pointer"
+                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[var(--color-text)] text-xs font-semibold rounded-xs cursor-pointer"
                       >
                         {language === 'ar' ? 'إعادة تعيين الفلاتر' : 'Reset Search'}
                       </button>
@@ -2684,7 +2684,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       <button
                         type="button"
                         onClick={() => setIsCreatingCategory(true)}
-                        className="px-5 py-2.5 bg-[#E22001] text-white text-xs font-semibold uppercase tracking-wider rounded-xs cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                        className="px-5 py-2.5 bg-[var(--color-primary)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs cursor-pointer shadow-xs inline-flex items-center gap-1.5"
                       >
                         <Plus className="w-4 h-4" />
                         <span>{language === 'ar' ? 'إضافة قسم جديد الآن' : 'Add First Category Now'}</span>
@@ -2704,8 +2704,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     return (
                       <div
                         key={c.id}
-                        className={`bg-white rounded-sm border transition-all duration-200 shadow-xs flex flex-col justify-between overflow-hidden group ${
-                          c.active ? 'border-[#E1D1E4] hover:border-[#8E7C49]' : 'border-gray-200 opacity-80 bg-gray-50/50'
+                        className={`bg-[var(--color-card)] rounded-sm border transition-all duration-200 shadow-xs flex flex-col justify-between overflow-hidden group ${
+                          c.active ? 'border-[var(--color-border)] hover:border-[var(--color-accent)]' : 'border-gray-200 opacity-80 bg-gray-50/50'
                         }`}
                       >
                         <div>
@@ -2732,15 +2732,15 @@ CREATE TABLE IF NOT EXISTS product_sales (
                               >
                                 {c.active ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'مخفي' : 'Hidden')}
                               </span>
-                              <span className="px-2 py-0.5 rounded-xs text-[10px] font-mono font-bold bg-[#340404]/80 text-[#FBE7E3] backdrop-blur-xs shadow-xs">
+                              <span className="px-2 py-0.5 rounded-xs text-[10px] font-mono font-bold bg-[var(--color-text)]/80 text-[var(--color-bg)] backdrop-blur-xs shadow-xs">
                                 #{c.displayOrder}
                               </span>
                             </div>
 
                             {/* Top Right: Linked Products Count */}
                             <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3">
-                              <span className="px-2.5 py-1 rounded-xs text-[10px] font-semibold bg-white/95 text-[#340404] shadow-xs flex items-center gap-1">
-                                <Package className="w-3 h-3 text-[#8E7C49]" />
+                              <span className="px-2.5 py-1 rounded-xs text-[10px] font-semibold bg-[var(--color-card)]/95 text-[var(--color-text)] shadow-xs flex items-center gap-1">
+                                <Package className="w-3 h-3 text-[var(--color-accent)]" />
                                 <span className="tabular-nums font-bold">{linkedProductsCount}</span>
                                 <span>{language === 'ar' ? 'منتج' : 'items'}</span>
                               </span>
@@ -2748,7 +2748,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
                             {/* Bottom Title Overlay */}
                             <div className="absolute bottom-3 left-3 right-3 text-white">
-                              <p className="text-xs text-[#FBE7E3] font-medium font-sans drop-shadow-sm">
+                              <p className="text-xs text-[var(--color-bg)] font-medium font-sans drop-shadow-sm">
                                 {c.nameAr}
                               </p>
                               <h4 className="font-heading text-lg font-bold text-white drop-shadow-sm leading-tight">
@@ -2760,8 +2760,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                           {/* Card Content Details */}
                           <div className="p-4 space-y-3">
                             {/* URL Slug & Database ID */}
-                            <div className="flex items-center justify-between gap-2 text-[11px] font-mono bg-[#FBE7E3]/30 px-2.5 py-1.5 rounded-xs border border-[#E1D1E4]">
-                              <span className="text-[#8E7C49] font-bold truncate">
+                            <div className="flex items-center justify-between gap-2 text-[11px] font-mono bg-[var(--color-bg)]/30 px-2.5 py-1.5 rounded-xs border border-[var(--color-border)]">
+                              <span className="text-[var(--color-accent)] font-bold truncate">
                                 /{c.slug || c.id}
                               </span>
                               <span className="text-[10px] text-gray-400 shrink-0">
@@ -2770,7 +2770,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                             </div>
 
                             {/* Description preview */}
-                            <p className="text-xs text-[#340404]/75 line-clamp-2 min-h-[2rem]">
+                            <p className="text-xs text-[var(--color-text)]/75 line-clamp-2 min-h-[2rem]">
                               {language === 'ar'
                                 ? c.descriptionAr || c.descriptionEn || 'لا يوجد وصف مدخل لهذا القسم.'
                                 : c.descriptionEn || c.descriptionAr || 'No description provided for this luxury category.'}
@@ -2779,7 +2779,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         </div>
 
                         {/* Card Action Footer */}
-                        <div className="p-4 pt-2 border-t border-[#E1D1E4] bg-white flex items-center justify-between gap-2">
+                        <div className="p-4 pt-2 border-t border-[var(--color-border)] bg-white flex items-center justify-between gap-2">
                           {/* Toggle Active Switch */}
                           <button
                             type="button"
@@ -2806,10 +2806,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                 setEditingCategory(c);
                                 setIsCreatingCategory(false);
                               }}
-                              className="px-3 py-1.5 rounded-xs bg-[#340404] hover:bg-black text-[#FBE7E3] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                              className="px-3 py-1.5 rounded-xs bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                               title="Edit Category Details and Image"
                             >
-                              <Edit3 className="w-3.5 h-3.5 text-[#8E7C49]" />
+                              <Edit3 className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                               <span>{language === 'ar' ? 'تعديل' : 'Edit'}</span>
                             </button>
 
@@ -2817,7 +2817,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                             <button
                               type="button"
                               onClick={() => setCategoryToDelete(c)}
-                              className="p-1.5 rounded-xs border border-red-200 hover:bg-red-50 text-[#E22001] transition-colors cursor-pointer"
+                              className="p-1.5 rounded-xs border border-red-200 hover:bg-red-50 text-[var(--color-primary)] transition-colors cursor-pointer"
                               title="Delete Category from Database"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -2839,17 +2839,17 @@ CREATE TABLE IF NOT EXISTS product_sales (
           <div className="space-y-6">
             
             {/* Delivery Payment Verification (POD) Admin Terminal */}
-            <div className="bg-white p-6 rounded-sm border-2 border-[#8E7C49] shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E1D1E4] pb-3">
+            <div className="bg-[var(--color-card)] p-6 rounded-sm border-2 border-[var(--color-accent)] shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-[#FBE7E3] rounded-xs border border-[#8E7C49] text-[#8E7C49]">
-                    <ShieldCheck className="w-5 h-5 text-[#8E7C49]" />
+                  <div className="p-2 bg-[var(--color-bg)] rounded-xs border border-[var(--color-accent)] text-[var(--color-accent)]">
+                    <ShieldCheck className="w-5 h-5 text-[var(--color-accent)]" />
                   </div>
                   <div>
-                    <h3 className="font-heading text-lg font-bold text-[#340404]">
+                    <h3 className="font-heading text-lg font-bold text-[var(--color-text)]">
                       {language === 'ar' ? 'منصة التحقق من الدفع عند الاستلام (Pay On Delivery)' : 'On-Delivery Payment Verification Terminal'}
                     </h3>
-                    <p className="text-xs text-[#340404]/70">
+                    <p className="text-xs text-[var(--color-text)]/70">
                       {language === 'ar' ? 'أدخلي الرمز المكون من ٦ أرقام أو امسحي رمز QR لتأكيد استلام المبلغ من العميلة' : 'Verify customer 6-digit PIN or scan QR code to confirm payment collection upon handover'}
                     </p>
                   </div>
@@ -2859,17 +2859,17 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   <button
                     type="button"
                     onClick={() => setIsQrScannerModalOpen(true)}
-                    className="px-3.5 py-2 bg-[#340404] hover:bg-black text-[#FBE7E3] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 transition-colors border border-[#8E7C49] shadow-xs"
+                    className="px-3.5 py-2 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 transition-colors border border-[var(--color-accent)] shadow-xs"
                     title="Launch Optical QR Scanner Terminal"
                   >
-                    <Camera className="w-4 h-4 text-[#8E7C49]" />
+                    <Camera className="w-4 h-4 text-[var(--color-accent)]" />
                     <span>{language === 'ar' ? 'تشغيل ماسح QR' : 'Launch QR Scanner'}</span>
                   </button>
                   <div className="text-right">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-[#8E7C49] block">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)] block">
                       Pending POD:
                     </span>
-                    <span className="text-xl font-bold text-[#E22001] tabular-nums">
+                    <span className="text-xl font-bold text-[var(--color-primary)] tabular-nums">
                       {orders.filter((o) => o.paymentMethod === 'pay_on_delivery' && o.paymentStatus === 'Pending').length} orders
                     </span>
                   </div>
@@ -2911,7 +2911,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
               >
                 <div className="sm:col-span-4 space-y-1 text-xs">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'رمز التحقق (٦ أرقام)' : 'Customer 6-Digit PIN *'}
                   </label>
                   <input
@@ -2920,12 +2920,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     value={enteredVerificationCode}
                     onChange={(e) => setEnteredVerificationCode(e.target.value.replace(/\D/g, ''))}
                     placeholder="e.g. 481923"
-                    className="w-full px-3 py-2 bg-[#FBE7E3]/30 border border-[#8E7C49] rounded-xs font-mono text-base font-bold text-[#340404] tracking-widest placeholder:text-gray-400 placeholder:text-xs placeholder:font-sans focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                    className="w-full px-3 py-2 bg-[var(--color-bg)]/30 border border-[var(--color-accent)] rounded-xs font-mono text-base font-bold text-[var(--color-text)] tracking-widest placeholder:text-gray-400 placeholder:text-xs placeholder:font-sans focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                   />
                 </div>
 
                 <div className="sm:col-span-5 space-y-1 text-xs">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'أو اختاري من الطلبات بانتظار التحصيل' : 'Or Select Pending POD Order'}
                   </label>
                   <select
@@ -2937,7 +2937,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         setEnteredVerificationCode(ord.deliveryVerificationCode);
                       }
                     }}
-                    className="w-full px-3 py-2 bg-white border border-[#E1D1E4] rounded-xs text-xs text-[#340404]"
+                    className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-xs text-[var(--color-text)]"
                   >
                     <option value="">-- Choose pending order --</option>
                     {orders
@@ -2953,7 +2953,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 <div className="sm:col-span-3">
                   <button
                     type="submit"
-                    className="w-full py-2.5 px-4 bg-[#8E7C49] hover:bg-[#78683b] text-white font-semibold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                    className="w-full py-2.5 px-4 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-1.5 shadow-xs"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>{language === 'ar' ? 'تأكيد استلام الدفعة' : 'Confirm Payment'}</span>
@@ -2966,7 +2966,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   className={`p-3 rounded-xs text-xs font-semibold flex items-center gap-2 ${
                     verificationFeedback.success
                       ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                      : 'bg-red-50 text-[#E22001] border border-red-200'
+                      : 'bg-red-50 text-[var(--color-primary)] border border-red-200'
                   }`}
                 >
                   {verificationFeedback.success ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
@@ -2976,10 +2976,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
             </div>
 
             {/* Orders Table */}
-            <div className="bg-white rounded-sm border border-[#E1D1E4] shadow-xs overflow-hidden">
+            <div className="bg-[var(--color-card)] rounded-sm border border-[var(--color-border)] shadow-xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left rtl:text-right text-xs">
-                  <thead className="bg-[#FBE7E3]/50 text-[#340404] font-semibold uppercase tracking-wider">
+                  <thead className="bg-[var(--color-bg)]/50 text-[var(--color-text)] font-semibold uppercase tracking-wider">
                     <tr>
                       <th className="p-4">Order ID</th>
                       <th className="p-4">Customer & Phone</th>
@@ -2990,24 +2990,24 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       <th className="p-4">Actions / QR</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E1D1E4]">
+                  <tbody className="divide-y divide-[var(--color-border)]">
                     {orders.map((o) => {
                       const isPodOrder = o.paymentMethod === 'pay_on_delivery';
                       const isPodPending = isPodOrder && o.paymentStatus === 'Pending';
 
                       return (
-                        <tr key={o.id} className={`hover:bg-[#FBE7E3]/20 ${isPodPending ? 'bg-amber-50/40' : ''}`}>
-                          <td className="p-4 font-mono font-bold text-[#340404]">{o.orderNumber}</td>
+                        <tr key={o.id} className={`hover:bg-[var(--color-bg)]/20 ${isPodPending ? 'bg-amber-50/40' : ''}`}>
+                          <td className="p-4 font-mono font-bold text-[var(--color-text)]">{o.orderNumber}</td>
                           <td className="p-4">
-                            <p className="font-semibold text-[#340404]">{o.customerName}</p>
-                            <p className="text-[11px] text-[#340404]/60">{o.customerPhone}</p>
+                            <p className="font-semibold text-[var(--color-text)]">{o.customerName}</p>
+                            <p className="text-[11px] text-[var(--color-text)]/60">{o.customerPhone}</p>
                           </td>
-                          <td className="p-4 text-[#340404]/80">
+                          <td className="p-4 text-[var(--color-text)]/80">
                             {o.shippingAddress.buildingNumber}, {o.shippingAddress.roadNumber}, {o.shippingAddress.area}
                           </td>
                           <td className="p-4 space-y-1">
                             <div className="flex items-center gap-1.5">
-                              {isPodOrder && <Truck className="w-3.5 h-3.5 text-[#8E7C49]" />}
+                              {isPodOrder && <Truck className="w-3.5 h-3.5 text-[var(--color-accent)]" />}
                               <span className="font-semibold uppercase">
                                 {isPodOrder ? 'Pay on Delivery' : o.paymentMethod.replace('_', ' ')}
                               </span>
@@ -3015,7 +3015,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                             
                             {isPodOrder && o.deliveryVerificationCode && (
                               <div className="flex items-center gap-1">
-                                <span className="bg-[#FBE7E3] text-[#340404] px-1.5 py-0.5 rounded-xs font-mono font-bold text-[10px]">
+                                <span className="bg-[var(--color-bg)] text-[var(--color-text)] px-1.5 py-0.5 rounded-xs font-mono font-bold text-[10px]">
                                   PIN: {o.deliveryVerificationCode}
                                 </span>
                               </div>
@@ -3033,12 +3033,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                               )}
                             </div>
                           </td>
-                          <td className="p-4 font-bold text-[#340404] tabular-nums">{formatBHD(o.total)}</td>
+                          <td className="p-4 font-bold text-[var(--color-text)] tabular-nums">{formatBHD(o.total)}</td>
                           <td className="p-4">
                             <select
                               value={o.orderStatus}
                               onChange={(e) => updateOrderStatus(o.id, e.target.value as OrderStatus)}
-                              className="p-1.5 border border-[#E1D1E4] rounded-xs bg-white text-xs text-[#340404]"
+                              className="p-1.5 border border-[var(--color-border)] rounded-xs bg-white text-xs text-[var(--color-text)]"
                             >
                               <option value="Pending">Pending</option>
                               <option value="Confirmed">Confirmed</option>
@@ -3064,10 +3064,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
                               <button
                                 type="button"
                                 onClick={() => setQrInspectOrder(o)}
-                                className="p-1.5 rounded-xs border border-[#E1D1E4] hover:bg-[#FBE7E3] text-[#340404] transition-colors cursor-pointer"
+                                className="p-1.5 rounded-xs border border-[var(--color-border)] hover:bg-[var(--color-bg)] text-[var(--color-text)] transition-colors cursor-pointer"
                                 title="View Delivery QR Code & Scan Terminal"
                               >
-                                <QrCode className="w-4 h-4 text-[#8E7C49]" />
+                                <QrCode className="w-4 h-4 text-[var(--color-accent)]" />
                               </button>
                             )}
 
@@ -3078,7 +3078,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                 onClick={() => {
                                   confirmDeliveryPayment(o.id, o.deliveryVerificationCode, currentUser?.email || 'Admin');
                                 }}
-                                className="px-2 py-1 bg-[#8E7C49] hover:bg-[#7a6a3e] text-white text-[10px] font-bold uppercase rounded-xs cursor-pointer"
+                                className="px-2 py-1 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white text-[10px] font-bold uppercase rounded-xs cursor-pointer"
                                 title="Mark Paid on Handover"
                               >
                                 Verify Paid
@@ -3099,57 +3099,57 @@ CREATE TABLE IF NOT EXISTS product_sales (
         {activeTab === 'coupons' && (
           <div className="space-y-8">
             {/* Create Coupon Form */}
-            <form onSubmit={handleCreateCoupon} className="bg-white p-6 rounded-sm border border-[#E1D1E4] shadow-xs space-y-4">
-              <h3 className="font-heading text-lg font-semibold text-[#340404]">
+            <form onSubmit={handleCreateCoupon} className="bg-[var(--color-card)] p-6 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
+              <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                 {language === 'ar' ? 'إنشاء قسيمة ترويجية جديدة' : 'Create Promotional Coupon'}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Coupon Code *</label>
+                  <label className="font-semibold text-[var(--color-text)]">Coupon Code *</label>
                   <input
                     type="text"
                     required
                     value={newCouponCode}
                     onChange={(e) => setNewCouponCode(e.target.value)}
                     placeholder="e.g. LUXURY20"
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs font-mono uppercase"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs font-mono uppercase"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Type</label>
+                  <label className="font-semibold text-[var(--color-text)]">Type</label>
                   <select
                     value={newCouponType}
                     onChange={(e) => setNewCouponType(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs bg-white"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs bg-white"
                   >
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed">Fixed BHD Amount</option>
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Value</label>
+                  <label className="font-semibold text-[var(--color-text)]">Value</label>
                   <input
                     type="number"
                     required
                     value={newCouponValue}
                     onChange={(e) => setNewCouponValue(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Min Order (BHD)</label>
+                  <label className="font-semibold text-[var(--color-text)]">Min Order (BHD)</label>
                   <input
                     type="number"
                     required
                     value={newCouponMin}
                     onChange={(e) => setNewCouponMin(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
               </div>
               <button
                 type="submit"
-                className="px-6 py-2.5 bg-[#E22001] text-white text-xs font-semibold uppercase tracking-wider rounded-xs"
+                className="px-6 py-2.5 bg-[var(--color-primary)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs"
               >
                 Add Coupon
               </button>
@@ -3158,18 +3158,18 @@ CREATE TABLE IF NOT EXISTS product_sales (
             {/* Coupons List */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {coupons.map((cp) => (
-                <div key={cp.code} className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-2">
+                <div key={cp.code} className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-2">
                   <div className="flex justify-between items-start">
-                    <span className="font-mono text-base font-bold text-[#E22001]">{cp.code}</span>
+                    <span className="font-mono text-base font-bold text-[var(--color-primary)]">{cp.code}</span>
                     <button onClick={() => deleteCoupon(cp.code)} className="text-gray-400 hover:text-red-600">✕</button>
                   </div>
-                  <p className="text-xs text-[#340404]">
+                  <p className="text-xs text-[var(--color-text)]">
                     Discount: <strong>{cp.type === 'percentage' ? `${cp.value}%` : `${cp.value} BHD`}</strong>
                   </p>
-                  <p className="text-xs text-[#340404]/70">
+                  <p className="text-xs text-[var(--color-text)]/70">
                     Min Spend: {formatBHD(cp.minimumOrder)}
                   </p>
-                  <p className="text-[11px] text-[#8E7C49]">
+                  <p className="text-[11px] text-[var(--color-accent)]">
                     Used: {cp.usedCount} times
                   </p>
                 </div>
@@ -3180,13 +3180,13 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
         {/* TAB 6: CMS CUSTOMIZER */}
         {activeTab === 'cms' && (
-          <form onSubmit={handleSaveCMS} className="bg-white p-6 sm:p-8 rounded-sm border border-[#E1D1E4] shadow-xs space-y-6">
-            <div className="flex justify-between items-center border-b border-[#E1D1E4] pb-3">
+          <form onSubmit={handleSaveCMS} className="bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-6">
+            <div className="flex justify-between items-center border-b border-[var(--color-border)] pb-3">
               <div>
-                <h3 className="font-heading text-lg font-semibold text-[#340404]">
+                <h3 className="font-heading text-lg font-semibold text-[var(--color-text)]">
                   {language === 'ar' ? 'إدارة محتوى وواجهة المتجر' : 'Homepage & Announcement CMS'}
                 </h3>
-                <p className="text-xs text-[#340404]/70">
+                <p className="text-xs text-[var(--color-text)]/70">
                   Configure bilingual headlines and promotions without the hussle.
                 </p>
               </div>
@@ -3200,63 +3200,63 @@ CREATE TABLE IF NOT EXISTS product_sales (
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Announcement Bar (English)</label>
+                  <label className="font-semibold text-[var(--color-text)]">Announcement Bar (English)</label>
                   <input
                     type="text"
                     value={cmsForm.announcementTextEn}
                     onChange={(e) => setCmsForm({ ...cmsForm, announcementTextEn: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Announcement Bar (Arabic)</label>
+                  <label className="font-semibold text-[var(--color-text)]">Announcement Bar (Arabic)</label>
                   <input
                     type="text"
                     value={cmsForm.announcementTextAr}
                     onChange={(e) => setCmsForm({ ...cmsForm, announcementTextAr: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Hero Title (English)</label>
+                  <label className="font-semibold text-[var(--color-text)]">Hero Title (English)</label>
                   <input
                     type="text"
                     value={cmsForm.heroTitleEn}
                     onChange={(e) => setCmsForm({ ...cmsForm, heroTitleEn: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Hero Title (Arabic)</label>
+                  <label className="font-semibold text-[var(--color-text)]">Hero Title (Arabic)</label>
                   <input
                     type="text"
                     value={cmsForm.heroTitleAr}
                     onChange={(e) => setCmsForm({ ...cmsForm, heroTitleAr: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Hero Subtitle (English)</label>
+                  <label className="font-semibold text-[var(--color-text)]">Hero Subtitle (English)</label>
                   <textarea
                     rows={3}
                     value={cmsForm.heroSubtitleEn}
                     onChange={(e) => setCmsForm({ ...cmsForm, heroSubtitleEn: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Hero Subtitle (Arabic)</label>
+                  <label className="font-semibold text-[var(--color-text)]">Hero Subtitle (Arabic)</label>
                   <textarea
                     rows={3}
                     value={cmsForm.heroSubtitleAr}
                     onChange={(e) => setCmsForm({ ...cmsForm, heroSubtitleAr: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
               </div>
@@ -3266,7 +3266,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
             <button
               type="submit"
-              className="px-6 py-2.5 bg-[#E22001] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2"
+              className="px-6 py-2.5 bg-[var(--color-primary)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               <span>{t.admin.saveChanges}</span>
@@ -3280,11 +3280,11 @@ CREATE TABLE IF NOT EXISTS product_sales (
             
             {/* Top Operational Metrics Banner */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'إجمالي المشرفين المعتمدين' : language === 'ru' ? 'Всего администраторов' : 'Active Store Admins'}
                 </span>
-                <p className="text-2xl font-bold text-[#340404] tabular-nums">
+                <p className="text-2xl font-bold text-[var(--color-text)] tabular-nums">
                   {adminList.length}
                 </p>
                 <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
@@ -3293,43 +3293,43 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'صلاحية تعيين المشرفين' : language === 'ru' ? 'Права создания админов' : 'Admin Creation Role'}
                 </span>
-                <p className="text-xl font-bold text-[#E22001]">
+                <p className="text-xl font-bold text-[var(--color-primary)]">
                   {language === 'ar' ? 'مفعلة للمشرف' : 'Role Enabled'}
                 </p>
-                <p className="text-[11px] text-[#340404]/70">
+                <p className="text-[11px] text-[var(--color-text)]/70">
                   {language === 'ar' ? 'خاص وحصري بلوحة التحكم' : 'Restricted to Admin Dashboard'}
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49]">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
                   {language === 'ar' ? 'التوجيه التلقائي بعد الدخول' : language === 'ru' ? 'Автоматический редирект' : 'Post-Auth Redirection'}
                 </span>
-                <p className="text-xl font-bold text-[#340404]">
+                <p className="text-xl font-bold text-[var(--color-text)]">
                   {language === 'ar' ? 'توجيه فوري للوحة' : 'Immediate to /admin'}
                 </p>
-                <p className="text-[11px] text-[#340404]/70">
+                <p className="text-[11px] text-[var(--color-text)]/70">
                   {language === 'ar' ? 'لجميع المشرفين بعد المصادقة' : 'All authenticated staff'}
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-sm border border-[#E1D1E4] shadow-xs flex flex-col justify-between">
+              <div className="bg-[var(--color-card)] p-5 rounded-sm border border-[var(--color-border)] shadow-xs flex flex-col justify-between">
                 <div>
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8E7C49] block">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)] block">
                     {language === 'ar' ? 'إجراء سريع' : 'Quick Staff Action'}
                   </span>
-                  <span className="text-xs text-[#340404]/80 mt-1 block">
+                  <span className="text-xs text-[var(--color-text)]/80 mt-1 block">
                     {language === 'ar' ? 'إضافة وتعيين مشرف جديد' : 'Onboard new administrator'}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsCreateAdminModalOpen(true)}
-                  className="mt-2 w-full py-2 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  className="mt-2 w-full py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>{language === 'ar' ? 'فتح نافذة إضافة المشرف' : 'Open Create Admin'}</span>
@@ -3338,7 +3338,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
             </div>
 
             {/* Filter and Action Bar */}
-            <div className="bg-white p-4 rounded-sm border border-[#E1D1E4] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div className="bg-[var(--color-card)] p-4 rounded-sm border border-[var(--color-border)] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -3346,7 +3346,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   value={adminSearch}
                   onChange={(e) => setAdminSearch(e.target.value)}
                   placeholder={language === 'ar' ? 'بحث عن مشرف بالاسم أو البريد أو الهاتف...' : language === 'ru' ? 'Поиск администратора...' : 'Search admin by name, official email, or phone...'}
-                  className="w-full pl-9 pr-3 rtl:pl-3 rtl:pr-9 py-2 border border-[#E1D1E4] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[#E22001]"
+                  className="w-full pl-9 pr-3 rtl:pl-3 rtl:pr-9 py-2 border border-[var(--color-border)] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
@@ -3355,17 +3355,17 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   type="button"
                   onClick={fetchAdmins}
                   disabled={isLoadingAdmins}
-                  className="px-3 py-2 border border-[#E1D1E4] hover:bg-gray-50 text-[#340404] text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-2 border border-[var(--color-border)] hover:bg-gray-50 text-[var(--color-text)] text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                   title="Refresh admin list from MySQL"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingAdmins ? 'animate-spin text-[#E22001]' : 'text-gray-500'}`} />
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingAdmins ? 'animate-spin text-[var(--color-primary)]' : 'text-gray-500'}`} />
                   <span>{language === 'ar' ? 'تحديث من MySQL' : 'Sync MySQL'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsCreateAdminModalOpen(true)}
-                  className="px-4 py-2 bg-[#E22001] hover:bg-[#c01b01] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4" />
                   <span>{language === 'ar' ? 'إضافة مشرف جديد' : language === 'ru' ? 'Создать администратора' : 'Create New Admin'}</span>
@@ -3391,28 +3391,28 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   return (
                     <div
                       key={admin.id}
-                      className={`bg-white rounded-sm border p-5 space-y-4 shadow-xs transition-all relative ${
-                        isCurrent ? 'border-[#8E7C49] ring-1 ring-[#8E7C49]/40' : 'border-[#E1D1E4] hover:border-[#8E7C49]/60'
+                      className={`bg-[var(--color-card)] rounded-sm border p-5 space-y-4 shadow-xs transition-all relative ${
+                        isCurrent ? 'border-[var(--color-accent)] ring-1 ring-[var(--color-accent)]/40' : 'border-[var(--color-border)] hover:border-[var(--color-accent)]/60'
                       }`}
                     >
                       {/* Top Header Row with Avatar & Status */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-full bg-[#340404] text-[#FBE7E3] flex items-center justify-center font-bold text-sm shrink-0 border border-[#8E7C49]/40 shadow-xs">
+                          <div className="w-11 h-11 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] flex items-center justify-center font-bold text-sm shrink-0 border border-[var(--color-accent)]/40 shadow-xs">
                             {admin.firstName ? admin.firstName.charAt(0).toUpperCase() : 'A'}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <h3 className="font-heading text-sm font-bold text-[#340404]">
+                              <h3 className="font-heading text-sm font-bold text-[var(--color-text)]">
                                 {admin.firstName} {admin.lastName}
                               </h3>
                               {isCurrent && (
-                                <span className="bg-[#8E7C49] text-white text-[9px] font-bold px-1.5 py-0.2 rounded-xs uppercase tracking-wider">
+                                <span className="bg-[var(--color-accent)] text-white text-[9px] font-bold px-1.5 py-0.2 rounded-xs uppercase tracking-wider">
                                   {language === 'ar' ? 'أنتِ (الجلسة الحالية)' : 'You (Current)'}
                                 </span>
                               )}
                             </div>
-                            <span className="inline-block mt-0.5 text-[10px] font-bold text-[#E22001] bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 uppercase tracking-wider">
+                            <span className="inline-block mt-0.5 text-[10px] font-bold text-[var(--color-primary)] bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 uppercase tracking-wider">
                               {language === 'ar' ? 'مشرف متجر معتمد' : 'Store Administrator'}
                             </span>
                           </div>
@@ -3424,13 +3424,13 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       </div>
 
                       {/* Contact & Database Details */}
-                      <div className="space-y-1.5 text-xs text-[#340404]/80 pt-1 border-t border-[#E1D1E4]/70">
+                      <div className="space-y-1.5 text-xs text-[var(--color-text)]/80 pt-1 border-t border-[var(--color-border)]/70">
                         <div className="flex items-center gap-2 text-[11px] truncate">
-                          <Mail className="w-3.5 h-3.5 text-[#8E7C49] shrink-0" />
+                          <Mail className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
                           <span className="font-mono truncate">{admin.email}</span>
                         </div>
                         <div className="flex items-center gap-2 text-[11px]">
-                          <Phone className="w-3.5 h-3.5 text-[#8E7C49] shrink-0" />
+                          <Phone className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
                           <span className="font-mono">{admin.phone || '+973 1722 8844'}</span>
                         </div>
                         <div className="flex items-center gap-2 text-[10px] text-gray-500 pt-1">
@@ -3440,7 +3440,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       </div>
 
                       {/* Capabilities Checklist */}
-                      <div className="p-2.5 bg-[#FAF5F2] rounded-xs border border-[#E1D1E4] text-[10px] space-y-1 text-[#340404]/80">
+                      <div className="p-2.5 bg-[var(--color-bg)] rounded-xs border border-[var(--color-border)] text-[10px] space-y-1 text-[var(--color-text)]/80">
                         <div className="flex items-center gap-1.5 text-emerald-800 font-semibold">
                           <Check className="w-3 h-3 text-emerald-600 shrink-0" />
                           <span>{language === 'ar' ? 'صلاحية إضافة وتعيين مشرفين جدد' : 'Can create and assign new administrators'}</span>
@@ -3456,7 +3456,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       </div>
 
                       {/* Card Footer */}
-                      <div className="flex items-center justify-between text-[10px] text-[#340404]/60 pt-2 border-t border-[#E1D1E4]/60">
+                      <div className="flex items-center justify-between text-[10px] text-[var(--color-text)]/60 pt-2 border-t border-[var(--color-border)]/60">
                         <span>{language === 'ar' ? 'تاريخ التعيين:' : 'Appointed:'} {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : 'Active'}</span>
                         <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-xs border border-emerald-200">
                           {admin.twoFactorEnabled ? '2FA Enabled' : 'Verified Staff'}
@@ -3469,7 +3469,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
             {/* Security Assurance Callout */}
             <div className="p-4 bg-amber-50/80 border border-amber-300 rounded-xs flex items-start gap-3 text-xs text-amber-950">
-              <ShieldCheck className="w-5 h-5 text-[#8E7C49] shrink-0 mt-0.5" />
+              <ShieldCheck className="w-5 h-5 text-[var(--color-accent)] shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <p className="font-bold">
                   {language === 'ar'
@@ -3491,10 +3491,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
       {/* Product Edit / Create Modal */}
       {(editingProduct || isCreatingProduct) && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/60 backdrop-blur-xs">
-          <div className="bg-white rounded-sm max-w-2xl w-full p-6 sm:p-8 space-y-4 border border-[#E1D1E4]">
-            <div className="flex justify-between items-center border-b border-[#E1D1E4] pb-3">
-              <h3 className="font-heading text-xl font-semibold text-[#340404]">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
+          <div className="bg-[var(--color-card)] rounded-sm max-w-2xl w-full p-6 sm:p-8 space-y-4 border border-[var(--color-border)]">
+            <div className="flex justify-between items-center border-b border-[var(--color-border)] pb-3">
+              <h3 className="font-heading text-xl font-semibold text-[var(--color-text)]">
                 {editingProduct ? t.admin.editProduct : t.admin.addNewProduct}
               </h3>
               <button
@@ -3502,7 +3502,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   setEditingProduct(null);
                   setIsCreatingProduct(false);
                 }}
-                className="text-gray-400 hover:text-black"
+                className="text-gray-400 hover:text-[var(--color-text)]"
               >
                 ✕
               </button>
@@ -3524,7 +3524,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
                 const finalImages = productImageUpload
                   ? [productImageUpload, ...productAdditionalImages]
-                  : (editingProduct?.images?.length ? editingProduct.images : ['/src/assets/images/hero_luxury_sleepwear_1791490145358.jpg']);
+                  : (editingProduct?.images?.length ? editingProduct.images : ['/images/hero_pic.jpeg']);
 
                 if (editingProduct) {
                   updateProduct(editingProduct.id, {
@@ -3554,9 +3554,9 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     currency: 'BHD',
                     images: finalImages,
                     variants: [
-                      { size: 'S', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: '#E8D3C6', stock: 12, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-S` },
-                      { size: 'M', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: '#E8D3C6', stock: 12, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-M` },
-                      { size: 'L', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: '#E8D3C6', stock: 8, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-L` },
+                      { size: 'S', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: 'var(--color-card)', stock: 12, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-S` },
+                      { size: 'M', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: 'var(--color-card)', stock: 12, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-M` },
+                      { size: 'L', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: 'var(--color-card)', stock: 8, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-L` },
                     ],
                     materialEn: '100% Silk Touch Satin',
                     materialAr: 'ساتان بملمس الحرير ١٠٠٪',
@@ -3577,14 +3577,14 @@ CREATE TABLE IF NOT EXISTS product_sales (
               className="space-y-4 text-xs"
             >
               {/* Product Image Upload Section for Customer Account Identification */}
-              <div className="bg-[#FAF5F2] p-4 rounded-xs border border-[#E1D1E4] space-y-3">
+              <div className="bg-[var(--color-bg)] p-4 rounded-xs border border-[var(--color-border)] space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <label className="font-heading text-xs font-bold text-[#340404] uppercase tracking-wider flex items-center gap-1.5">
-                      <ImageIcon className="w-4 h-4 text-[#8E7C49]" />
+                    <label className="font-heading text-xs font-bold text-[var(--color-text)] uppercase tracking-wider flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-[var(--color-accent)]" />
                       <span>{language === 'ar' ? 'صورة المنتج للتعريف لدى العميل (حساب المستخدم) *' : 'Product Identification Image (Customer User Account Display) *'}</span>
                     </label>
-                    <p className="text-[11px] text-[#340404]/70 mt-0.5">
+                    <p className="text-[11px] text-[var(--color-text)]/70 mt-0.5">
                       {language === 'ar'
                         ? 'هذه الصورة ستُعرض في حساب العميل (User Account) للتعرف الفوري على المنتج في سجل الطلبات، التتبع المباشر، السلة، والإيصال الرقمي.'
                         : 'Upload an image used to visually identify this product by the customer in their user account (orders history, live tracking, cart, & receipts).'}
@@ -3600,7 +3600,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
                 <div className="flex flex-col sm:flex-row gap-4 items-start pt-1">
                   {/* Live Visual Preview */}
-                  <div className="w-28 h-36 bg-white rounded-xs border-2 border-dashed border-[#8E7C49]/40 overflow-hidden shrink-0 flex items-center justify-center relative shadow-xs group">
+                  <div className="w-28 h-36 bg-[var(--color-card)] rounded-xs border-2 border-dashed border-[var(--color-accent)]/40 overflow-hidden shrink-0 flex items-center justify-center relative shadow-xs group">
                     {productImageUpload ? (
                       <>
                         <img
@@ -3619,8 +3619,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       </>
                     ) : (
                       <div className="text-center p-2 text-gray-400 space-y-1">
-                        <Upload className="w-6 h-6 mx-auto text-[#8E7C49]" />
-                        <span className="text-[10px] block leading-tight text-[#8E7C49] font-medium">
+                        <Upload className="w-6 h-6 mx-auto text-[var(--color-accent)]" />
+                        <span className="text-[10px] block leading-tight text-[var(--color-accent)] font-medium">
                           {language === 'ar' ? 'لا توجد صورة' : 'Upload Image'}
                         </span>
                       </div>
@@ -3631,8 +3631,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   <div className="flex-1 space-y-3 w-full">
                     {/* Primary File Upload Button */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#340404] hover:bg-black text-[#FBE7E3] rounded-xs text-xs font-semibold tracking-wide transition-colors shadow-xs">
-                        <Upload className="w-3.5 h-3.5 text-[#8E7C49]" />
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] rounded-xs text-xs font-semibold tracking-wide transition-colors shadow-xs">
+                        <Upload className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                         <span>{language === 'ar' ? 'اختيار ورفع ملف صورة...' : 'Upload Image from Device...'}</span>
                         <input
                           type="file"
@@ -3652,68 +3652,16 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         </button>
                       )}
                     </div>
-
-                    {/* Direct Image URL input */}
-                    <div className="space-y-1">
-                      <span className="text-[10px] text-gray-500 block uppercase font-mono">
-                        {language === 'ar' ? 'أو أدخلي رابط صورة مباشر (URL):' : 'Or enter direct image URL:'}
-                      </span>
-                      <div className="flex gap-2">
-                        <input
-                          type="url"
-                          value={newImageUrlInput}
-                          onChange={(e) => setNewImageUrlInput(e.target.value)}
-                          placeholder="https://images.unsplash.com/photo-..."
-                          className="flex-1 px-3 py-1.5 border border-[#E1D1E4] rounded-xs bg-white text-xs outline-none focus:ring-1 focus:ring-[#E22001]"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (newImageUrlInput.trim()) {
-                              setProductImageUpload(newImageUrlInput.trim());
-                              setNewImageUrlInput('');
-                            }
-                          }}
-                          className="px-3 py-1.5 bg-white border border-[#E1D1E4] hover:bg-[#FBE7E3] text-[#340404] rounded-xs text-xs font-semibold transition-colors cursor-pointer"
-                        >
-                          {language === 'ar' ? 'تطبيق' : 'Apply'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Boutique Collection Preset Quick Selectors */}
-                    <div className="pt-1">
-                      <span className="text-[10px] text-[#8E7C49] font-medium block mb-1">
-                        {language === 'ar' ? 'نماذج جاهزة للاختيار السريع:' : 'Quick Boutique Presets:'}
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {[
-                          { label: 'Mulberry Silk Set', url: '/src/assets/images/hero_luxury_sleepwear_1791490145358.jpg' },
-                          { label: 'Lace Slip Gown', url: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80' },
-                          { label: 'Ivory Bridal Robe', url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80' },
-                          { label: 'Kids Silk Sleepwear', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=800&q=80' },
-                        ].map((preset) => (
-                          <button
-                            key={preset.label}
-                            type="button"
-                            onClick={() => setProductImageUpload(preset.url)}
-                            className="px-2 py-0.5 bg-white border border-[#E1D1E4] hover:border-[#8E7C49] text-[10px] text-[#340404] rounded-xs transition-colors cursor-pointer"
-                          >
-                            + {preset.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 </div>
 
                 {/* Additional Album Photos */}
-                <div className="pt-2 border-t border-[#E1D1E4]/70">
+                <div className="pt-2 border-t border-[var(--color-border)]/70">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-semibold text-[#340404]">
+                    <span className="text-[11px] font-semibold text-[var(--color-text)]">
                       {language === 'ar' ? 'صور إضافية لألبوم المعرض (اختياري)' : 'Additional Album Photos for Product Gallery (Optional)'}
                     </span>
-                    <label className="cursor-pointer text-[10px] text-[#8E7C49] hover:underline flex items-center gap-1 font-semibold">
+                    <label className="cursor-pointer text-[10px] text-[var(--color-accent)] hover:underline flex items-center gap-1 font-semibold">
                       <Plus className="w-3 h-3" />
                       <span>{language === 'ar' ? 'إضافة صورة ألبوم' : 'Add Album Photo'}</span>
                       <input
@@ -3728,7 +3676,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   {productAdditionalImages.length > 0 && (
                     <div className="flex gap-2 overflow-x-auto pb-1">
                       {productAdditionalImages.map((img, idx) => (
-                        <div key={idx} className="relative w-14 h-18 bg-white border border-[#E1D1E4] rounded-xs overflow-hidden shrink-0 group">
+                        <div key={idx} className="relative w-14 h-18 bg-white border border-[var(--color-border)] rounded-xs overflow-hidden shrink-0 group">
                           <img src={img} alt="" className="w-full h-full object-cover" />
                           <button
                             type="button"
@@ -3745,53 +3693,53 @@ CREATE TABLE IF NOT EXISTS product_sales (
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">{t.admin.productNameEn} *</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.productNameEn} *</label>
                   <input
                     name="nameEn"
                     defaultValue={editingProduct?.nameEn || ''}
                     required
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">{t.admin.productNameAr} *</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.productNameAr} *</label>
                   <input
                     name="nameAr"
                     defaultValue={editingProduct?.nameAr || ''}
                     required
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">{t.admin.priceBHD} *</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.priceBHD} *</label>
                   <input
                     type="number"
                     step="0.001"
                     name="price"
                     defaultValue={editingProduct?.price || 25.000}
                     required
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">{t.admin.salePriceBHD}</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.salePriceBHD}</label>
                   <input
                     type="number"
                     step="0.001"
                     name="salePrice"
                     defaultValue={editingProduct?.salePrice || ''}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">{t.admin.category}</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.category}</label>
                   <select
                     name="categoryId"
                     defaultValue={editingProduct?.categoryId || categories[0]?.id}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs bg-white"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs bg-white"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>{c.nameEn}</option>
@@ -3801,13 +3749,13 @@ CREATE TABLE IF NOT EXISTS product_sales (
               </div>
 
               {/* Kids Age Bracket Categorization */}
-              <div className="grid grid-cols-2 gap-4 bg-[#FAF5F2] p-3 rounded-xs border border-[#E1D1E4]">
+              <div className="grid grid-cols-2 gap-4 bg-[var(--color-bg)] p-3 rounded-xs border border-[var(--color-border)]">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404]">Curated Kids Age Bracket</label>
+                  <label className="font-semibold text-[var(--color-text)]">Curated Kids Age Bracket</label>
                   <select
                     name="ageGroup"
                     defaultValue={editingProduct?.ageGroup || 'none'}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs bg-white"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs bg-white"
                   >
                     <option value="none">None (Adult / All Ages)</option>
                     <option value="3-5">Ages 3 to 5 (٣ - ٥ سنوات)</option>
@@ -3822,28 +3770,28 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     id="isKidsProductCheck"
                     name="isKids"
                     defaultChecked={editingProduct?.isKids || editingProduct?.categoryId === 'cat-kids-sleepwear'}
-                    className="rounded border-[#E1D1E4] text-[#E22001]"
+                    className="rounded border-[var(--color-border)] text-[var(--color-primary)]"
                   />
-                  <label htmlFor="isKidsProductCheck" className="text-xs font-semibold text-[#340404] cursor-pointer">
+                  <label htmlFor="isKidsProductCheck" className="text-xs font-semibold text-[var(--color-text)] cursor-pointer">
                     Mark as Curated Kids Product
                   </label>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4 border-t border-[#E1D1E4]">
+              <div className="flex justify-end gap-2 pt-4 border-t border-[var(--color-border)]">
                 <button
                   type="button"
                   onClick={() => {
                     setEditingProduct(null);
                     setIsCreatingProduct(false);
                   }}
-                  className="px-4 py-2 border border-[#E1D1E4] rounded-xs text-[#340404]"
+                  className="px-4 py-2 border border-[var(--color-border)] rounded-xs text-[var(--color-text)]"
                 >
                   {t.admin.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-[#E22001] text-white rounded-xs font-semibold"
+                  className="px-6 py-2 bg-[var(--color-primary)] text-white rounded-xs font-semibold"
                 >
                   {t.admin.saveChanges}
                 </button>
@@ -3855,26 +3803,26 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
       {/* QR Code Inspection & Verification Terminal Modal */}
       {qrInspectOrder && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/60 backdrop-blur-xs">
-          <div className="bg-white rounded-sm max-w-md w-full p-6 sm:p-8 space-y-5 border border-[#8E7C49] shadow-xl text-center">
-            <div className="flex justify-between items-center border-b border-[#E1D1E4] pb-3 text-left rtl:text-right">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
+          <div className="bg-[var(--color-card)] rounded-sm max-w-md w-full p-6 sm:p-8 space-y-5 border border-[var(--color-accent)] shadow-xl text-center">
+            <div className="flex justify-between items-center border-b border-[var(--color-border)] pb-3 text-left rtl:text-right">
               <div>
-                <span className="text-[10px] text-[#8E7C49] uppercase font-mono block">Order Verification Terminal</span>
-                <h3 className="font-heading text-xl font-bold text-[#340404]">{qrInspectOrder.orderNumber}</h3>
+                <span className="text-[10px] text-[var(--color-accent)] uppercase font-mono block">Order Verification Terminal</span>
+                <h3 className="font-heading text-xl font-bold text-[var(--color-text)]">{qrInspectOrder.orderNumber}</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setQrInspectOrder(null)}
-                className="text-gray-400 hover:text-black p-1"
+                className="text-gray-400 hover:text-[var(--color-text)] p-1"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-1 text-xs text-[#340404]/80 text-left rtl:text-right bg-[#FBE7E3]/30 p-3 rounded-xs border border-[#E1D1E4]">
+            <div className="space-y-1 text-xs text-[var(--color-text)]/80 text-left rtl:text-right bg-[var(--color-bg)]/30 p-3 rounded-xs border border-[var(--color-border)]">
               <p><strong>Customer:</strong> {qrInspectOrder.customerName} ({qrInspectOrder.customerPhone})</p>
               <p><strong>Address:</strong> {qrInspectOrder.shippingAddress.buildingNumber}, {qrInspectOrder.shippingAddress.roadNumber}, {qrInspectOrder.shippingAddress.area}</p>
-              <p><strong>Amount to Collect:</strong> <span className="text-[#E22001] font-bold">{formatBHD(qrInspectOrder.total)}</span></p>
+              <p><strong>Amount to Collect:</strong> <span className="text-[var(--color-primary)] font-bold">{formatBHD(qrInspectOrder.total)}</span></p>
             </div>
 
             {/* Generated QR Code */}
@@ -3889,9 +3837,9 @@ CREATE TABLE IF NOT EXISTS product_sales (
             </div>
 
             {/* Verification PIN */}
-            <div className="bg-[#FBE7E3]/60 p-3 rounded-xs border border-[#8E7C49]">
-              <span className="text-[10px] uppercase font-mono text-[#8E7C49] block">Handover Verification PIN</span>
-              <span className="font-mono text-3xl font-extrabold text-[#340404] tracking-widest">
+            <div className="bg-[var(--color-bg)]/60 p-3 rounded-xs border border-[var(--color-accent)]">
+              <span className="text-[10px] uppercase font-mono text-[var(--color-accent)] block">Handover Verification PIN</span>
+              <span className="font-mono text-3xl font-extrabold text-[var(--color-text)] tracking-widest">
                 {qrInspectOrder.deliveryVerificationCode}
               </span>
             </div>
@@ -3900,9 +3848,9 @@ CREATE TABLE IF NOT EXISTS product_sales (
             <button
               type="button"
               onClick={() => window.print()}
-              className="w-full py-2 bg-[#FBE7E3] hover:bg-[#E1D1E4] text-[#340404] text-xs font-semibold rounded-xs border border-[#8E7C49]/40 flex items-center justify-center gap-1.5 transition-colors"
+              className="w-full py-2 bg-[var(--color-bg)] hover:bg-[var(--color-border)] text-[var(--color-text)] text-xs font-semibold rounded-xs border border-[var(--color-accent)]/40 flex items-center justify-center gap-1.5 transition-colors"
             >
-              <Printer className="w-3.5 h-3.5 text-[#8E7C49]" />
+              <Printer className="w-3.5 h-3.5 text-[var(--color-accent)]" />
               <span>Print Delivery Verification Slip</span>
             </button>
 
@@ -3917,7 +3865,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     setQrInspectOrder(null);
                   }
                 }}
-                className="w-full py-3 bg-[#8E7C49] hover:bg-[#78683b] text-white text-xs font-semibold uppercase tracking-wider rounded-xs shadow-md transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs shadow-md transition-colors flex items-center justify-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Simulate QR Scan & Confirm Payment Received</span>
@@ -3932,7 +3880,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
             <button
               type="button"
               onClick={() => setQrInspectOrder(null)}
-              className="w-full text-center text-xs text-[#340404]/60 hover:text-[#340404]"
+              className="w-full text-center text-xs text-[var(--color-text)]/60 hover:text-[var(--color-text)]"
             >
               Close Terminal
             </button>
@@ -3942,51 +3890,51 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
       {/* Optical QR Code Scanner Terminal Modal */}
       {isQrScannerModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/80 backdrop-blur-xs">
-          <div className="bg-white rounded-sm max-w-lg w-full p-6 sm:p-8 space-y-5 border-2 border-[#8E7C49] shadow-2xl">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/80 backdrop-blur-xs">
+          <div className="bg-[var(--color-card)] rounded-sm max-w-lg w-full p-6 sm:p-8 space-y-5 border-2 border-[var(--color-accent)] shadow-2xl">
             {/* Modal Header */}
-            <div className="flex justify-between items-start border-b border-[#E1D1E4] pb-3 text-left rtl:text-right">
+            <div className="flex justify-between items-start border-b border-[var(--color-border)] pb-3 text-left rtl:text-right">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="p-1.5 bg-[#FBE7E3] rounded-xs text-[#8E7C49]">
+                  <span className="p-1.5 bg-[var(--color-bg)] rounded-xs text-[var(--color-accent)]">
                     <Camera className="w-4 h-4" />
                   </span>
-                  <h3 className="font-heading text-xl font-bold text-[#340404]">
+                  <h3 className="font-heading text-xl font-bold text-[var(--color-text)]">
                     {language === 'ar' ? 'ماسح رمز QR للتحقق عند الاستلام' : 'Optical QR Scanner Terminal'}
                   </h3>
                 </div>
-                <p className="text-xs text-[#340404]/70 mt-1">
+                <p className="text-xs text-[var(--color-text)]/70 mt-1">
                   {language === 'ar' ? 'وجهي الكاميرا أو قارئ الباركود نحو رمز الاستجابة السريعة (QR) الخاص بالطلب' : 'Simulated live optical scanner to verify customer delivery QR codes on arrival'}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsQrScannerModalOpen(false)}
-                className="text-gray-400 hover:text-black p-1 text-base font-bold"
+                className="text-gray-400 hover:text-[var(--color-text)] p-1 text-base font-bold"
               >
                 ✕
               </button>
             </div>
 
             {/* Simulated Camera Viewfinder */}
-            <div className="relative aspect-[16/10] bg-[#18181B] rounded-xs overflow-hidden flex flex-col items-center justify-center border-2 border-[#8E7C49]/60 shadow-inner">
+            <div className="relative aspect-[16/10] bg-[var(--color-text)] rounded-xs overflow-hidden flex flex-col items-center justify-center border-2 border-[var(--color-accent)]/60 shadow-inner">
               {/* Corner Reticle Brackets */}
-              <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#E22001]" />
-              <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#E22001]" />
-              <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#E22001]" />
-              <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#E22001]" />
+              <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[var(--color-primary)]" />
+              <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[var(--color-primary)]" />
+              <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[var(--color-primary)]" />
+              <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[var(--color-primary)]" />
 
               {/* Scanning Laser Beam */}
-              <div className="absolute left-6 right-6 h-0.5 bg-[#E22001] shadow-[0_0_12px_#E22001] animate-pulse" />
+              <div className="absolute left-6 right-6 h-0.5 bg-[var(--color-primary)] shadow-[0_0_12px_var(--color-primary)] animate-pulse" />
 
               {/* Optical Lens Center Target */}
               <div className="w-28 h-28 border border-white/20 rounded-xs flex items-center justify-center">
-                <ScanLine className={`w-12 h-12 ${isSimulatingScan ? 'text-[#E22001] animate-ping' : 'text-white/60 animate-pulse'}`} />
+                <ScanLine className={`w-12 h-12 ${isSimulatingScan ? 'text-[var(--color-primary)] animate-ping' : 'text-white/60 animate-pulse'}`} />
               </div>
 
               {/* Viewfinder Status Overlay */}
               <div className="absolute bottom-3 left-0 right-0 text-center px-4">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-black/70 backdrop-blur-xs rounded-full text-[10px] font-mono text-emerald-400 border border-emerald-500/30">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[var(--color-text)]/70 backdrop-blur-xs rounded-full text-[10px] font-mono text-emerald-400 border border-emerald-500/30">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                   {isSimulatingScan 
                     ? (language === 'ar' ? 'جاري فك تشفير البيانات...' : 'DECODING QR PAYLOAD...') 
@@ -3997,7 +3945,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
             {/* One-Tap Simulation Picker for Pending POD Orders */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-[#340404] block uppercase tracking-wider">
+              <label className="text-xs font-semibold text-[var(--color-text)] block uppercase tracking-wider">
                 {language === 'ar' ? 'الطلبات بانتظار المسح (اضغطي لتأكيد المسح الفوري):' : 'Pending Deliveries in Queue (Tap to Scan):'}
               </label>
 
@@ -4012,17 +3960,17 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     .map((ord) => (
                       <div
                         key={ord.id}
-                        className="p-3 bg-[#FBE7E3]/40 hover:bg-[#FBE7E3] rounded-xs border border-[#8E7C49]/40 flex items-center justify-between gap-3 transition-colors"
+                        className="p-3 bg-[var(--color-bg)]/40 hover:bg-[var(--color-bg)] rounded-xs border border-[var(--color-accent)]/40 flex items-center justify-between gap-3 transition-colors"
                       >
                         <div className="text-xs">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-[#340404]">{ord.orderNumber}</span>
-                            <span className="text-[10px] bg-white text-[#8E7C49] font-mono font-bold px-1.5 py-0.2 rounded-xs border border-[#8E7C49]/40">
+                            <span className="font-mono font-bold text-[var(--color-text)]">{ord.orderNumber}</span>
+                            <span className="text-[10px] bg-white text-[var(--color-accent)] font-mono font-bold px-1.5 py-0.2 rounded-xs border border-[var(--color-accent)]/40">
                               PIN: {ord.deliveryVerificationCode}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#340404]/70">
-                            {ord.customerName} · <strong className="text-[#E22001]">{formatBHD(ord.total)}</strong>
+                          <p className="text-[11px] text-[var(--color-text)]/70">
+                            {ord.customerName} · <strong className="text-[var(--color-primary)]">{formatBHD(ord.total)}</strong>
                           </p>
                         </div>
 
@@ -4030,7 +3978,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                           type="button"
                           disabled={isSimulatingScan}
                           onClick={() => handleScanQrPayload(`BDS-VERIFY:${ord.orderNumber}:${ord.deliveryVerificationCode}:${ord.total.toFixed(3)}:BHD`)}
-                          className="px-3 py-1.5 bg-[#8E7C49] hover:bg-[#78683b] text-white text-[11px] font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1 shadow-xs transition-colors disabled:opacity-50"
+                          className="px-3 py-1.5 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white text-[11px] font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1 shadow-xs transition-colors disabled:opacity-50"
                         >
                           <QrCode className="w-3.5 h-3.5" />
                           <span>{language === 'ar' ? 'مسح الرمز' : 'Scan QR'}</span>
@@ -4047,9 +3995,9 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 e.preventDefault();
                 handleScanQrPayload(scannedRawPayload);
               }}
-              className="pt-2 border-t border-[#E1D1E4] space-y-2"
+              className="pt-2 border-t border-[var(--color-border)] space-y-2"
             >
-              <label className="text-xs font-semibold text-[#340404] block">
+              <label className="text-xs font-semibold text-[var(--color-text)] block">
                 {language === 'ar' ? 'أو أدخلي كود المسح أو الرمز المكون من ٦ أرقام يدوياً:' : 'Or Input Barcode Scanner Stream / 6-Digit PIN:'}
               </label>
               <div className="flex gap-2">
@@ -4058,12 +4006,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   value={scannedRawPayload}
                   onChange={(e) => setScannedRawPayload(e.target.value)}
                   placeholder="e.g. 481923 or BDS-VERIFY:BDS-2026-7740..."
-                  className="flex-1 px-3 py-2 bg-white border border-[#E1D1E4] rounded-xs text-xs font-mono text-[#340404] focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                  className="flex-1 px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-xs font-mono text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                 />
                 <button
                   type="submit"
                   disabled={!scannedRawPayload.trim() || isSimulatingScan}
-                  className="px-4 py-2 bg-[#340404] hover:bg-black text-[#FBE7E3] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors disabled:opacity-50"
                 >
                   {language === 'ar' ? 'تحقق' : 'Decode'}
                 </button>
@@ -4073,7 +4021,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
             <button
               type="button"
               onClick={() => setIsQrScannerModalOpen(false)}
-              className="w-full text-center text-xs text-[#340404]/60 hover:text-[#340404]"
+              className="w-full text-center text-xs text-[var(--color-text)]/60 hover:text-[var(--color-text)]"
             >
               {language === 'ar' ? 'إغلاق الماسح' : 'Close Scanner'}
             </button>
@@ -4092,21 +4040,21 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
       {/* Category Edit / Create Modal */}
       {(editingCategory || isCreatingCategory) && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/60 backdrop-blur-xs">
-          <div className="bg-white rounded-sm max-w-2xl w-full p-6 sm:p-8 space-y-5 border border-[#E1D1E4] shadow-2xl">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
+          <div className="bg-[var(--color-card)] rounded-sm max-w-2xl w-full p-6 sm:p-8 space-y-5 border border-[var(--color-border)] shadow-2xl">
             {/* Modal Header */}
-            <div className="flex justify-between items-center border-b border-[#E1D1E4] pb-3">
+            <div className="flex justify-between items-center border-b border-[var(--color-border)] pb-3">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 bg-[#FBE7E3] rounded-xs text-[#8E7C49]">
+                <span className="p-1.5 bg-[var(--color-bg)] rounded-xs text-[var(--color-accent)]">
                   <Layers className="w-5 h-5" />
                 </span>
                 <div>
-                  <h3 className="font-heading text-xl font-bold text-[#340404]">
+                  <h3 className="font-heading text-xl font-bold text-[var(--color-text)]">
                     {editingCategory
                       ? (language === 'ar' ? 'تعديل قسم المتجر' : 'Edit Boutique Category')
                       : (language === 'ar' ? 'إضافة قسم جديد لملابس النوم' : 'Add New Boutique Category')}
                   </h3>
-                  <p className="text-[11px] text-[#8E7C49] font-medium">
+                  <p className="text-[11px] text-[var(--color-accent)] font-medium">
                     {language === 'ar'
                       ? 'سيتم حفظ وتحديث القسم تلقائياً في قاعدة بيانات MySQL'
                       : 'Changes will be automatically synced with MySQL database'}
@@ -4119,7 +4067,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   setEditingCategory(null);
                   setIsCreatingCategory(false);
                 }}
-                className="text-gray-400 hover:text-black cursor-pointer text-lg p-1"
+                className="text-gray-400 hover:text-[var(--color-text)] cursor-pointer text-lg p-1"
               >
                 ✕
               </button>
@@ -4131,7 +4079,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
               {/* Bilingual Names */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'اسم القسم (بالإنجليزية) *' : 'Category Name (English) *'}
                   </label>
                   <input
@@ -4149,12 +4097,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       }));
                     }}
                     placeholder="e.g. Silk Pajama Sets"
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs bg-[#FBE7E3]/20 focus:outline-none focus:ring-1 focus:ring-[#8E7C49] font-medium"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs bg-[var(--color-bg)]/20 focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] font-medium"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'اسم القسم (بالعربية) *' : 'Category Name (Arabic) *'}
                   </label>
                   <input
@@ -4163,7 +4111,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     value={categoryForm.nameAr}
                     onChange={(e) => setCategoryForm({ ...categoryForm, nameAr: e.target.value })}
                     placeholder="مثال: أطقم بيجامات الحرير"
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs bg-[#FBE7E3]/20 focus:outline-none focus:ring-1 focus:ring-[#8E7C49] font-medium"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs bg-[var(--color-bg)]/20 focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] font-medium"
                   />
                 </div>
               </div>
@@ -4171,11 +4119,11 @@ CREATE TABLE IF NOT EXISTS product_sales (
               {/* URL Slug & Display Order */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2 space-y-1">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'الاسم اللطيف للرابط (Slug) *' : 'URL Identifier / Slug *'}
                   </label>
                   <div className="flex items-center">
-                    <span className="px-2.5 py-2 bg-gray-100 border border-r-0 border-[#E1D1E4] rounded-l-xs text-[11px] font-mono text-gray-500">
+                    <span className="px-2.5 py-2 bg-gray-100 border border-r-0 border-[var(--color-border)] rounded-l-xs text-[11px] font-mono text-gray-500">
                       /category/
                     </span>
                     <input
@@ -4192,13 +4140,13 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         })
                       }
                       placeholder="silk-pajama-sets"
-                      className="flex-1 px-3 py-2 border border-[#E1D1E4] rounded-r-xs font-mono text-xs text-[#340404] focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                      className="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-r-xs font-mono text-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'ترتيب العرض' : 'Display Order'}
                   </label>
                   <input
@@ -4206,18 +4154,18 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     min="1"
                     value={categoryForm.displayOrder}
                     onChange={(e) => setCategoryForm({ ...categoryForm, displayOrder: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs text-center font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs text-center font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                   />
                 </div>
               </div>
 
               {/* Active Toggle */}
-              <div className="bg-[#FBE7E3]/30 p-3 rounded-xs border border-[#E1D1E4] flex items-center justify-between">
+              <div className="bg-[var(--color-bg)]/30 p-3 rounded-xs border border-[var(--color-border)] flex items-center justify-between">
                 <div>
-                  <span className="font-semibold text-[#340404] block">
+                  <span className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'تفعيل العرض في المتجر' : 'Active in Boutique Storefront'}
                   </span>
-                  <span className="text-[11px] text-[#340404]/70">
+                  <span className="text-[11px] text-[var(--color-text)]/70">
                     {language === 'ar'
                       ? 'عند التفعيل، سيظهر هذا القسم في شريط التصفح والصفحة الرئيسية'
                       : 'Show in header navigation, filters, and homepage collections'}
@@ -4237,7 +4185,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
               {/* Bilingual Descriptions */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'الوصف (بالإنجليزية)' : 'Description (English)'}
                   </label>
                   <textarea
@@ -4245,12 +4193,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     value={categoryForm.descriptionEn}
                     onChange={(e) => setCategoryForm({ ...categoryForm, descriptionEn: e.target.value })}
                     placeholder="Handcrafted silk pajamas tailored for timeless elegance..."
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#340404] block">
+                  <label className="font-semibold text-[var(--color-text)] block">
                     {language === 'ar' ? 'الوصف (بالعربية)' : 'Description (Arabic)'}
                   </label>
                   <textarea
@@ -4258,24 +4206,24 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     value={categoryForm.descriptionAr}
                     onChange={(e) => setCategoryForm({ ...categoryForm, descriptionAr: e.target.value })}
                     placeholder="أطقم بيجامات من حرير التوت الطبيعي مصممة لنعومة وراحة تدوم..."
-                    className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                   />
                 </div>
               </div>
 
               {/* Category Image Setup */}
-              <div className="pt-2 border-t border-[#E1D1E4] space-y-3">
+              <div className="pt-2 border-t border-[var(--color-border)] space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="font-semibold text-[#340404] block uppercase tracking-wider text-[11px]">
+                  <label className="font-semibold text-[var(--color-text)] block uppercase tracking-wider text-[11px]">
                     {language === 'ar' ? 'صورة الغلاف للقسم (Category Banner Image)' : 'Category Banner Image'}
                   </label>
-                  <span className="text-[10px] text-[#8E7C49] font-medium">
+                  <span className="text-[10px] text-[var(--color-accent)] font-medium">
                     {language === 'ar' ? 'نسبة العرض ١٦:٩ موصى بها' : '16:9 Aspect Ratio Recommended'}
                   </span>
                 </div>
 
                 {/* Live Preview */}
-                <div className="relative aspect-[16/9] w-full rounded-xs overflow-hidden bg-gray-100 border border-[#8E7C49]/40 shadow-xs">
+                <div className="relative aspect-[16/9] w-full rounded-xs overflow-hidden bg-gray-100 border border-[var(--color-accent)]/40 shadow-xs">
                   <img
                     src={categoryImageUpload || categoryForm.image || ROSE_SATIN_IMAGE}
                     alt="Category Banner Preview"
@@ -4286,7 +4234,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
                   <div className="absolute bottom-3 left-3 right-3 text-white">
-                    <span className="text-[10px] font-medium text-[#FBE7E3]">
+                    <span className="text-[10px] font-medium text-[var(--color-bg)]">
                       {categoryForm.nameAr || 'اسم القسم بالعربية'}
                     </span>
                     <h5 className="font-heading text-base font-bold text-white leading-tight">
@@ -4298,8 +4246,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 {/* Upload or URL Controls */}
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                   <div className="sm:col-span-4">
-                    <label className="w-full py-2 px-3 bg-[#340404] hover:bg-black text-[#FBE7E3] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs">
-                      <Upload className="w-3.5 h-3.5 text-[#8E7C49]" />
+                    <label className="w-full py-2 px-3 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs">
+                      <Upload className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                       <span>{language === 'ar' ? 'رفع صورة من جهازك' : 'Upload Image'}</span>
                       <input
                         type="file"
@@ -4320,62 +4268,28 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         setCategoryImageUpload(url);
                       }}
                       placeholder="Or enter image URL: https://... or /src/assets/..."
-                      className="w-full px-3 py-2 border border-[#E1D1E4] rounded-xs text-xs font-mono text-[#340404] focus:outline-none focus:ring-1 focus:ring-[#8E7C49]"
+                      className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs text-xs font-mono text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
                     />
-                  </div>
-                </div>
-
-                {/* Quick Luxury Boutique Image Presets */}
-                <div className="space-y-1.5">
-                  <span className="text-[10px] uppercase font-semibold text-[#8E7C49] block">
-                    {language === 'ar' ? 'أو اختاري صورة فاخرة من التشكيلة الجاهزة:' : 'Or Select Luxury Collection Preset:'}
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { label: 'Rose Satin Slip', img: ROSE_SATIN_IMAGE },
-                      { label: 'Mulberry Silk PJ', img: SILK_PJ_IMAGE },
-                      { label: 'French Lace Robe', img: LACE_ROBE_IMAGE },
-                      { label: 'Pure Silk Hero', img: HERO_IMAGE },
-                      { label: 'Kids Sleepwear', img: KIDS_PJ_IMAGE },
-                      { label: 'Kids Silk Robe', img: KIDS_ROBE_IMAGE },
-                      { label: 'Kids Cotton', img: KIDS_COTTON_IMAGE },
-                    ].map((preset) => (
-                      <button
-                        key={preset.label}
-                        type="button"
-                        onClick={() => {
-                          setCategoryImageUpload(preset.img);
-                          setCategoryForm((prev) => ({ ...prev, image: preset.img }));
-                        }}
-                        className={`px-2 py-1 text-[11px] rounded-xs border transition-colors cursor-pointer ${
-                          (categoryImageUpload || categoryForm.image) === preset.img
-                            ? 'bg-[#340404] text-[#FBE7E3] border-[#340404] font-bold'
-                            : 'bg-white text-[#340404] border-[#E1D1E4] hover:bg-[#FBE7E3]'
-                        }`}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-4 border-t border-[#E1D1E4] flex justify-end items-center gap-3">
+              <div className="pt-4 border-t border-[var(--color-border)] flex justify-end items-center gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setEditingCategory(null);
                     setIsCreatingCategory(false);
                   }}
-                  className="px-4 py-2 border border-[#E1D1E4] text-[#340404] hover:bg-gray-100 rounded-xs font-medium cursor-pointer"
+                  className="px-4 py-2 border border-[var(--color-border)] text-[var(--color-text)] hover:bg-gray-100 rounded-xs font-medium cursor-pointer"
                 >
                   {language === 'ar' ? 'إلغاء' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingCategory}
-                  className="px-6 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs cursor-pointer transition-colors disabled:opacity-50"
+                  className="px-6 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs cursor-pointer transition-colors disabled:opacity-50"
                 >
                   {isSavingCategory ? (
                     <>
@@ -4401,18 +4315,18 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
       {/* Delete Category Confirmation Dialog */}
       {categoryToDelete && (
-        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[#340404]/70 backdrop-blur-xs">
-          <div className="bg-white rounded-sm max-w-md w-full p-6 space-y-4 border border-red-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--color-text)]/70 backdrop-blur-xs">
+          <div className="bg-[var(--color-card)] rounded-sm max-w-md w-full p-6 space-y-4 border border-red-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center gap-3 text-red-600 border-b border-red-100 pb-3">
               <div className="p-2 bg-red-100 rounded-full">
                 <AlertTriangle className="w-5 h-5" />
               </div>
-              <h3 className="font-heading text-lg font-bold text-[#340404]">
+              <h3 className="font-heading text-lg font-bold text-[var(--color-text)]">
                 {language === 'ar' ? 'تأكيد حذف القسم؟' : 'Delete Category from Database?'}
               </h3>
             </div>
 
-            <div className="space-y-3 text-xs text-[#340404]/80">
+            <div className="space-y-3 text-xs text-[var(--color-text)]/80">
               <p>
                 {language === 'ar'
                   ? `هل أنتِ متأكدة من رغبتك في حذف قسم "${categoryToDelete.nameAr || categoryToDelete.nameEn}" نهائياً من قاعدة بيانات MySQL؟`
@@ -4439,18 +4353,18 @@ CREATE TABLE IF NOT EXISTS product_sales (
               })()}
             </div>
 
-            <div className="flex justify-end items-center gap-2 pt-2 border-t border-[#E1D1E4]">
+            <div className="flex justify-end items-center gap-2 pt-2 border-t border-[var(--color-border)]">
               <button
                 type="button"
                 onClick={() => setCategoryToDelete(null)}
-                className="px-4 py-2 border border-[#E1D1E4] text-[#340404] hover:bg-gray-100 rounded-xs font-medium cursor-pointer text-xs"
+                className="px-4 py-2 border border-[var(--color-border)] text-[var(--color-text)] hover:bg-gray-100 rounded-xs font-medium cursor-pointer text-xs"
               >
                 {language === 'ar' ? 'إلغاء' : 'Cancel'}
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDeleteCategory}
-                className="px-4 py-2 bg-[#E22001] hover:bg-red-700 text-white rounded-xs font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+                className="px-4 py-2 bg-[var(--color-primary)] hover:bg-red-700 text-white rounded-xs font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>{language === 'ar' ? 'تأكيد الحذف نهائياً' : 'Confirm Delete'}</span>

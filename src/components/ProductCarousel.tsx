@@ -41,17 +41,23 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
   if (!products || products.length === 0) return null;
 
   return (
-    <section className="py-12 border-b border-[#E1D1E4]/60">
+    <section 
+      className="py-12 border-b transition-colors border-[var(--color-border)]"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
           <div>
-            <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-[#340404] tracking-tight">
+            <h2 
+              className="font-heading text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--color-heading)]"
+            >
               {title}
             </h2>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-[#340404]/70 mt-1 font-light">
+              <p 
+                className="text-xs sm:text-sm mt-1 font-light text-[var(--color-text-secondary)]"
+              >
                 {subtitle}
               </p>
             )}
@@ -61,7 +67,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
             {onViewAll && (
               <button
                 onClick={onViewAll}
-                className="text-xs uppercase font-semibold tracking-wider text-[#340404] hover:text-[#E22001] mr-3 rtl:mr-0 rtl:ml-3 transition-colors"
+                className="text-xs uppercase font-semibold tracking-wider text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] mr-3 rtl:mr-0 rtl:ml-3 transition-colors cursor-pointer"
               >
                 {language === 'ar' ? 'عرض الكل' : 'View All'}
               </button>
@@ -70,7 +76,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
             {/* Carousel navigation controls (flip in RTL) */}
             <button
               onClick={() => scroll(isRtl ? 'right' : 'left')}
-              className="p-2 rounded-full border border-[#E1D1E4] bg-white text-[#340404] hover:bg-[#E1D1E4] hover:text-[#E22001] transition-colors shadow-xs"
+              className="p-2 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary)] transition-colors shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
               aria-label="Previous Products"
             >
               {isRtl ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -78,7 +84,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
 
             <button
               onClick={() => scroll(isRtl ? 'left' : 'right')}
-              className="p-2 rounded-full border border-[#E1D1E4] bg-white text-[#340404] hover:bg-[#E1D1E4] hover:text-[#E22001] transition-colors shadow-xs"
+              className="p-2 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-text)] hover:bg-[var(--color-bg)] hover:text-[var(--color-primary)] transition-colors shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
               aria-label="Next Products"
             >
               {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}

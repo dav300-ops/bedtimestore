@@ -147,18 +147,18 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
     : `BDS-INV-${order.orderNumber}`;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-5 bg-[#340404]/70 backdrop-blur-xs">
-      <div className="bg-white rounded-md max-w-3xl w-full border border-[#E1D1E4] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-5 bg-[var(--color-text)]/70 backdrop-blur-xs">
+      <div className="bg-[var(--color-card)] rounded-md max-w-3xl w-full border border-[var(--color-border)] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
         
         {/* Top Control Bar (Never Printed) */}
-        <div className="p-4 bg-[#340404] text-white flex flex-wrap items-center justify-between gap-3 border-b border-[#8E7C49]/40 print:hidden">
+        <div className="p-4 bg-[var(--color-text)] text-white flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-accent)]/40 print:hidden">
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#8E7C49]" />
+            <FileText className="w-5 h-5 text-[var(--color-accent)]" />
             <div>
-              <h2 className="font-heading text-base font-semibold text-[#FBE7E3]">
+              <h2 className="font-heading text-base font-semibold text-[var(--color-bg)]">
                 {isAr ? 'إيصال الشراء المعتمد والفاتورة الإلكترونية' : 'Official Purchase Receipt & Tax Invoice'}
               </h2>
-              <p className="text-[11px] text-[#FBE7E3]/70 font-mono">
+              <p className="text-[11px] text-[var(--color-bg)]/70 font-mono">
                 {order.orderNumber} · {invoiceNumber}
               </p>
             </div>
@@ -169,8 +169,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               onClick={() => setActiveTab('email')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer ${
                 activeTab === 'email'
-                  ? 'bg-[#E22001] text-white'
-                  : 'bg-white/10 hover:bg-white/20 text-[#FBE7E3]'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'bg-white/10 hover:bg-white/20 text-[var(--color-bg)]'
               }`}
             >
               <Mail className="w-3.5 h-3.5" />
@@ -181,8 +181,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               onClick={() => setActiveTab('sms')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer ${
                 activeTab === 'sms'
-                  ? 'bg-[#E22001] text-white'
-                  : 'bg-white/10 hover:bg-white/20 text-[#FBE7E3]'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'bg-white/10 hover:bg-white/20 text-[var(--color-bg)]'
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
@@ -191,7 +191,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
             <button
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-[#8E7C49] hover:bg-[#7a6b3f] text-white text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Print Receipt / Save as PDF"
             >
               <Printer className="w-3.5 h-3.5" />
@@ -222,11 +222,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
         {/* Tab 1: Dispatch via Email Sub-sheet */}
         {activeTab === 'email' && (
-          <div className="p-5 bg-[#FBE7E3]/40 border-b border-[#E1D1E4] print:hidden">
+          <div className="p-5 bg-[var(--color-bg)]/40 border-b border-[var(--color-border)] print:hidden">
             <form onSubmit={handleSendEmailReceipt} className="max-w-xl mx-auto space-y-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-sm text-[#340404] flex items-center gap-1.5">
-                  <Mail className="w-4 h-4 text-[#8E7C49]" />
+                <span className="font-semibold text-sm text-[var(--color-text)] flex items-center gap-1.5">
+                  <Mail className="w-4 h-4 text-[var(--color-accent)]" />
                   <span>{isAr ? 'إرسال إيصال الشراء إلى البريد الإلكتروني للعميل' : 'Send Purchase Receipt via Email'}</span>
                 </span>
                 <button
@@ -239,7 +239,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-[#340404]">
+                <label className="font-semibold text-[var(--color-text)]">
                   {isAr ? 'البريد الإلكتروني للمستلم *' : 'Recipient Email Address *'}
                 </label>
                 <input
@@ -248,12 +248,12 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                   value={recipientEmail}
                   onChange={(e) => setRecipientEmail(e.target.value)}
                   placeholder="customer@example.com"
-                  className="w-full px-3 py-2 bg-white border border-[#E1D1E4] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[#E22001]"
+                  className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-[#340404]">
+                <label className="font-semibold text-[var(--color-text)]">
                   {isAr ? 'رسالة شكر بوتيكية مخصصة (اختياري)' : 'Custom Thank-You Note (Optional)'}
                 </label>
                 <input
@@ -261,7 +261,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                   value={customNote}
                   onChange={(e) => setCustomNote(e.target.value)}
                   placeholder={isAr ? 'شكراً لتسوقكِ معنا في ذا بدتايم ستور...' : 'Thank you for choosing The Bedtime Store Luxury Boutique...'}
-                  className="w-full px-3 py-2 bg-white border border-[#E1D1E4] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[#E22001]"
+                  className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
@@ -269,7 +269,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSending}
-                  className="px-5 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white font-semibold rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isSending ? (isAr ? 'جارٍ الإرسال...' : 'Dispatching...') : (isAr ? 'إرسال الإيصال الآن' : 'Dispatch Email Receipt')}</span>
@@ -277,7 +277,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('view')}
-                  className="px-4 py-2.5 bg-white border border-[#E1D1E4] text-gray-700 rounded-xs cursor-pointer"
+                  className="px-4 py-2.5 bg-white border border-[var(--color-border)] text-gray-700 rounded-xs cursor-pointer"
                 >
                   {isAr ? 'عرض الإيصال' : 'View Receipt'}
                 </button>
@@ -288,11 +288,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
         {/* Tab 2: Dispatch via SMS Sub-sheet */}
         {activeTab === 'sms' && (
-          <div className="p-5 bg-[#FBE7E3]/40 border-b border-[#E1D1E4] print:hidden">
+          <div className="p-5 bg-[var(--color-bg)]/40 border-b border-[var(--color-border)] print:hidden">
             <form onSubmit={handleSendSmsReceipt} className="max-w-xl mx-auto space-y-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-sm text-[#340404] flex items-center gap-1.5">
-                  <Smartphone className="w-4 h-4 text-[#8E7C49]" />
+                <span className="font-semibold text-sm text-[var(--color-text)] flex items-center gap-1.5">
+                  <Smartphone className="w-4 h-4 text-[var(--color-accent)]" />
                   <span>{isAr ? 'إرسال رابط الإيصال الإلكتروني عبر رسالة نصية SMS' : 'Send Receipt Link via SMS (+973)'}</span>
                 </span>
                 <button
@@ -305,7 +305,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-[#340404]">
+                <label className="font-semibold text-[var(--color-text)]">
                   {isAr ? 'رقم هاتف العميل في البحرين *' : 'Bahrain Mobile Number (+973) *'}
                 </label>
                 <input
@@ -314,7 +314,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                   value={recipientPhone}
                   onChange={(e) => setRecipientPhone(e.target.value)}
                   placeholder="+973 3922 1144"
-                  className="w-full px-3 py-2 bg-white border border-[#E1D1E4] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[#E22001]"
+                  className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-xs outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
@@ -322,7 +322,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSending}
-                  className="px-5 py-2.5 bg-[#E22001] hover:bg-[#c01b01] text-white font-semibold rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isSending ? (isAr ? 'جارٍ الإرسال...' : 'Sending SMS...') : (isAr ? 'إرسال رسالة SMS' : 'Dispatch SMS Receipt')}</span>
@@ -330,7 +330,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('view')}
-                  className="px-4 py-2.5 bg-white border border-[#E1D1E4] text-gray-700 rounded-xs cursor-pointer"
+                  className="px-4 py-2.5 bg-white border border-[var(--color-border)] text-gray-700 rounded-xs cursor-pointer"
                 >
                   {isAr ? 'عرض الإيصال' : 'View Receipt'}
                 </button>
@@ -340,29 +340,29 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
         )}
 
         {/* Printable & Viewable Official Boutique Receipt Body */}
-        <div className="p-6 sm:p-10 overflow-y-auto space-y-8 text-[#340404]">
+        <div className="p-6 sm:p-10 overflow-y-auto space-y-8 text-[var(--color-text)]">
           
           {/* Receipt Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[#E1D1E4] gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[var(--color-border)] gap-4">
             <div className="space-y-1">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-[#8E7C49]">
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--color-accent)]">
                 {isAr ? 'مملكة البحرين · متجر ذا بدتايم ستور' : 'Kingdom of Bahrain · The Bedtime Store'}
               </span>
-              <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-[#340404]">
+              <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-text)]">
                 THE BEDTIME STORE
               </h1>
-              <p className="text-[11px] text-[#340404]/70">
+              <p className="text-[11px] text-[var(--color-text)]/70">
                 Luxury Sleepwear & Nightwear Boutique · CR: 104928-1 Manama, Kingdom of Bahrain
               </p>
-              <p className="text-[11px] text-[#340404]/70">
+              <p className="text-[11px] text-[var(--color-text)]/70">
                 VAT Registration No: 200018492000003 · Certified Central Bank of Bahrain Retailer
               </p>
             </div>
 
             {/* MyFatoorah & Verification Badge */}
-            <div className="bg-[#FBE7E3]/60 p-3.5 rounded-sm border border-[#E1D1E4] text-left rtl:text-right space-y-1 sm:max-w-xs w-full sm:w-auto">
+            <div className="bg-[var(--color-bg)]/60 p-3.5 rounded-sm border border-[var(--color-border)] text-left rtl:text-right space-y-1 sm:max-w-xs w-full sm:w-auto">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] uppercase font-bold text-[#8E7C49] flex items-center gap-1">
+                <span className="text-[10px] uppercase font-bold text-[var(--color-accent)] flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   <span>MyFatoorah Gateway</span>
                 </span>
@@ -370,7 +370,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                   {order.paymentStatus === 'Paid' ? (isAr ? 'مدفوع ومعتمد' : 'PAID & SETTLED') : order.paymentStatus}
                 </span>
               </div>
-              <p className="font-mono text-xs font-bold text-[#340404]">
+              <p className="font-mono text-xs font-bold text-[var(--color-text)]">
                 {invoiceNumber}
               </p>
               <p className="text-[10px] text-gray-500 font-mono">
@@ -383,14 +383,14 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
             {/* Column 1: Order & Date */}
             <div className="space-y-1">
-              <span className="text-[10px] uppercase font-semibold text-[#8E7C49] tracking-wider block">
+              <span className="text-[10px] uppercase font-semibold text-[var(--color-accent)] tracking-wider block">
                 {isAr ? 'تفاصيل الطلب والفاتورة' : 'Order & Invoice Info'}
               </span>
               <p><strong>{isAr ? 'رقم الطلب:' : 'Order Number:'}</strong> <span className="font-mono font-bold">{order.orderNumber}</span></p>
               <p><strong>{isAr ? 'التاريخ والوقت:' : 'Date & Time:'}</strong> {new Date(order.createdAt).toLocaleString()}</p>
               <p>
                 <strong>{isAr ? 'بوابة الدفع:' : 'Payment Gateway:'}</strong>{' '}
-                <span className="capitalize font-semibold text-[#E22001]">
+                <span className="capitalize font-semibold text-[var(--color-primary)]">
                   {order.paymentMethod === 'myfatoorah'
                     ? 'MyFatoorah (Benefit / KNET / Cards)'
                     : order.paymentMethod.replace('_', ' ')}
@@ -400,20 +400,20 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
             {/* Column 2: Customer */}
             <div className="space-y-1">
-              <span className="text-[10px] uppercase font-semibold text-[#8E7C49] tracking-wider block">
+              <span className="text-[10px] uppercase font-semibold text-[var(--color-accent)] tracking-wider block">
                 {isAr ? 'بيانات العميل' : 'Boutique Client'}
               </span>
-              <p className="font-bold text-sm text-[#340404]">{order.customerName}</p>
+              <p className="font-bold text-sm text-[var(--color-text)]">{order.customerName}</p>
               <p className="text-gray-600">{order.customerEmail}</p>
               <p className="text-gray-600 font-mono">{order.customerPhone}</p>
             </div>
 
             {/* Column 3: Shipping Address */}
             <div className="space-y-1">
-              <span className="text-[10px] uppercase font-semibold text-[#8E7C49] tracking-wider block">
+              <span className="text-[10px] uppercase font-semibold text-[var(--color-accent)] tracking-wider block">
                 {isAr ? 'عنوان التوصيل' : 'Delivery Destination'}
               </span>
-              <p className="font-medium text-[#340404]">
+              <p className="font-medium text-[var(--color-text)]">
                 {order.shippingAddress.buildingNumber}, {order.shippingAddress.roadNumber}
               </p>
               <p className="text-gray-600">
@@ -427,13 +427,13 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
           {/* Purchased Products Table */}
           <div className="space-y-3">
-            <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-[#340404]">
+            <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-[var(--color-text)]">
               {isAr ? 'القطع والمنتجات المشتراة' : 'Purchased Boutique Items'}
             </h3>
 
-            <div className="border border-[#E1D1E4] rounded-xs overflow-hidden">
+            <div className="border border-[var(--color-border)] rounded-xs overflow-hidden">
               <table className="w-full text-left rtl:text-right text-xs">
-                <thead className="bg-[#FBE7E3]/50 text-[#8E7C49] uppercase font-bold text-[10px] border-b border-[#E1D1E4]">
+                <thead className="bg-[var(--color-bg)]/50 text-[var(--color-accent)] uppercase font-bold text-[10px] border-b border-[var(--color-border)]">
                   <tr>
                     <th className="py-2.5 px-3">{isAr ? 'المنتج' : 'Item Description'}</th>
                     <th className="py-2.5 px-3 text-center">{isAr ? 'المقاس واللون' : 'Size & Color'}</th>
@@ -442,7 +442,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                     <th className="py-2.5 px-3 text-right rtl:text-left">{isAr ? 'الإجمالي' : 'Total'}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E1D1E4]">
+                <tbody className="divide-y divide-[var(--color-border)]">
                   {order.items && order.items.length > 0 ? (
                     order.items.map((item, idx) => (
                       <tr key={idx} className="hover:bg-gray-50 transition-colors">
@@ -496,8 +496,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 pt-2">
             
             {/* Left Box: Official MyFatoorah Stamp & QR */}
-            <div className="sm:col-span-7 bg-[#FBE7E3]/30 p-4 rounded-xs border border-[#E1D1E4] flex items-center gap-4">
-              <div className="bg-white p-2 rounded-xs border border-[#8E7C49] shrink-0 shadow-2xs">
+            <div className="sm:col-span-7 bg-[var(--color-bg)]/30 p-4 rounded-xs border border-[var(--color-border)] flex items-center gap-4">
+              <div className="bg-[var(--color-card)] p-2 rounded-xs border border-[var(--color-accent)] shrink-0 shadow-2xs">
                 <DeliveryQrCode
                   orderNumber={order.orderNumber}
                   verificationCode={order.deliveryVerificationCode || invoiceNumber}
@@ -508,17 +508,17 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
               </div>
 
               <div className="space-y-1 text-xs">
-                <div className="flex items-center gap-1.5 font-bold text-[#340404]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#8E7C49]" />
+                <div className="flex items-center gap-1.5 font-bold text-[var(--color-text)]">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
                   <span>{isAr ? 'إيصال إلكتروني مشفر معتمد' : 'Verified Cryptographic Invoice'}</span>
                 </div>
-                <p className="text-[11px] text-[#340404]/75 leading-relaxed">
+                <p className="text-[11px] text-[var(--color-text)]/75 leading-relaxed">
                   {isAr
                     ? 'تم توثيق هذه الفاتورة الإلكترونية عبر بوابة ماي فاتورة الرسمية في مملكة البحرين.'
                     : 'Authenticated through MyFatoorah National Gateway under Kingdom of Bahrain commercial retail regulations.'}
                 </p>
                 {order.paymentMethod === 'pay_on_delivery' && order.deliveryVerificationCode && (
-                  <p className="font-mono text-xs font-bold text-[#E22001]">
+                  <p className="font-mono text-xs font-bold text-[var(--color-primary)]">
                     DELIVERY PIN: {order.deliveryVerificationCode}
                   </p>
                 )}
@@ -546,21 +546,21 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
                 </span>
               </div>
 
-              <div className="flex justify-between py-1 text-gray-500 text-[11px] border-t border-[#E1D1E4] pt-1.5">
+              <div className="flex justify-between py-1 text-gray-500 text-[11px] border-t border-[var(--color-border)] pt-1.5">
                 <span>{isAr ? 'ضريبة القيمة المضافة 10% (مشمولة):' : 'VAT (10% Included):'}</span>
                 <span className="tabular-nums">{formatBHD(vatAmount)}</span>
               </div>
 
-              <div className="flex justify-between py-2 border-t-2 border-[#340404] text-base font-bold text-[#340404]">
+              <div className="flex justify-between py-2 border-t-2 border-[var(--color-text)] text-base font-bold text-[var(--color-text)]">
                 <span>{isAr ? 'المبلغ الإجمالي:' : 'Grand Total:'}</span>
-                <span className="tabular-nums text-[#E22001]">{formatBHD(order.total)}</span>
+                <span className="tabular-nums text-[var(--color-primary)]">{formatBHD(order.total)}</span>
               </div>
             </div>
 
           </div>
 
           {/* Boutique Footer Note */}
-          <div className="pt-6 border-t border-[#E1D1E4] text-center text-[10px] text-[#340404]/60 space-y-1">
+          <div className="pt-6 border-t border-[var(--color-border)] text-center text-[10px] text-[var(--color-text)]/60 space-y-1">
             <p>
               {isAr
                 ? 'شكراً لتسوقكم من ذا بدتايم ستور. نتمنى لكم نوماً هانئاً وأحلاماً سعيدة.'
@@ -574,7 +574,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
         </div>
 
         {/* Footer Actions (Never Printed) */}
-        <div className="p-4 bg-gray-50 border-t border-[#E1D1E4] flex flex-wrap items-center justify-between gap-3 print:hidden">
+        <div className="p-4 bg-gray-50 border-t border-[var(--color-border)] flex flex-wrap items-center justify-between gap-3 print:hidden">
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopyReceiptLink}
@@ -588,14 +588,14 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('email')}
-              className="px-4 py-2 bg-[#E22001] hover:bg-[#c01b01] text-white rounded-xs text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              className="px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xs text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
               <Mail className="w-3.5 h-3.5" />
               <span>{isAr ? 'إرسال الإيصال للعميل' : 'Send Customer Receipt'}</span>
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-white border border-[#E1D1E4] hover:bg-gray-100 text-[#340404] rounded-xs text-xs font-semibold cursor-pointer"
+              className="px-4 py-2 bg-white border border-[var(--color-border)] hover:bg-gray-100 text-[var(--color-text)] rounded-xs text-xs font-semibold cursor-pointer"
             >
               {isAr ? 'إغلاق' : 'Close'}
             </button>

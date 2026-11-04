@@ -167,15 +167,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div 
       ref={barRef}
-      className="sticky top-[68px] z-30 bg-[#FFF8F6]/95 backdrop-blur-sm border-b border-[#EEE4E4] transition-colors"
-      style={{ backgroundColor: 'rgba(255, 248, 246, 0.95)' }}
+      className="sticky top-[68px] z-30 bg-[var(--color-bg)]/95 backdrop-blur-sm border-b border-[var(--color-border)] transition-colors"
     >
       <div 
         className="w-full px-4 sm:px-6 md:px-12 py-3 flex items-center justify-between gap-4"
         style={{ paddingLeft: 'clamp(16px, 3.5vw, 48px)', paddingRight: 'clamp(16px, 3.5vw, 48px)' }}
       >
         
-        {/* Left Side: Dropdown buttons Size, Color, Price, Fabric (44px tall, white, 1px #CFC3C6 border, radius 8px, 14px text) */}
+        {/* Left Side: Dropdown buttons Size, Color, Price, Fabric */}
         <div className="hidden md:flex items-center gap-2.5 flex-wrap">
           
           {/* Collection Filter Dropdown (New Arrivals, Best Sellers, Sale) */}
@@ -184,10 +183,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               type="button"
               onClick={() => toggleDropdown('collection')}
               aria-expanded={openDropdown === 'collection'}
-              className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] ${
+              className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                 filters.collection !== 'all'
-                  ? 'bg-[#DDD3EA] text-[#2A1A20] border-[#6B1E3F]'
-                  : 'bg-white text-[#2A1A20] hover:bg-[#FFF8F6] border-[#CFC3C6]'
+                  ? 'bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-primary)] font-semibold'
+                  : 'bg-white text-[var(--color-text)] hover:bg-[var(--color-card)]/50 border-[var(--color-border)]'
               }`}
             >
               <span>{language === 'ar' ? 'المجموعات' : 'Collection'}</span>
@@ -196,7 +195,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
             {openDropdown === 'collection' && (
               <div 
-                className="absolute top-full mt-1.5 z-40 w-48 bg-white rounded-[8px] border border-[#CFC3C6] shadow-lg p-2 animate-in fade-in duration-150"
+                className="absolute top-full mt-1.5 z-40 w-48 bg-[var(--color-bg)] rounded-[8px] border border-[var(--color-border)] shadow-lg p-2 animate-in fade-in duration-150"
               >
                 {[
                   { id: 'all', labelEn: 'All Items', labelAr: 'كل المنتجات' },
@@ -212,11 +211,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       setOpenDropdown(null);
                     }}
                     className={`w-full text-left rtl:text-right px-3 py-2 text-[13px] rounded-md flex items-center justify-between cursor-pointer ${
-                      filters.collection === item.id ? 'bg-[#DDD3EA] font-semibold text-[#6B1E3F]' : 'hover:bg-[#FFF8F6] text-[#2A1A20]'
+                      filters.collection === item.id ? 'bg-[var(--color-card)] font-semibold text-[var(--color-primary)]' : 'hover:bg-[var(--color-card)]/60 text-[var(--color-text)]'
                     }`}
                   >
                     <span>{language === 'ar' ? item.labelAr : item.labelEn}</span>
-                    {filters.collection === item.id && <Check className="w-4 h-4 text-[#6B1E3F]" />}
+                    {filters.collection === item.id && <Check className="w-4 h-4 text-[var(--color-primary)]" />}
                   </button>
                 ))}
               </div>
@@ -230,10 +229,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 type="button"
                 onClick={() => toggleDropdown('size')}
                 aria-expanded={openDropdown === 'size'}
-                className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] ${
+                className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                   filters.size !== 'all'
-                    ? 'bg-[#DDD3EA] text-[#2A1A20] border-[#6B1E3F]'
-                    : 'bg-white text-[#2A1A20] hover:bg-[#FFF8F6] border-[#CFC3C6]'
+                    ? 'bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-primary)] font-semibold'
+                    : 'bg-white text-[var(--color-text)] hover:bg-[var(--color-card)]/50 border-[var(--color-border)]'
                 }`}
               >
                 <span>{language === 'ar' ? 'المقاس' : 'Size'}</span>
@@ -243,17 +242,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
               {openDropdown === 'size' && (
                 <div 
-                  className="absolute top-full mt-1.5 z-40 w-56 bg-white rounded-[8px] border border-[#CFC3C6] shadow-lg p-3 animate-in fade-in duration-150"
+                  className="absolute top-full mt-1.5 z-40 w-56 bg-[var(--color-bg)] rounded-[8px] border border-[var(--color-border)] shadow-lg p-3 animate-in fade-in duration-150"
                 >
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#EEE4E4]">
-                    <span className="text-[12px] font-bold text-[#5F5357]">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--color-border)]">
+                    <span className="text-[12px] font-bold text-[var(--color-text-secondary)]">
                       {language === 'ar' ? 'المقاسات المتاحة' : 'Available Sizes'}
                     </span>
                     {filters.size !== 'all' && (
                       <button
                         type="button"
                         onClick={() => onFilterChange({ size: 'all' })}
-                        className="text-[11px] text-[#B3261E] hover:underline"
+                        className="text-[11px] text-[var(--color-primary)] hover:underline"
                       >
                         {language === 'ar' ? 'إعادة ضبط' : 'Reset'}
                       </button>
@@ -270,8 +269,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         }}
                         className={`h-9 rounded-md text-[13px] font-semibold flex items-center justify-center cursor-pointer transition-colors ${
                           filters.size === s
-                            ? 'bg-[#6B1E3F] text-white'
-                            : 'bg-neutral-50 hover:bg-[#DDD3EA] text-[#2A1A20] border border-[#CFC3C6]/60'
+                            ? 'bg-[var(--color-primary)] text-white'
+                            : 'bg-white hover:bg-[var(--color-card)] text-[var(--color-text)] border border-[var(--color-border)]'
                         }`}
                       >
                         {s}
@@ -290,16 +289,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 type="button"
                 onClick={() => toggleDropdown('color')}
                 aria-expanded={openDropdown === 'color'}
-                className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] ${
+                className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                   filters.color !== 'all'
-                    ? 'bg-[#DDD3EA] text-[#2A1A20] border-[#6B1E3F]'
-                    : 'bg-white text-[#2A1A20] hover:bg-[#FFF8F6] border-[#CFC3C6]'
+                    ? 'bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-primary)] font-semibold'
+                    : 'bg-white text-[var(--color-text)] hover:bg-[var(--color-card)]/50 border-[var(--color-border)]'
                 }`}
               >
                 <span>{language === 'ar' ? 'اللون' : 'Color'}</span>
                 {filters.color !== 'all' && (
                   <span 
-                    className="w-3.5 h-3.5 rounded-full border border-black/30 inline-block"
+                    className="w-3.5 h-3.5 rounded-full border border-[var(--color-border)] inline-block"
                     style={{ backgroundColor: filters.color }}
                   />
                 )}
@@ -308,17 +307,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
               {openDropdown === 'color' && (
                 <div 
-                  className="absolute top-full mt-1.5 z-40 w-64 bg-white rounded-[8px] border border-[#CFC3C6] shadow-lg p-3 animate-in fade-in duration-150"
+                  className="absolute top-full mt-1.5 z-40 w-64 bg-[var(--color-bg)] rounded-[8px] border border-[var(--color-border)] shadow-lg p-3 animate-in fade-in duration-150"
                 >
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#EEE4E4]">
-                    <span className="text-[12px] font-bold text-[#5F5357]">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--color-border)]">
+                    <span className="text-[12px] font-bold text-[var(--color-text-secondary)]">
                       {language === 'ar' ? 'تدرجات الألوان' : 'Color Palette'}
                     </span>
                     {filters.color !== 'all' && (
                       <button
                         type="button"
                         onClick={() => onFilterChange({ color: 'all' })}
-                        className="text-[11px] text-[#B3261E] hover:underline"
+                        className="text-[11px] text-[var(--color-primary)] hover:underline"
                       >
                         {language === 'ar' ? 'إعادة ضبط' : 'Reset'}
                       </button>
@@ -334,17 +333,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                           setOpenDropdown(null);
                         }}
                         className={`w-full p-2 rounded-md flex items-center justify-between text-left rtl:text-right text-[13px] cursor-pointer ${
-                          filters.color === c.hex ? 'bg-[#DDD3EA] font-semibold text-[#6B1E3F]' : 'hover:bg-[#FFF8F6] text-[#2A1A20]'
+                          filters.color === c.hex ? 'bg-[var(--color-card)] font-semibold text-[var(--color-primary)]' : 'hover:bg-[var(--color-card)]/60 text-[var(--color-text)]'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
                           <span 
-                            className="w-4 h-4 rounded-full border border-black/20 shrink-0" 
+                            className="w-4 h-4 rounded-full border border-[var(--color-border)] shrink-0" 
                             style={{ backgroundColor: c.hex }} 
                           />
                           <span>{language === 'ar' ? c.nameAr : c.nameEn}</span>
                         </div>
-                        {filters.color === c.hex && <Check className="w-4 h-4 text-[#6B1E3F]" />}
+                        {filters.color === c.hex && <Check className="w-4 h-4 text-[var(--color-primary)]" />}
                       </button>
                     ))}
                   </div>
@@ -359,10 +358,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               type="button"
               onClick={() => toggleDropdown('price')}
               aria-expanded={openDropdown === 'price'}
-              className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] ${
+              className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                 filters.maxPrice < maxCatalogPrice
-                  ? 'bg-[#DDD3EA] text-[#2A1A20] border-[#6B1E3F]'
-                  : 'bg-white text-[#2A1A20] hover:bg-[#FFF8F6] border-[#CFC3C6]'
+                  ? 'bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-primary)] font-semibold'
+                  : 'bg-white text-[var(--color-text)] hover:bg-[var(--color-card)]/50 border-[var(--color-border)]'
               }`}
             >
               <span>{language === 'ar' ? 'السعر' : 'Price'}</span>
@@ -374,13 +373,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
             {openDropdown === 'price' && (
               <div 
-                className="absolute top-full mt-1.5 z-40 w-64 bg-white rounded-[8px] border border-[#CFC3C6] shadow-lg p-4 animate-in fade-in duration-150"
+                className="absolute top-full mt-1.5 z-40 w-64 bg-[var(--color-bg)] rounded-[8px] border border-[var(--color-border)] shadow-lg p-4 animate-in fade-in duration-150"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[12px] font-bold text-[#5F5357]">
+                  <span className="text-[12px] font-bold text-[var(--color-text-secondary)]">
                     {language === 'ar' ? 'الحد الأقصى للسعر' : 'Max Price Range'}
                   </span>
-                  <span className="text-[14px] font-bold text-[#B3261E] tabular-nums">
+                  <span className="text-[14px] font-bold text-[var(--color-primary)] tabular-nums">
                     {formatBHD(localPriceMax)}
                   </span>
                 </div>
@@ -392,15 +391,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   step={1}
                   value={localPriceMax}
                   onChange={handlePriceSliderChange}
-                  className="w-full accent-[#6B1E3F] cursor-pointer"
+                  className="w-full accent-[var(--color-primary)] cursor-pointer"
                 />
 
-                <div className="flex items-center justify-between text-[11px] text-[#5F5357] mt-1 tabular-nums">
+                <div className="flex items-center justify-between text-[11px] text-[var(--color-text-secondary)] mt-1 tabular-nums">
                   <span>{formatBHD(minCatalogPrice)}</span>
                   <span>{formatBHD(maxCatalogPrice)}</span>
                 </div>
 
-                <div className="mt-3 pt-2 border-t border-[#EEE4E4] flex justify-end">
+                <div className="mt-3 pt-2 border-t border-[var(--color-border)] flex justify-end">
                   <button
                     type="button"
                     onClick={() => {
@@ -408,7 +407,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       setLocalPriceMax(maxCatalogPrice);
                       setOpenDropdown(null);
                     }}
-                    className="text-[12px] text-[#5F5357] hover:text-[#B3261E] font-medium"
+                    className="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] font-medium cursor-pointer"
                   >
                     {language === 'ar' ? 'إعادة ضبط' : 'Reset'}
                   </button>
@@ -424,10 +423,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 type="button"
                 onClick={() => toggleDropdown('fabric')}
                 aria-expanded={openDropdown === 'fabric'}
-                className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] ${
+                className={`h-[44px] px-4 rounded-[8px] border text-[14px] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                   filters.fabric !== 'all'
-                    ? 'bg-[#DDD3EA] text-[#2A1A20] border-[#6B1E3F]'
-                    : 'bg-white text-[#2A1A20] hover:bg-[#FFF8F6] border-[#CFC3C6]'
+                    ? 'bg-[var(--color-card)] text-[var(--color-text)] border-[var(--color-primary)] font-semibold'
+                    : 'bg-white text-[var(--color-text)] hover:bg-[var(--color-card)]/50 border-[var(--color-border)]'
                 }`}
               >
                 <span>{language === 'ar' ? 'نوع القماش' : 'Fabric'}</span>
@@ -436,7 +435,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
               {openDropdown === 'fabric' && (
                 <div 
-                  className="absolute top-full mt-1.5 z-40 w-56 bg-white rounded-[8px] border border-[#CFC3C6] shadow-lg p-2 animate-in fade-in duration-150"
+                  className="absolute top-full mt-1.5 z-40 w-56 bg-[var(--color-bg)] rounded-[8px] border border-[var(--color-border)] shadow-lg p-2 animate-in fade-in duration-150"
                 >
                   <button
                     type="button"
@@ -445,11 +444,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       setOpenDropdown(null);
                     }}
                     className={`w-full text-left rtl:text-right px-3 py-2 text-[13px] rounded-md flex items-center justify-between cursor-pointer ${
-                      filters.fabric === 'all' ? 'bg-[#DDD3EA] font-semibold text-[#6B1E3F]' : 'hover:bg-[#FFF8F6] text-[#2A1A20]'
+                      filters.fabric === 'all' ? 'bg-[var(--color-card)] font-semibold text-[var(--color-primary)]' : 'hover:bg-[var(--color-card)]/60 text-[var(--color-text)]'
                     }`}
                   >
                     <span>{language === 'ar' ? 'جميع الأقمشة' : 'All Fabrics'}</span>
-                    {filters.fabric === 'all' && <Check className="w-4 h-4 text-[#6B1E3F]" />}
+                    {filters.fabric === 'all' && <Check className="w-4 h-4 text-[var(--color-primary)]" />}
                   </button>
 
                   {availableFabrics.map((f) => (
@@ -461,11 +460,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         setOpenDropdown(null);
                       }}
                       className={`w-full text-left rtl:text-right px-3 py-2 text-[13px] rounded-md flex items-center justify-between cursor-pointer ${
-                        filters.fabric === f.id ? 'bg-[#DDD3EA] font-semibold text-[#6B1E3F]' : 'hover:bg-[#FFF8F6] text-[#2A1A20]'
+                        filters.fabric === f.id ? 'bg-[var(--color-card)] font-semibold text-[var(--color-primary)]' : 'hover:bg-[var(--color-card)]/60 text-[var(--color-text)]'
                       }`}
                     >
                       <span>{language === 'ar' ? f.nameAr : f.nameEn}</span>
-                      {filters.fabric === f.id && <Check className="w-4 h-4 text-[#6B1E3F]" />}
+                      {filters.fabric === f.id && <Check className="w-4 h-4 text-[var(--color-primary)]" />}
                     </button>
                   ))}
                 </div>
@@ -480,12 +479,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <button
             type="button"
             onClick={() => setIsMobileSheetOpen(true)}
-            className="h-[44px] px-4 rounded-[8px] bg-white border border-[#CFC3C6] text-[14px] font-semibold text-[#2A1A20] flex items-center gap-2 shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E]"
+            className="h-[44px] px-4 rounded-[8px] bg-white border border-[var(--color-border)] text-[14px] font-semibold text-[var(--color-text)] flex items-center gap-2 shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
           >
-            <SlidersHorizontal className="w-4 h-4 text-[#6B1E3F]" />
+            <SlidersHorizontal className="w-4 h-4 text-[var(--color-primary)]" />
             <span>{language === 'ar' ? 'تصفية المنتجات' : 'Filters'}</span>
             {activeChips.length > 0 && (
-              <span className="w-5 h-5 rounded-full bg-[#B3261E] text-white text-[11px] font-bold flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-[var(--color-primary)] text-white text-[11px] font-bold flex items-center justify-center">
                 {activeChips.length}
               </span>
             )}
@@ -496,8 +495,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex items-center gap-4 shrink-0">
           {/* Live Product Count */}
           <span 
-            className="text-[14px] font-medium tabular-nums whitespace-nowrap"
-            style={{ color: 'var(--text-shop-secondary, #5F5357)' }}
+            className="text-[14px] font-medium tabular-nums whitespace-nowrap text-[var(--color-text-secondary)]"
           >
             {totalCount} {language === 'ar' ? 'منتج' : language === 'ru' ? 'товаров' : language === 'fr' ? 'produits' : 'products'}
           </span>
@@ -508,9 +506,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               type="button"
               onClick={() => toggleDropdown('sort')}
               aria-expanded={openDropdown === 'sort'}
-              className="h-[44px] px-3.5 rounded-[8px] bg-white border border-[#CFC3C6] text-[14px] text-[#2A1A20] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B3261E] hover:bg-[#FFF8F6]"
+              className="h-[44px] px-3.5 rounded-[8px] bg-white border border-[var(--color-border)] text-[14px] text-[var(--color-text)] font-medium flex items-center gap-2 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] hover:bg-[var(--color-card)]/50"
             >
-              <span className="hidden sm:inline text-[#5F5357] text-[13px]">
+              <span className="hidden sm:inline text-[var(--color-text-secondary)] text-[13px]">
                 {language === 'ar' ? 'ترتيب:' : language === 'ru' ? 'Сортировка:' : language === 'fr' ? 'Trier par :' : 'Sort:'}
               </span>
               <span className="font-semibold truncate max-w-[120px] sm:max-w-[150px]">
@@ -521,7 +519,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
             {openDropdown === 'sort' && (
               <div 
-                className={`absolute top-full mt-1.5 z-40 w-56 bg-white rounded-[8px] border border-[#CFC3C6] shadow-lg p-2 animate-in fade-in duration-150 ${
+                className={`absolute top-full mt-1.5 z-40 w-56 bg-[var(--color-bg)] rounded-[8px] border border-[var(--color-border)] shadow-lg p-2 animate-in fade-in duration-150 ${
                   isRtl ? 'left-0 text-right' : 'right-0 text-left'
                 }`}
               >
@@ -534,11 +532,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       setOpenDropdown(null);
                     }}
                     className={`w-full text-left rtl:text-right px-3 py-2 text-[13px] rounded-md flex items-center justify-between cursor-pointer ${
-                      filters.sort === opt.id ? 'bg-[#DDD3EA] font-semibold text-[#6B1E3F]' : 'hover:bg-[#FFF8F6] text-[#2A1A20]'
+                      filters.sort === opt.id ? 'bg-[var(--color-card)] font-semibold text-[var(--color-primary)]' : 'hover:bg-[var(--color-card)]/60 text-[var(--color-text)]'
                     }`}
                   >
                     <span>{language === 'ar' ? opt.labelAr : language === 'ru' ? opt.labelRu : language === 'fr' ? opt.labelFr : opt.labelEn}</span>
-                    {filters.sort === opt.id && <Check className="w-4 h-4 text-[#6B1E3F]" />}
+                    {filters.sort === opt.id && <Check className="w-4 h-4 text-[var(--color-primary)]" />}
                   </button>
                 ))}
               </div>
@@ -557,13 +555,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {activeChips.map((chip) => (
             <span
               key={chip.id}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DDD3EA] text-[#2A1A20] text-[13px] font-medium border border-[#CFC3C6]/60 shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-card)] text-[var(--color-text)] text-[13px] font-medium border border-[var(--color-border)] shadow-2xs"
             >
               <span>{chip.label}</span>
               <button
                 type="button"
                 onClick={chip.onRemove}
-                className="hover:text-[#B3261E] p-0.5 rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B3261E]"
+                className="hover:text-[var(--color-primary)] p-0.5 rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent)]"
                 aria-label={`Remove filter ${chip.label}`}
               >
                 <X className="w-3.5 h-3.5" />
@@ -574,7 +572,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <button
             type="button"
             onClick={onClearAll}
-            className="text-[13px] font-semibold text-[#B3261E] hover:underline ml-2 rtl:ml-0 rtl:mr-2 cursor-pointer focus-visible:outline-none"
+            className="text-[13px] font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] hover:underline ml-2 rtl:ml-0 rtl:mr-2 cursor-pointer focus-visible:outline-none"
           >
             {language === 'ar' ? 'مسح الكل' : language === 'ru' ? 'Сбросить всё' : language === 'fr' ? 'Tout effacer' : 'Clear all'}
           </button>
@@ -583,22 +581,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Mobile Bottom Sheet Filter Drawer */}
       {isMobileSheetOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--color-text)]/50 backdrop-blur-xs animate-in fade-in duration-200">
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-h-[85vh] bg-white rounded-t-[20px] p-5 overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl flex flex-col"
+            className="w-full max-h-[85vh] bg-[var(--color-bg)] rounded-t-[20px] p-5 overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl flex flex-col border-t border-[var(--color-border)]"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#EEE4E4]">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--color-border)]">
               <div className="flex items-center gap-2">
-                <SlidersHorizontal className="w-5 h-5 text-[#6B1E3F]" />
-                <h3 className="font-serif text-lg font-bold text-[#2A1A20]">
+                <SlidersHorizontal className="w-5 h-5 text-[var(--color-primary)]" />
+                <h3 className="font-serif text-lg font-bold text-[var(--color-text)]">
                   {language === 'ar' ? 'تصفية المنتجات' : 'Filter Products'}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsMobileSheetOpen(false)}
-                className="p-1.5 rounded-full text-[#5F5357] hover:text-[#2A1A20]"
+                className="p-1.5 rounded-full text-[var(--color-text-secondary)] hover:text-[var(--color-text)] cursor-pointer"
                 aria-label="Close filters"
               >
                 <X className="w-5 h-5" />
@@ -608,7 +606,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <div className="space-y-5 py-4 flex-1">
               {/* Collection */}
               <div>
-                <label className="text-[13px] font-bold text-[#5F5357] uppercase tracking-wider block mb-2">
+                <label className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
                   {language === 'ar' ? 'المجموعات' : 'Collection'}
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -622,10 +620,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                       key={item.id}
                       type="button"
                       onClick={() => onFilterChange({ collection: item.id })}
-                      className={`h-9 px-3 rounded-full text-[13px] font-medium border ${
+                      className={`h-9 px-3 rounded-full text-[13px] font-medium border cursor-pointer ${
                         filters.collection === item.id
-                          ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
-                          : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                          ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                          : 'bg-white text-[var(--color-text)] border-[var(--color-border)] hover:bg-[var(--color-card)]/50'
                       }`}
                     >
                       {language === 'ar' ? item.labelAr : item.labelEn}
@@ -637,7 +635,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               {/* Sizes */}
               {availableSizes.length > 0 && (
                 <div>
-                  <label className="text-[13px] font-bold text-[#5F5357] uppercase tracking-wider block mb-2">
+                  <label className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
                     {language === 'ar' ? 'المقاس' : 'Size'}
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -646,10 +644,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         key={s}
                         type="button"
                         onClick={() => onFilterChange({ size: filters.size === s ? 'all' : s })}
-                        className={`h-9 w-12 rounded-md text-[13px] font-bold border ${
+                        className={`h-9 w-12 rounded-md text-[13px] font-bold border cursor-pointer ${
                           filters.size === s
-                            ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
-                            : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                            ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                            : 'bg-white text-[var(--color-text)] border-[var(--color-border)] hover:bg-[var(--color-card)]/50'
                         }`}
                       >
                         {s}
@@ -662,7 +660,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               {/* Colors */}
               {availableColors.length > 0 && (
                 <div>
-                  <label className="text-[13px] font-bold text-[#5F5357] uppercase tracking-wider block mb-2">
+                  <label className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
                     {language === 'ar' ? 'اللون' : 'Color'}
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -671,14 +669,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         key={c.hex}
                         type="button"
                         onClick={() => onFilterChange({ color: filters.color === c.hex ? 'all' : c.hex })}
-                        className={`h-9 px-3 rounded-full text-[13px] font-medium border flex items-center gap-2 ${
+                        className={`h-9 px-3 rounded-full text-[13px] font-medium border flex items-center gap-2 cursor-pointer ${
                           filters.color === c.hex
-                            ? 'bg-[#DDD3EA] text-[#6B1E3F] border-[#6B1E3F] font-bold'
-                            : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                            ? 'bg-[var(--color-card)] text-[var(--color-primary)] border-[var(--color-primary)] font-bold'
+                            : 'bg-white text-[var(--color-text)] border-[var(--color-border)] hover:bg-[var(--color-card)]/50'
                         }`}
                       >
                         <span 
-                          className="w-3.5 h-3.5 rounded-full border border-black/20" 
+                          className="w-3.5 h-3.5 rounded-full border border-[var(--color-border)]" 
                           style={{ backgroundColor: c.hex }} 
                         />
                         <span>{language === 'ar' ? c.nameAr : c.nameEn}</span>
@@ -691,7 +689,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               {/* Fabrics */}
               {availableFabrics.length > 0 && (
                 <div>
-                  <label className="text-[13px] font-bold text-[#5F5357] uppercase tracking-wider block mb-2">
+                  <label className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-2">
                     {language === 'ar' ? 'نوع القماش' : 'Fabric'}
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -702,8 +700,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                         onClick={() => onFilterChange({ fabric: filters.fabric === f.id ? 'all' : f.id })}
                         className={`h-9 px-3 rounded-full text-[13px] font-medium border ${
                           filters.fabric === f.id
-                            ? 'bg-[#6B1E3F] text-white border-[#6B1E3F]'
-                            : 'bg-white text-[#2A1A20] border-[#CFC3C6]'
+                            ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                            : 'bg-white text-[var(--color-text)] border-[var(--color-border)]'
                         }`}
                       >
                         {language === 'ar' ? f.nameAr : f.nameEn}
@@ -716,10 +714,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               {/* Price Max */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-[13px] font-bold text-[#5F5357] uppercase tracking-wider">
+                  <label className="text-[13px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">
                     {language === 'ar' ? 'الحد الأقصى للسعر' : 'Max Price'}
                   </label>
-                  <span className="text-[14px] font-bold text-[#B3261E] tabular-nums">
+                  <span className="text-[14px] font-bold text-[var(--color-primary)] tabular-nums">
                     {formatBHD(localPriceMax)}
                   </span>
                 </div>
@@ -730,26 +728,26 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   step={1}
                   value={localPriceMax}
                   onChange={handlePriceSliderChange}
-                  className="w-full accent-[#6B1E3F]"
+                  className="w-full accent-[var(--color-primary)]"
                 />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#EEE4E4] flex items-center gap-3">
+            <div className="pt-3 border-t border-[var(--color-border)] flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => {
                   onClearAll();
                   setIsMobileSheetOpen(false);
                 }}
-                className="flex-1 h-[44px] rounded-[8px] border border-[#CFC3C6] text-[14px] font-semibold text-[#2A1A20]"
+                className="flex-1 h-[44px] rounded-[8px] border border-[var(--color-border)] text-[14px] font-semibold text-[var(--color-text)]"
               >
                 {language === 'ar' ? 'مسح الكل' : 'Clear All'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsMobileSheetOpen(false)}
-                className="flex-1 h-[44px] rounded-[8px] bg-[#6B1E3F] text-white text-[14px] font-semibold"
+                className="flex-1 h-[44px] rounded-[8px] bg-[var(--color-primary)] text-white text-[14px] font-semibold"
               >
                 {language === 'ar' ? `عرض (${totalCount})` : `Show (${totalCount})`}
               </button>

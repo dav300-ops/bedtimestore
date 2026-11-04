@@ -1,52 +1,86 @@
 @import "tailwindcss";
 
 @theme {
-  --color-dogwood: #FBE7E3;
-  --color-scarlet: #E22001;
-  --color-pastel-day: #E1D1E4;
-  --color-rural-green: #8E7C49;
-  --color-black-bean: #340404;
-  --color-cream: #FFF9F7;
+  /* Core Deep Burgundy, Antique Gold & Pale Lilac Palette */
+  --color-bg: #F3EAF6;
+  --color-card: #EADCF0;
+  --color-primary: #7B1226;
+  --color-primary-hover: #5E0D1D;
+  --color-gold: #B8893A;
+  --color-gold-light: #D4AF5F;
+  --color-heading: #7A4A1E;
+  --color-text: #3B0A14;
+  --color-text-secondary: #5C3A44;
+  --color-border: #D9C3D6;
+  --color-btn-text: #FFFFFF;
+
+  /* Accent mapped to antique gold for decorative elements */
+  --color-accent: #B8893A;
+
+  /* Aliasing legacy tokens */
+  --color-dogwood: #F3EAF6;
+  --color-pastel-day: #EADCF0;
+  --color-rural-green: #B8893A;
+  --color-scarlet: #7B1226;
+  --color-black-bean: #3B0A14;
+  --color-cream: #F3EAF6;
 
   --font-heading: "Cormorant Garamond", "Amiri", Georgia, serif;
   --font-body: "Montserrat", "Noto Sans Arabic", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root {
-  --color-dogwood: #FBE7E3;
-  --color-scarlet: #E22001;
-  --color-pastel-day: #E1D1E4;
-  --color-rural-green: #8E7C49;
-  --color-black-bean: #340404;
+  /* Core Palette Tokens */
+  --color-bg: #F3EAF6;
+  --color-card: #EADCF0;
+  --color-primary: #7B1226;
+  --color-primary-hover: #5E0D1D;
+  --color-gold: #B8893A;
+  --color-gold-light: #D4AF5F;
+  --color-heading: #7A4A1E;
+  --color-text: #3B0A14;
+  --color-text-secondary: #5C3A44;
+  --color-border: #D9C3D6;
+  --color-btn-text: #FFFFFF;
+
+  --color-accent: var(--color-gold);
+
+  /* Semantic Aliases */
+  --bg-shop: var(--color-bg);
+  --text-shop-main: var(--color-text);
+  --text-shop-secondary: var(--color-text-secondary);
+  --border-shop: var(--color-border);
+  --sale-red: var(--color-primary);
+  --brand-burgundy: var(--color-primary);
+  --header-burgundy: var(--color-primary);
+  --header-blush: var(--color-primary);
+  --chip-lavender: var(--color-card);
+  --divider-shop: var(--color-border);
+
+  --bg-page: var(--color-bg);
+  --bg-surface: var(--color-card);
+  --bg-alt: var(--color-card);
+  --text-primary: var(--color-text);
+  --text-heading: var(--color-heading);
+  --cta-bg: var(--color-primary);
+  --cta-text: var(--color-btn-text);
+  --accent: var(--color-accent);
+  --border-soft: var(--color-border);
+  --focus-ring: var(--color-gold);
+
+  --color-dogwood: var(--color-bg);
+  --color-pastel-day: var(--color-card);
+  --color-rural-green: var(--color-accent);
+  --color-scarlet: var(--color-primary);
+  --color-black-bean: var(--color-text);
+  --color-cream: var(--color-bg);
   --color-white: #FFFFFF;
-
-  /* Bedtime Store Shop Redesign Palette */
-  --bg-shop: #FFF8F6;
-  --text-shop-main: #2A1A20;
-  --text-shop-secondary: #5F5357;
-  --border-shop: #CFC3C6;
-  --sale-red: #B3261E;
-  --brand-burgundy: #6B1E3F;
-  --header-blush: #FCEEEC;
-  --chip-lavender: #DDD3EA;
-  --divider-shop: #EEE4E4;
-
-  /* Semantic aliases */
-  --bg-page: var(--color-dogwood);
-  --bg-surface: var(--color-white);
-  --bg-alt: var(--color-pastel-day);
-  --text-primary: var(--color-black-bean);
-  --cta-bg: var(--color-scarlet);
-  --cta-text: var(--color-white);
-  --accent: var(--color-rural-green);
-  --border-soft: var(--color-pastel-day);
-  --focus-ring: var(--color-scarlet);
 }
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-dogwood);
-  color: var(--color-black-bean);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   overflow-x: hidden;
 }
 
@@ -65,21 +99,21 @@ h1, h2, h3, .font-heading {
   font-family: "Amiri", "Cormorant Garamond", serif;
 }
 
-/* Custom scrollbars and styling */
+/* Custom scrollbars in Antique Gold & Burgundy */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #FBE7E3;
+  background: var(--color-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #E1D1E4;
+  background: var(--color-gold);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8E7C49;
+  background: var(--color-primary-hover);
 }
