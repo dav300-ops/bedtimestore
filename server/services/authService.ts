@@ -34,7 +34,7 @@ export class MySQLAuthService {
     try {
       const existingAdmin = await this.findUserByEmail('admin@thebedtimestore.bh');
       if (!existingAdmin) {
-        console.log('[MySQL] Seeding default administrator account...');
+        console.log(' Seeding default administrator account...');
         await executeQuery(SQL_REGISTER_USER, [
           'usr-admin-01',
           'admin@thebedtimestore.bh',
@@ -92,7 +92,7 @@ export class MySQLAuthService {
         ]);
       }
     } catch (err: any) {
-      console.warn('[MySQL] Notice during user seeding:', err?.message);
+      console.warn(' Notice during user seeding:', err?.message);
     }
   }
 
@@ -129,7 +129,7 @@ export class MySQLAuthService {
   }): Promise<{ user: MySQLUser; token: string }> {
     const existing = await this.findUserByEmail(userData.email);
     if (existing) {
-      throw new Error('An account with this email already exists in our MySQL database.');
+      throw new Error('An account with this email already exists in our database.');
     }
 
     const userId = `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
@@ -175,7 +175,7 @@ export class MySQLAuthService {
   ): Promise<{ user: MySQLUser; token: string }> {
     const rows = await executeQuery(SQL_FIND_USER_BY_EMAIL, [email]);
     if (!rows || rows.length === 0) {
-      throw new Error('Invalid credentials. No user found with this email in MySQL database.');
+      throw new Error('Invalid credentials. No user found with this email in  database.');
     }
 
     const rawUser = rows[0];

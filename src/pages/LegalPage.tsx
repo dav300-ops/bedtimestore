@@ -65,7 +65,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
               </h2>
               <p>
                 {language === 'ar'
-                  ? 'يقوم ذا بدتايم ستور (THE BEDTIME STORE) بتوصيل جميع الطلبات الفاخرة لكافة مناطق مملكة البحرين عبر أسطول سيارات مجهز ومكيف لضمان وصول حرير وأقمشة ملابس النوم بأعلى معايير النظافة والجودة.'
+                  ? 'يقوم ذا بدتايم ستور (THE DELUXE BEDTIME STORE) بتوصيل جميع الطلبات الفاخرة لكافة مناطق مملكة البحرين عبر أسطول سيارات مجهز ومكيف لضمان وصول حرير وأقمشة ملابس النوم بأعلى معايير النظافة والجودة.'
                   : 'THE BEDTIME STORE delivers luxury nightwear to all governorates and areas in the Kingdom of Bahrain using climate-controlled courier vehicles to maintain the delicate drape and pristine finish of pure silk.'}
               </p>
               <ul className="list-disc pl-5 rtl:pl-0 rtl:pr-5 space-y-2">

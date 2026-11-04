@@ -1,6 +1,6 @@
 export const translations = {
   en: {
-    storeName: "THE BEDTIME STORE",
+    storeName: "THE DELUXE BEDTIME STORE",
     tagline: "Sleep Beautifully. Feel Beautiful.",
     announcement: "Delivery Guaranteed in 24Hrs",
     nav: {
@@ -544,7 +544,7 @@ export const translations = {
     },
   },
   ru: {
-    storeName: "THE BEDTIME STORE",
+    storeName: "THE DELUXE BEDTIME STORE",
     tagline: "Спите красиво. Чувствуйте себя прекрасной.",
     announcement: "Бесплатная доставка по Бахрейну от 25 BHD · Экспресс-доставка за 24 часа",
     nav: {

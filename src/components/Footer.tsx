@@ -128,11 +128,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   {t.footer.termsConditions}
                 </button>
               </li>
-              <li>
-                <button onClick={() => onNavigate('admin')} className="hover:text-white transition-colors text-[var(--color-gold-light)]">
-                  {t.nav.admin}
-                </button>
-              </li>
+             
             </ul>
           </div>
 

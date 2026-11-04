@@ -178,7 +178,7 @@ export class MyFatoorahPaymentProvider implements IPaymentProvider {
       CustomerReference: request.orderNumber,
       InvoiceItems: [
         {
-          ItemName: `Order ${request.orderNumber} - The Bedtime Store Luxury Boutique`,
+          ItemName: `Order ${request.orderNumber} - The Deluxe Bedtime Store Luxury Boutique`,
           Quantity: 1,
           UnitPrice: request.amount,
         },

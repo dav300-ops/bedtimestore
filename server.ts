@@ -27,26 +27,25 @@ async function startServer() {
   // Mount API Router before Vite middlewares
   app.use('/api', apiRouter);
 
-  // Connect to MySQL Relational Database (with resilient schema bootstrapping and fallback)
-  connectToDatabase()
-    .then(async () => {
-      await authService.seedDefaultUsers();
-      await categoryService.seedIfNeeded();
-      await inventoryService.seedIfNeeded();
-      await orderService.seedIfNeeded();
-      await salesService.seedInitialSalesIfNeeded();
-    })
-    .catch((err) => {
-      console.warn('[MySQL] Initialization notice:', err);
-    });
+  // // Connect to MySQL Relational Database (with resilient schema bootstrapping and fallback)
+  // connectToDatabase()
+  //   .then(async () => {
+  //     await authService.seedDefaultUsers();
+  //     await categoryService.seedIfNeeded();
+  //     await inventoryService.seedIfNeeded();
+  //     await orderService.seedIfNeeded();
+  //     await salesService.seedInitialSalesIfNeeded();
+  //   })
+  //   .catch((err) => {
+  //     console.warn('[MySQL] Initialization notice:', err);
+  //   });
 
   // Vite Middleware Mode for Dev & Full-Stack Serving
+
   if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
-    });
-  } else {
+  app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
+} else {
+
     try {
       const { createServer: createViteServer } = await import('vite');
       const vite = await createViteServer({

@@ -204,6 +204,7 @@ export class MySQLInventoryService {
       descriptionAr: updates.descriptionAr !== undefined ? updates.descriptionAr : existing.descriptionAr,
       categoryId: updates.categoryId || existing.categoryId,
       categoryNameEn: updates.categoryNameEn || existing.categoryNameEn,
+      categoryNameAr: updates.categoryNameAr || existing.categoryNameAr,
       price: updates.price !== undefined ? Number(updates.price) : existing.price,
       salePrice: updates.salePrice !== undefined ? (updates.salePrice ? Number(updates.salePrice) : null) : existing.salePrice,
       images: updates.images || existing.images,

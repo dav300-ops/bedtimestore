@@ -279,7 +279,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         {/* Header */}
         <div className="text-center max-w-xl mx-auto mb-10 space-y-1">
           <span className="text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
-            {language === 'ar' ? 'البحرين · الدفع الآمن والمشفر' : 'The Bedtime Store · Secure Checkout'}
+            {language === 'ar' ? 'البحرين · الدفع الآمن والمشفر' : 'The Deluxe Bedtime Store · Secure Checkout'}
           </span>
           <h1 className="font-heading text-3xl font-semibold text-[var(--color-text)]">
             {t.checkout.title}

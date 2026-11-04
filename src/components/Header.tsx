@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
         <div className="w-full px-4 sm:px-6 md:px-12">
           <div className="flex items-center justify-between h-[68px] w-full">
             
-            {/* Zone 1: Logo "BEDTIME STORE" on the left */}
+            {/* Zone 1: Logo "THE DELUXE BEDTIME STORE" on the left */}
             <div className="flex items-center gap-3 shrink-0">
               <button
                 type="button"
@@ -160,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     color: '#FFFFFF'
                   }}
                 >
-                  BEDTIME STORE
+                  THE DELUXE BEDTIME STORE
                 </span>
               </button>
             </div>
