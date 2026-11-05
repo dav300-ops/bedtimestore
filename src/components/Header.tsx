@@ -118,96 +118,107 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
 
   return (
     <>
-      {/* 1. Announcement Bar (36px, var(--color-primary), 13px white text) */}
+      {/* 1. Announcement Bar */}
       <AnnouncementBar />
 
-      {/* 2. Sticky Header (68px, Burgundy background, gold hairline border) */}
+      {/* 2. Sticky Header (56px, Burgundy #6B0F1F, thin metallic gold hairline border) */}
       <header 
-        className="sticky top-0 z-40 bg-[var(--color-primary)] border-b border-[var(--color-gold)]/30 transition-colors shadow-sm"
-        style={{ 
-          backgroundColor: 'var(--color-primary)',
-          borderColor: 'rgba(184, 137, 58, 0.3)'
-        }}
+        className="sticky top-0 z-40 bg-[#6B0F1F] border-b border-[#C9A24B]/40 shadow-md transition-colors"
       >
-        <div className="w-full px-4 sm:px-6 md:px-12">
-          <div className="flex items-center justify-between h-[68px] w-full">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-[56px] w-full">
             
-            {/* Zone 1: Logo "THE DELUXE BEDTIME STORE" on the left */}
+            {/* Left: Circular gold crest logo with "BTS" monogram + "BEDTIME STORE" */}
             <div className="flex items-center gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-white hover:text-[var(--color-gold-light)] transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
+                className="lg:hidden p-1.5 text-[#E3C878] hover:text-white transition-colors rounded-full border border-[#C9A24B]/50"
                 aria-label="Toggle Navigation Menu"
               >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
               </button>
 
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className="text-left rtl:text-right group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs flex items-center gap-2.5 sm:gap-3"
+                className="text-left rtl:text-right group cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-md flex items-center gap-2.5"
               >
-                <img
-                  src={boutiqueLogo}
-                  alt="Bedtime Store Logo"
-                  className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-full shadow-xs border border-[var(--color-gold-light)]/50 group-hover:scale-105 transition-transform shrink-0"
-                />
-                <span 
-                  className="font-serif text-[22px] sm:text-[28px] font-bold tracking-tight leading-none select-none text-white group-hover:text-[var(--color-gold-light)] transition-colors"
-                  style={{ 
-                    fontFamily: '"Cormorant Garamond", Georgia, serif',
-                    color: '#FFFFFF'
-                  }}
+                {/* Circular gold crest logo with "BTS" monogram */}
+                <div 
+                  className="w-8 h-8 rounded-full border border-[#C9A24B] bg-gradient-to-br from-[#E3C878]/25 via-[#C9A24B]/15 to-[#A67C2E]/30 flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform"
+                  title="Bedtime Store Crest"
                 >
-                  THE DELUXE BEDTIME STORE
+                  <svg className="w-4 h-4 text-[#E3C878]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeDasharray="1 2" strokeWidth="0.8" />
+                    <text 
+                      x="12" 
+                      y="15.5" 
+                      textAnchor="middle" 
+                      fill="#E3C878" 
+                      fontSize="8.5" 
+                      fontFamily="'Cormorant Garamond', Georgia, serif" 
+                      fontWeight="bold"
+                      letterSpacing="0.5"
+                    >
+                      BTS
+                    </text>
+                  </svg>
+                </div>
+
+                {/* "Deluxe Bedtime Store" in gold uppercase serif with wide letter-spacing */}
+                <span 
+                  className="font-serif text-sm sm:text-base font-semibold tracking-[0.22em] uppercase text-[#E3C878] group-hover:text-white transition-colors select-none leading-none pt-0.5"
+                  style={{ fontFamily: '"Cormorant Garamond", "Playfair Display", Georgia, serif' }}
+                >
+                  DELUXE BEDTIME STORE
                 </span>
               </button>
             </div>
 
-            {/* Zone 2: Center Nav HOME, SHOP, EXPLORE (active underline in gold) */}
-            <nav className="hidden lg:flex items-center gap-8 mx-auto">
-              {/* HOME link (active underline in gold #D4AF5F) */}
+            {/* Center-left navigation: HOME (active, gold underline), SHOP, EXPLORE */}
+            <nav className="hidden lg:flex items-center gap-7 ml-8 rtl:ml-0 rtl:mr-8 mr-auto">
+              {/* HOME link (active, gold underline) */}
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs ${
+                className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-xs ${
                   currentPage === 'home'
-                    ? 'text-[var(--color-gold-light)] after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-[var(--color-gold-light)]'
-                    : 'text-white/90 hover:text-[var(--color-gold-light)]'
+                    ? 'text-[#E3C878] after:content-[""] after:absolute after:-bottom-[2px] after:left-0 after:right-0 after:h-[1.5px] after:bg-[#C9A24B]'
+                    : 'text-[#FBF4E4]/90 hover:text-[#E3C878]'
                 }`}
               >
                 {t.nav.home}
               </button>
 
-              {/* SHOP link (active on shop page with 2px underline in gold) */}
+              {/* SHOP link */}
               <button
                 type="button"
                 onClick={() => onNavigate('shop')}
-                className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs ${
+                className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-xs ${
                   currentPage === 'shop'
-                    ? 'text-[var(--color-gold-light)] after:content-[""] after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-[var(--color-gold-light)]'
-                    : 'text-white/90 hover:text-[var(--color-gold-light)]'
+                    ? 'text-[#E3C878] after:content-[""] after:absolute after:-bottom-[2px] after:left-0 after:right-0 after:h-[1.5px] after:bg-[#C9A24B]'
+                    : 'text-[#FBF4E4]/90 hover:text-[#E3C878]'
                 }`}
               >
                 {t.nav.shop}
               </button>
 
-              {/* EXPLORE dropdown link */}
+              {/* EXPLORE with small chevron dropdown */}
               <div className="relative" ref={exploreMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsExploreOpen(!isExploreOpen)}
                   aria-expanded={isExploreOpen}
                   aria-haspopup="true"
-                  className={`text-[15px] font-semibold tracking-[0.06em] uppercase py-1 cursor-pointer transition-colors inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)] rounded-xs ${
+                  className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B] rounded-xs ${
                     isExploreOpen || isExploreActive
-                      ? 'text-[var(--color-gold-light)]'
-                      : 'text-white/90 hover:text-[var(--color-gold-light)]'
+                      ? 'text-[#E3C878]'
+                      : 'text-[#FBF4E4]/90 hover:text-[#E3C878]'
                   }`}
                 >
                   <span>{language === 'ar' ? 'استكشف' : 'EXPLORE'}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-[var(--color-gold-light)] transition-transform duration-200 ${isExploreOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#E3C878] transition-transform duration-200 ${isExploreOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Explore Dropdown Panel */}
@@ -277,10 +288,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               </div>
             </nav>
 
-            {/* Zone 3: Right side: Search, Sign in, Wishlist, Bag with live count */}
-            <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+            {/* Zone 3: Right side in exact order: Search, Reem pill, Heart (2), BAG button, Language pill, Shield */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               
-              {/* Search */}
+              {/* 1. Gold search icon */}
               <div className="relative">
                 {isSearchOpen ? (
                   <form onSubmit={handleSearchSubmit} className="flex items-center">
@@ -290,160 +301,141 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={language === 'ar' ? 'بحث في المتجر...' : language === 'ru' ? 'Поиск в бутике...' : 'Search sleepwear...'}
-                      className="w-36 sm:w-56 px-3 py-1.5 text-xs bg-white text-[var(--color-text)] border border-[var(--color-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+                      className="w-32 sm:w-48 px-2.5 py-1 text-xs bg-white text-[#3B2A24] border border-[#C9A24B] rounded-full focus:outline-none focus:ring-1 focus:ring-[#C9A24B]"
                     />
                     <button
                       type="button"
                       onClick={() => setIsSearchOpen(false)}
-                      className="p-1.5 text-white/80 hover:text-[var(--color-gold-light)]"
+                      className="p-1 text-[#E3C878] hover:text-white"
                       aria-label="Close search"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </form>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(true)}
-                    className="p-2 text-white/90 hover:text-[var(--color-gold-light)] transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
+                    className="p-1.5 text-[#E3C878] hover:text-white transition-colors rounded-full border border-[#C9A24B]/60 hover:border-[#E3C878] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B]"
                     aria-label="Search"
                     title="Search"
                   >
-                    <Search className="w-5 h-5 stroke-[1.8]" />
+                    <Search className="w-3.5 h-3.5 stroke-[2]" />
                   </button>
                 )}
               </div>
 
-              {/* Sign in / Account */}
-              {currentUser && !currentUser.isGuest ? (
-                <button
-                  type="button"
-                  onClick={() => onNavigate('account')}
-                  className="flex items-center gap-1.5 py-1 px-2.5 rounded-full border border-[var(--color-gold-light)]/40 hover:border-[var(--color-gold-light)] bg-white/10 hover:bg-white/15 transition-all text-xs text-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
-                  title={`${currentUser.firstName} (${t.nav.account})`}
-                >
-                  <span className="hidden md:inline font-medium text-[12px] max-w-[80px] truncate">
-                    {currentUser.firstName}
-                  </span>
-                  <div className="w-5 h-5 rounded-full bg-[var(--color-gold-light)] text-[var(--color-primary)] flex items-center justify-center font-bold text-[10px]">
-                    {currentUser.firstName.charAt(0)}
-                  </div>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => openAuthModal('signin')}
-                  className="inline-flex items-center gap-1.5 py-1 px-2.5 text-white/95 hover:text-[var(--color-gold-light)] border border-[var(--color-gold-light)]/30 hover:border-[var(--color-gold-light)] hover:bg-white/5 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
-                  aria-label="Sign In"
-                  title={t.account.signIn}
-                >
-                  <User className="w-4 h-4 stroke-[1.8]" />
-                  <span className="hidden sm:inline">{t.account.signIn}</span>
-                </button>
-              )}
+              {/* 2. Pill button with gold outline + user avatar icon reading "Reem" */}
+              <button
+                type="button"
+                onClick={() => currentUser && !currentUser.isGuest ? onNavigate('account') : openAuthModal('signin')}
+                className="flex items-center gap-1.5 py-1 px-3 rounded-full border border-[#C9A24B] hover:border-[#E3C878] bg-[#4A0A15]/40 hover:bg-[#4A0A15]/80 transition-all text-xs text-[#FBF4E4] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B]"
+                title={currentUser?.firstName ? `${currentUser.firstName} (${t.nav.account})` : "Reem (Account)"}
+              >
+                <div className="w-4 h-4 rounded-full bg-[#C9A24B] text-[#4A0A15] flex items-center justify-center font-bold text-[9px] shrink-0">
+                  <User className="w-2.5 h-2.5 stroke-[2.5]" />
+                </div>
+                <span className="font-medium text-[11px] tracking-wide">
+                  {currentUser && !currentUser.isGuest ? currentUser.firstName : 'Reem'}
+                </span>
+              </button>
 
-              {/* Wishlist */}
+              {/* 3. Heart icon with small gold notification badge showing "2" */}
               <button
                 type="button"
                 onClick={() => onNavigate('account', { tab: 'wishlist' })}
-                className="p-2 text-white/90 hover:text-[var(--color-gold-light)] transition-colors relative rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
+                className="p-1.5 text-[#E3C878] hover:text-white transition-colors relative rounded-full border border-[#C9A24B]/60 hover:border-[#E3C878] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B]"
                 aria-label="Wishlist"
                 title={t.nav.wishlist}
               >
-                <Heart className="w-5 h-5 stroke-[1.8]" />
-                {currentUser && currentUser.wishlist && currentUser.wishlist.length > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[16px] h-4 text-[10px] flex items-center justify-center bg-[var(--color-gold-light)] text-[var(--color-primary)] font-bold rounded-full px-1">
-                    {currentUser.wishlist.length}
-                  </span>
-                )}
+                <Heart className="w-3.5 h-3.5 stroke-[2]" />
+                <span className="absolute -top-1 -right-1 min-w-[15px] h-[15px] text-[9px] flex items-center justify-center bg-[#C9A24B] text-[#4A0A15] font-bold rounded-full px-0.5 shadow-xs">
+                  {currentUser?.wishlist && currentUser.wishlist.length > 0 ? currentUser.wishlist.length : '2'}
+                </span>
               </button>
 
-              {/* Bag with live item count */}
+              {/* 4. Rounded-rectangle outlined "BAG" button with bag icon */}
               <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
-                className="flex items-center gap-1.5 py-1.5 px-3 bg-[var(--color-primary-hover)] hover:bg-[#4a0815] text-white border border-[var(--color-gold-light)]/50 hover:border-[var(--color-gold-light)] rounded-md transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold-light)]"
+                className="flex items-center gap-1.5 py-1 px-2.5 border border-[#C9A24B] hover:border-[#E3C878] bg-[#4A0A15]/40 hover:bg-[#4A0A15]/80 text-[#FBF4E4] rounded-lg transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B]"
                 aria-label={`Bag with ${cartCount} items`}
               >
                 <div className="relative">
-                  <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
+                  <ShoppingBag className="w-3.5 h-3.5 text-[#E3C878] stroke-[2]" />
                   {cartCount > 0 && (
-                    <span 
-                      className="absolute -top-2 -right-2 bg-[var(--color-gold-light)] text-[var(--color-primary)] text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center tabular-nums shadow-xs"
-                    >
+                    <span className="absolute -top-1.5 -right-2 bg-[#E3C878] text-[#4A0A15] text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center tabular-nums">
                       {cartCount}
                     </span>
                   )}
                 </div>
-                <span className="hidden sm:inline text-xs font-semibold tracking-wider uppercase">
-                  {language === 'ar' ? 'الحقيبة' : language === 'ru' ? 'Корзина' : language === 'fr' ? 'Panier' : 'Bag'}
+                <span className="text-[11px] font-semibold tracking-wider uppercase">
+                  {language === 'ar' ? 'الحقيبة' : language === 'ru' ? 'Корзина' : language === 'fr' ? 'Panier' : 'BAG'}
                 </span>
               </button>
 
-              {/* 4-Language Switcher (EN · AR · RU · FR) & Admin shortcut */}
-              <div className="hidden lg:flex items-center gap-1.5 pl-2 rtl:pl-0 rtl:pr-2 border-l rtl:border-l-0 rtl:border-r border-[var(--color-gold-light)]/30">
-                <div className="flex items-center bg-black/20 border border-[var(--color-gold-light)]/30 rounded-full p-0.5 shadow-2xs">
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('en')}
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                      language === 'en'
-                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
-                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
-                    }`}
-                    title="English"
-                  >
-                    EN
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('ar')}
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                      language === 'ar'
-                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
-                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
-                    }`}
-                    title="العربية"
-                  >
-                    العربية
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('ru')}
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                      language === 'ru'
-                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
-                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
-                    }`}
-                    title="Русский"
-                  >
-                    RU
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('fr')}
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
-                      language === 'fr'
-                        ? 'bg-[var(--color-gold-light)] text-[var(--color-primary)] shadow-xs font-black'
-                        : 'text-white/80 hover:text-[var(--color-gold-light)]'
-                    }`}
-                    title="Français"
-                  >
-                    FR
-                  </button>
-                </div>
-
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('admin')}
-                    className="p-1 text-[var(--color-gold-light)] hover:text-white hover:bg-white/10 rounded-full transition-colors ml-0.5"
-                    title="Admin"
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                  </button>
-                )}
+              {/* 5. Language switcher pill with "EN" highlighted in solid gold fill and "العربية  RU  FR" beside it */}
+              <div className="hidden sm:flex items-center border border-[#C9A24B] rounded-full p-0.5 bg-[#4A0A15]/50 shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => setLanguage('en')}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                    language === 'en'
+                      ? 'bg-[#C9A24B] text-[#4A0A15] shadow-xs font-black'
+                      : 'text-[#FBF4E4]/80 hover:text-[#E3C878]'
+                  }`}
+                  title="English"
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage('ar')}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                    language === 'ar'
+                      ? 'bg-[#C9A24B] text-[#4A0A15] shadow-xs font-black'
+                      : 'text-[#FBF4E4]/80 hover:text-[#E3C878]'
+                  }`}
+                  title="العربية"
+                >
+                  العربية
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage('ru')}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                    language === 'ru'
+                      ? 'bg-[#C9A24B] text-[#4A0A15] shadow-xs font-black'
+                      : 'text-[#FBF4E4]/80 hover:text-[#E3C878]'
+                  }`}
+                  title="Русский"
+                >
+                  RU
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage('fr')}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                    language === 'fr'
+                      ? 'bg-[#C9A24B] text-[#4A0A15] shadow-xs font-black'
+                      : 'text-[#FBF4E4]/80 hover:text-[#E3C878]'
+                  }`}
+                  title="Français"
+                >
+                  FR
+                </button>
               </div>
+
+              {/* 6. Small gold shield or security icon at the far right */}
+              <button
+                type="button"
+                onClick={() => isAdmin ? onNavigate('admin') : onNavigate('home')}
+                className="p-1.5 text-[#E3C878] hover:text-white rounded-full border border-[#C9A24B]/60 hover:border-[#E3C878] transition-colors cursor-pointer"
+                title={isAdmin ? "Admin Dashboard" : "Verified Luxury Sleepwear · Kingdom of Bahrain"}
+                aria-label="Security guarantee"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 stroke-[2]" />
+              </button>
 
             </div>
 

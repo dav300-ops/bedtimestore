@@ -1,49 +1,59 @@
 @import "tailwindcss";
 
 @theme {
-  /* Core Deep Burgundy, Antique Gold & Pale Lilac Palette */
-  --color-bg: #F3EAF6;
-  --color-card: #EADCF0;
-  --color-primary: #7B1226;
-  --color-primary-hover: #5E0D1D;
-  --color-gold: #B8893A;
-  --color-gold-light: #D4AF5F;
-  --color-heading: #7A4A1E;
-  --color-text: #3B0A14;
-  --color-text-secondary: #5C3A44;
-  --color-border: #D9C3D6;
-  --color-btn-text: #FFFFFF;
+  /* Core Luxury Burgundy & Metallic Gold on Lavender Palette */
+  --color-burgundy: #6B0F1F;
+  --color-burgundy-dark: #4A0A15;
+  --color-gold: #C9A24B;
+  --color-gold-highlight: #E3C878;
+  --color-gold-shadow: #A67C2E;
+  --color-gold-brown: #8A5A1E;
+  --color-lavender-bg: #F1ECFA;
+  --color-lavender-light: #F7F3FC;
+  --color-cream: #FBF4E4;
+  --color-dark-brown: #3B2A24;
 
-  /* Accent mapped to antique gold for decorative elements */
-  --color-accent: #B8893A;
+  --color-bg: #F1ECFA;
+  --color-card: #EAE2F3;
+  --color-primary: #6B0F1F;
+  --color-primary-hover: #4A0A15;
+  --color-gold-light: #E3C878;
+  --color-heading: #8A5A1E;
+  --color-text: #3B2A24;
+  --color-text-secondary: #5E453D;
+  --color-border: #D8C2E2;
+  --color-btn-text: #FBF4E4;
+  --color-accent: #C9A24B;
 
-  /* Aliasing legacy tokens */
-  --color-dogwood: #F3EAF6;
-  --color-pastel-day: #EADCF0;
-  --color-rural-green: #B8893A;
-  --color-scarlet: #7B1226;
-  --color-black-bean: #3B0A14;
-  --color-cream: #F3EAF6;
-
-  --font-heading: "Cormorant Garamond", "Amiri", Georgia, serif;
-  --font-body: "Montserrat", "Noto Sans Arabic", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-body: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-arabic: "Cairo", "Amiri", "Noto Sans Arabic", sans-serif;
 }
 
 :root {
-  /* Core Palette Tokens */
-  --color-bg: #F3EAF6;
-  --color-card: #EADCF0;
-  --color-primary: #7B1226;
-  --color-primary-hover: #5E0D1D;
-  --color-gold: #B8893A;
-  --color-gold-light: #D4AF5F;
-  --color-heading: #7A4A1E;
-  --color-text: #3B0A14;
-  --color-text-secondary: #5C3A44;
-  --color-border: #D9C3D6;
-  --color-btn-text: #FFFFFF;
+  /* Specific Palette tokens */
+  --color-burgundy: #6B0F1F;
+  --color-burgundy-dark: #4A0A15;
+  --color-gold: #C9A24B;
+  --color-gold-highlight: #E3C878;
+  --color-gold-shadow: #A67C2E;
+  --color-gold-brown: #8A5A1E;
+  --color-lavender-bg: #F1ECFA;
+  --color-lavender-light: #F7F3FC;
+  --color-cream: #FBF4E4;
+  --color-dark-brown: #3B2A24;
 
-  --color-accent: var(--color-gold);
+  --color-bg: #F1ECFA;
+  --color-card: #EAE2F3;
+  --color-primary: #6B0F1F;
+  --color-primary-hover: #4A0A15;
+  --color-gold-light: #E3C878;
+  --color-heading: #8A5A1E;
+  --color-text: #3B2A24;
+  --color-text-secondary: #5E453D;
+  --color-border: #D8C2E2;
+  --color-btn-text: #FBF4E4;
+  --color-accent: #C9A24B;
 
   /* Semantic Aliases */
   --bg-shop: var(--color-bg);
@@ -73,7 +83,7 @@
   --color-rural-green: var(--color-accent);
   --color-scarlet: var(--color-primary);
   --color-black-bean: var(--color-text);
-  --color-cream: var(--color-bg);
+  --color-cream: #FBF4E4;
   --color-white: #FFFFFF;
 }
 
@@ -89,17 +99,17 @@ h1, h2, h3, .font-heading {
 }
 
 [dir="rtl"] {
-  font-family: "Noto Sans Arabic", "Montserrat", sans-serif;
+  font-family: var(--font-arabic);
 }
 
 [dir="rtl"] h1, 
 [dir="rtl"] h2, 
 [dir="rtl"] h3, 
 [dir="rtl"] .font-heading {
-  font-family: "Amiri", "Cormorant Garamond", serif;
+  font-family: var(--font-arabic);
 }
 
-/* Custom scrollbars in Antique Gold & Burgundy */
+/* Custom scrollbars in Metallic Gold & Burgundy */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

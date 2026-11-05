@@ -3,7 +3,9 @@
  * Don't forget to copy the pics into  /public/images/
  */
 
-export const HERO_IMAGE = '/images/hero_pic.jpeg';
+import heroBurgundyRobe from './images/luxury_burgundy_robe_1793913301296.jpg';
+
+export const HERO_IMAGE = heroBurgundyRobe;
 export const SILK_PJ_IMAGE = '/images/product_silk_pj_set.jpeg';
 export const ROSE_SATIN_IMAGE = '/images/product_rose_satin_dress.jpeg';
 export const LACE_ROBE_IMAGE = '/images/white_robe.jpeg';
