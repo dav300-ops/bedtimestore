@@ -80,6 +80,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
     salesAnalytics,
     adjustStock,
     refreshData,
+    manualRefresh,
+    isLoadingCatalog,
     addProduct, 
     updateProduct, 
     deleteProduct, 
@@ -256,7 +258,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   const handleScanQrPayload = (payload: string) => {
     if (!payload.trim()) return;
     setIsSimulatingScan(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsSimulatingScan(false);
       const clean = payload.trim();
       const parts = clean.split(':');
@@ -286,7 +288,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
         return;
       }
 
-      const res = confirmDeliveryPayment(
+      const res = await confirmDeliveryPayment(
         matched.id,
         pin || matched.deliveryVerificationCode,
         currentUser?.email || 'Admin / Courier Scanner'
@@ -715,20 +717,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
             
           </div>
 
-          {activeTab === 'admins' && (
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsCreateAdminModalOpen(true)}
-              className="px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+              onClick={() => manualRefresh()}
+              disabled={isLoadingCatalog}
+              className="px-3 py-2 bg-[var(--color-card)] hover:bg-[var(--color-border)] text-[var(--color-text)] border border-[var(--color-border)] text-xs font-semibold rounded-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+              title="Clear browser cache and reload fresh data from database"
             >
-              <UserPlus className="w-4 h-4" />
-              <span>{language === 'ar' ? 'إضافة مشرف جديد' : language === 'ru' ? 'Создать администратора' : 'Create New Admin'}</span>
+              <RefreshCw className={`w-3.5 h-3.5 text-[var(--color-primary)] ${isLoadingCatalog ? 'animate-spin' : ''}`} />
+              <span>{isLoadingCatalog ? (language === 'ar' ? 'جاري التحديث...' : 'Refreshing...') : (language === 'ar' ? 'تحديث البيانات' : 'Refresh data')}</span>
             </button>
-          )}
 
-          {activeTab === 'inventory' && (
-            <div className="flex items-center gap-2">
-             
+            {activeTab === 'admins' && (
+              <button
+                type="button"
+                onClick={() => setIsCreateAdminModalOpen(true)}
+                className="px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>{language === 'ar' ? 'إضافة مشرف جديد' : language === 'ru' ? 'Создать администратора' : 'Create New Admin'}</span>
+              </button>
+            )}
+
+            {activeTab === 'inventory' && (
               <button
                 type="button"
                 onClick={() => setIsCreatingProduct(true)}
@@ -737,20 +749,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                 <Plus className="w-3.5 h-3.5" />
                 <span>{language === 'ar' ? 'إضافة منتج' : 'Add Product'}</span>
               </button>
-            </div>
-          )}
+            )}
 
-          {activeTab === 'products' && (
-            <button
-              onClick={() => setIsCreatingProduct(true)}
-              className="px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t.admin.addNewProduct}</span>
-            </button>
-          )}
-
-         
+            {activeTab === 'products' && (
+              <button
+                onClick={() => setIsCreatingProduct(true)}
+                className="px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 shadow-xs"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t.admin.addNewProduct}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* TAB 1: OVERVIEW METRICS */}
@@ -2907,7 +2917,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
 
               {/* 6-Digit PIN Verification Form */}
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   if (!enteredVerificationCode.trim()) return;
 
@@ -2928,7 +2938,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     return;
                   }
 
-                  const res = confirmDeliveryPayment(target.id, enteredVerificationCode.trim(), currentUser?.email || 'Admin');
+                  const res = await confirmDeliveryPayment(target.id, enteredVerificationCode.trim(), currentUser?.email || 'Admin');
                   if (res.success) {
                     setVerificationFeedback({ text: res.message, success: true });
                     setEnteredVerificationCode('');
@@ -4178,8 +4188,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
             {qrInspectOrder.paymentStatus !== 'Paid' ? (
               <button
                 type="button"
-                onClick={() => {
-                  const res = confirmDeliveryPayment(qrInspectOrder.id, qrInspectOrder.deliveryVerificationCode, currentUser?.email || 'Admin');
+                onClick={async () => {
+                  const res = await confirmDeliveryPayment(qrInspectOrder.id, qrInspectOrder.deliveryVerificationCode, currentUser?.email || 'Admin');
                   if (res.success) {
                     setVerificationFeedback({ text: res.message, success: true });
                     setQrInspectOrder(null);

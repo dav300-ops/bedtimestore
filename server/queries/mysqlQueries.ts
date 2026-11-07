@@ -452,6 +452,46 @@ SET payment_status = 'Paid', order_status = 'Delivered', updated_at = NOW()
 WHERE id = ? OR order_number = ?
 `;
 
+export const SQL_SELECT_ORDER_BY_ID = `
+SELECT 
+  id, order_number AS orderNumber, user_id AS userId, customer_name AS customerName,
+  customer_email AS customerEmail, customer_phone AS customerPhone,
+  delivery_address AS deliveryAddress, items, subtotal, discount,
+  shipping_fee AS shippingFee, total, order_status AS orderStatus,
+  payment_status AS paymentStatus, payment_method AS paymentMethod,
+  pin_code AS pinCode, tracking_number AS trackingNumber,
+  created_at AS createdAt, updated_at AS updatedAt
+FROM orders
+WHERE id = ? OR order_number = ?
+LIMIT 1
+`;
+
+export const SQL_UPDATE_ORDER = `
+UPDATE orders
+SET 
+  customer_name = ?,
+  customer_email = ?,
+  customer_phone = ?,
+  delivery_address = ?,
+  items = ?,
+  subtotal = ?,
+  discount = ?,
+  shipping_fee = ?,
+  total = ?,
+  order_status = ?,
+  payment_status = ?,
+  payment_method = ?,
+  pin_code = ?,
+  tracking_number = ?,
+  updated_at = NOW()
+WHERE id = ?
+`;
+
+export const SQL_DELETE_ORDER = `
+DELETE FROM orders
+WHERE id = ?
+`;
+
 // ============================================================================
 // 5. PRODUCT SALES & REVENUE ANALYTICS QUERIES
 // ============================================================================

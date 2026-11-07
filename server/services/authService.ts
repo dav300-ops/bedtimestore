@@ -123,6 +123,7 @@ export class MySQLAuthService {
     email: string;
     password?: string;
     phone?: string;
+    role?: 'customer' | 'admin' | 'superadmin';
     isGuest?: boolean;
     ip?: string;
     device?: string;
@@ -133,7 +134,7 @@ export class MySQLAuthService {
     }
 
     const userId = `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
-    const role = userData.email.toLowerCase().includes('admin') ? 'admin' : 'customer';
+    const role = userData.role || (userData.email.toLowerCase().includes('admin') ? 'admin' : 'customer');
 
     await executeQuery(SQL_REGISTER_USER, [
       userId,

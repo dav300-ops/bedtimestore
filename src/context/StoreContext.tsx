@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, Category, Order, Coupon, ProductReview, OrderStatus } from '../types';
+import { Product, Category, Order, Coupon, OrderStatus } from '../types';
+import { api } from '../services/api';
+import { browserCache } from '../services/cache';
 
 export interface CMSBannerSettings {
   announcementTextEn: string;
@@ -112,6 +114,10 @@ interface StoreContextType {
   coupons: Coupon[];
   cms: CMSBannerSettings;
   isLoading: boolean;
+  isLoadingCatalog: boolean;
+  isSaving: boolean;
+  saveError: string | null;
+  clearSaveError: () => void;
   dbStatus: {
     connected: boolean;
     state: string;
@@ -121,24 +127,25 @@ interface StoreContextType {
   };
   inventoryOverview: InventoryOverviewData | null;
   salesAnalytics: SalesAnalyticsData | null;
-  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => Promise<void>;
-  updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
+  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => Promise<Product>;
+  updateProduct: (id: string, updates: Partial<Product>) => Promise<Product>;
   deleteProduct: (id: string) => Promise<void>;
   duplicateProduct: (id: string) => Promise<void>;
   adjustStock: (productId: string, skuOrSize: string, colorHex: string, delta: number, absoluteNewStock?: number) => Promise<void>;
-  addCategory: (category: Omit<Category, 'id'> & { id?: string }) => Promise<any>;
-  updateCategory: (id: string, updates: Partial<Category>) => Promise<any>;
+  addCategory: (category: Omit<Category, 'id'> & { id?: string }) => Promise<Category>;
+  updateCategory: (id: string, updates: Partial<Category>) => Promise<Category>;
   deleteCategory: (id: string) => Promise<boolean>;
-  addOrder: (order: Order) => void;
+  addOrder: (order: Order) => Promise<Order>;
   recordSalesForOrder: (order: Order) => Promise<any>;
-  updateOrderStatus: (orderId: string, status: OrderStatus, note?: string) => void;
-  confirmDeliveryPayment: (orderId: string, enteredCode?: string, confirmedBy?: string) => { success: boolean; message: string };
+  updateOrderStatus: (orderId: string, status: OrderStatus, note?: string) => Promise<void>;
+  confirmDeliveryPayment: (orderId: string, enteredCode?: string, confirmedBy?: string) => Promise<{ success: boolean; message: string }>;
   addCoupon: (coupon: Coupon) => void;
   updateCoupon: (code: string, updates: Partial<Coupon>) => void;
   deleteCoupon: (code: string) => void;
   updateCMS: (settings: Partial<CMSBannerSettings>) => void;
   deductInventory: (items: { productId: string; size: string; color: string; quantity: number }[]) => boolean;
   refreshData: () => Promise<void>;
+  manualRefresh: () => Promise<void>;
   getProductById: (id: string) => Product | undefined;
   getCategoryBySlug: (slug: string) => Category | undefined;
 }
@@ -147,62 +154,42 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Dynamic state populated exclusively by database queries
+  // Hydrate initial state instantly from browser cache (Stale-While-Revalidate initial pass)
   const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('bedtime_products');
-    if (!saved) return [];
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return [];
-    }
+    const cached = browserCache.get<Product[]>('catalog_products');
+    return cached.data || [];
   });
 
   const [categories, setCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('bedtime_categories');
-    if (!saved) return [];
+    const cached = browserCache.get<Category[]>('catalog_categories');
+    return cached.data || [];
+  });
+
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const cached = browserCache.get<Order[]>('orders_session_list');
+    return cached.data || [];
+  });
+
+  const [coupons, setCoupons] = useState<Coupon[]>(() => {
     try {
-      return JSON.parse(saved);
+      const saved = localStorage.getItem('bedtime_coupons');
+      return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
 
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('bedtime_orders');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [coupons, setCoupons] = useState<Coupon[]>(() => {
-    const saved = localStorage.getItem('bedtime_coupons');
-    return saved ? JSON.parse(saved) : [];
-  });
-
   const [cms, setCms] = useState<CMSBannerSettings>(() => {
-    const saved = localStorage.getItem('bedtime_cms');
-    return saved ? JSON.parse(saved) : DEFAULT_CMS;
+    try {
+      const saved = localStorage.getItem('bedtime_cms');
+      return saved ? JSON.parse(saved) : DEFAULT_CMS;
+    } catch {
+      return DEFAULT_CMS;
+    }
   });
-
-  useEffect(() => {
-    localStorage.setItem('bedtime_products', JSON.stringify(products));
-  }, [products]);
-
-  useEffect(() => {
-    localStorage.setItem('bedtime_categories', JSON.stringify(categories));
-  }, [categories]);
-
-  useEffect(() => {
-    localStorage.setItem('bedtime_orders', JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem('bedtime_coupons', JSON.stringify(coupons));
-  }, [coupons]);
-
-  useEffect(() => {
-    localStorage.setItem('bedtime_cms', JSON.stringify(cms));
-  }, [cms]);
 
   const [dbStatus, setDbStatus] = useState<{
     connected: boolean;
@@ -218,63 +205,84 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [inventoryOverview, setInventoryOverview] = useState<InventoryOverviewData | null>(null);
   const [salesAnalytics, setSalesAnalytics] = useState<SalesAnalyticsData | null>(null);
 
+  const clearSaveError = () => setSaveError(null);
+
+  /**
+   * Stale-While-Revalidate Refresh:
+   * Revalidates categories, products, and orders in the background.
+   */
   const refreshData = async () => {
     try {
-      // 1. Fetch live dynamic products from MySQL
-      const prodRes = await fetch('/api/products');
-      if (prodRes.ok) {
-        const data = await prodRes.json();
-        if (data?.success && Array.isArray(data.products) && data.products.length > 0) {
-          setProducts(data.products);
-        }
+      // 1. Fetch categories via Stale-While-Revalidate
+      const cats = await api.getCategories((fresh) => setCategories(fresh));
+      if (cats && cats.length > 0) {
+        setCategories(cats);
       }
 
-      // 2. Fetch live dynamic categories from MySQL
-      const catRes = await fetch('/api/categories');
-      if (catRes.ok) {
-        const catData = await catRes.json();
-        if (catData?.success && Array.isArray(catData.categories) && catData.categories.length > 0) {
-          setCategories(catData.categories);
-        }
+      // 2. Fetch products via Stale-While-Revalidate
+      const prods = await api.getProducts((fresh) => setProducts(fresh));
+      if (prods && prods.length > 0) {
+        setProducts(prods);
       }
 
-      // 3. Fetch live dynamic orders from MySQL
-      const ordRes = await fetch('/api/orders');
-      if (ordRes.ok) {
-        const ordData = await ordRes.json();
-        if (ordData?.success && Array.isArray(ordData.orders) && ordData.orders.length > 0) {
-          setOrders(ordData.orders);
-        }
+      // 3. Fetch orders (session/memory only)
+      const ords = await api.getOrders((fresh) => setOrders(fresh));
+      if (ords && ords.length > 0) {
+        setOrders(ords);
       }
 
-      // 4. Fetch inventory stock balances from MySQL
-      const invRes = await fetch('/api/inventory/balances');
-      if (invRes.ok) {
-        const invData = await invRes.json();
-        if (invData?.success) {
-          setInventoryOverview(invData);
-        }
-      }
+      // 4. Fetch inventory balances & sales metrics
+      fetch('/api/inventory/balances')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((invData) => {
+          if (invData?.success) setInventoryOverview(invData);
+        })
+        .catch(() => {});
 
-      // 5. Fetch MySQL status
-      const dbRes = await fetch('/api/db/status');
-      if (dbRes.ok) {
-        const dbData = await dbRes.json();
-        if (dbData?.status) {
-          setDbStatus(dbData.status);
-        }
-      }
+      fetch('/api/sales/analytics')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((salesData) => {
+          if (salesData?.success) setSalesAnalytics(salesData);
+        })
+        .catch(() => {});
 
-      // 6. Fetch MySQL aggregated product sales analytics
-      const salesRes = await fetch('/api/sales/analytics');
-      if (salesRes.ok) {
-        const salesData = await salesRes.json();
-        if (salesData?.success) {
-          setSalesAnalytics(salesData);
-        }
-      }
-    } catch (err) {
-      console.warn('MySQL API sync notice:', err);
+      // 5. Check database status via SELECT 1 health
+      fetch('/api/health')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((health) => {
+          if (health) {
+            setDbStatus({
+              connected: health.db === 'up',
+              state: health.db === 'up' ? 'connected' : 'disconnected',
+              host: health.dbDetails?.host,
+              database: health.dbDetails?.database,
+              error: health.error,
+            });
+          }
+        })
+        .catch(() => {
+          setDbStatus({ connected: false, state: 'disconnected', error: 'Health check offline' });
+        });
+    } catch (err: any) {
+      console.warn('[StoreContext] Refresh notice:', err?.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Manual Refresh: clears browser cache completely and fetches fresh data
+   */
+  const manualRefresh = async () => {
+    setIsLoading(true);
+    try {
+      const { categories: freshCats, products: freshProds, orders: freshOrds } =
+        await api.clearCacheAndRefresh();
+      setCategories(freshCats);
+      setProducts(freshProds);
+      setOrders(freshOrds);
+    } catch (err: any) {
+      console.error('[StoreContext] Manual refresh error:', err?.message);
     } finally {
       setIsLoading(false);
     }
@@ -282,85 +290,85 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     refreshData();
-    const interval = setInterval(refreshData, 15000);
+    const interval = setInterval(refreshData, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const addProduct = async (newProd: Omit<Product, 'id' | 'createdAt'>) => {
-    const product: Product = {
-      ...newProd,
-      id: (newProd as any).id || `prod-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-
+  // Save non-sensitive metadata (CMS, coupons)
+  useEffect(() => {
     try {
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
-      });
+      localStorage.setItem('bedtime_coupons', JSON.stringify(coupons));
+    } catch {}
+  }, [coupons]);
 
-      const data = await res.json().catch(() => ({}));
+  useEffect(() => {
+    try {
+      localStorage.setItem('bedtime_cms', JSON.stringify(cms));
+    } catch {}
+  }, [cms]);
 
-      if (!res.ok) {
-        throw new Error(data.error || `Server responded with status ${res.status}`);
-      }
+  // ==========================================================================
+  // WRITE-THROUGH MUTATIONS: Write to MariaDB first; update state on success
+  // ==========================================================================
 
-      const savedProduct = data.product || product;
-      setProducts((prev) => [savedProduct, ...prev.filter((p) => p.id !== savedProduct.id)]);
-      await refreshData();
-      return savedProduct;
+  const addProduct = async (newProd: Omit<Product, 'id' | 'createdAt'>): Promise<Product> => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      // 1. Write to MariaDB first
+      const saved = await api.createProduct(newProd);
+      // 2. Only after server confirms success, update UI state
+      setProducts((prev) => [saved, ...prev.filter((p) => p.id !== saved.id)]);
+      return saved;
     } catch (err: any) {
-      console.error('Error saving product to database:', err);
-      // Fallback local update to keep UI responsive even in edge network interruptions
-      setProducts((prev) => [product, ...prev]);
+      const errorMsg = err?.message || 'Failed to save product to database';
+      setSaveError(errorMsg);
+      console.error('[StoreContext] addProduct error:', errorMsg);
       throw err;
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const updateProduct = async (id: string, updates: Partial<Product>) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
-    );
-
+  const updateProduct = async (id: string, updates: Partial<Product>): Promise<Product> => {
+    setIsSaving(true);
+    setSaveError(null);
     try {
-      const res = await fetch(`/api/products/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.error || `Server update failed with status ${res.status}`);
-      }
-
-      await refreshData();
-    } catch (err) {
-      console.error('Error updating product on server:', err);
+      // 1. Write to MariaDB first
+      const updated = await api.updateProduct(id, updates);
+      // 2. Update state only after server confirmation
+      setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+      return updated;
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Failed to update product in database';
+      setSaveError(errorMsg);
+      console.error('[StoreContext] updateProduct error:', errorMsg);
       throw err;
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const deleteProduct = async (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-
+  const deleteProduct = async (id: string): Promise<void> => {
+    setIsSaving(true);
+    setSaveError(null);
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        throw new Error(`Server delete failed with status ${res.status}`);
-      }
-      await refreshData();
-    } catch (err) {
-      console.error('Error deleting product on server:', err);
+      await api.deleteProduct(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Failed to delete product from database';
+      setSaveError(errorMsg);
+      console.error('[StoreContext] deleteProduct error:', errorMsg);
       throw err;
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const duplicateProduct = async (id: string) => {
     const orig = products.find((p) => p.id === id);
     if (!orig) return;
-    const duplicated: Product = {
+    const duplicated = {
       ...orig,
       id: `prod-${Date.now()}`,
       nameEn: `${orig.nameEn} (Copy)`,
@@ -368,18 +376,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       sku: `${orig.sku}-CPY`,
       createdAt: new Date().toISOString(),
     };
-    setProducts((prev) => [duplicated, ...prev]);
-
-    try {
-      await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(duplicated),
-      });
-      refreshData();
-    } catch (err) {
-      console.warn('Error duplicating product on server:', err);
-    }
+    await addProduct(duplicated);
   };
 
   const adjustStock = async (
@@ -389,111 +386,73 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     delta: number,
     absoluteNewStock?: number
   ) => {
-    setProducts((prev) =>
-      prev.map((p) => {
-        if (p.id !== productId) return p;
-        const updatedVariants = (p.variants || []).map((v) => {
-          const match =
-            (v.sku === skuOrSize || v.size === skuOrSize) &&
-            (!colorHex || v.colorHex.toLowerCase() === colorHex.toLowerCase());
-          if (match) {
-            const newStock =
-              typeof absoluteNewStock === 'number'
-                ? Math.max(0, absoluteNewStock)
-                : Math.max(0, (v.stock || 0) + delta);
-            return { ...v, stock: newStock };
-          }
-          return v;
-        });
-        return { ...p, variants: updatedVariants };
-      })
-    );
-
+    setIsSaving(true);
     try {
-      await fetch(`/api/products/${productId}/stock`, {
+      const res = await fetch(`/api/products/${productId}/stock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skuOrSize, colorHex, delta, absoluteNewStock }),
       });
-      refreshData();
-    } catch (err) {
-      console.warn('Error syncing stock adjustment:', err);
+      const data = await res.json();
+      if (res.ok && data.success && data.product) {
+        setProducts((prev) => prev.map((p) => (p.id === productId ? data.product : p)));
+        browserCache.invalidate('catalog_products');
+      }
+    } catch (err: any) {
+      console.error('[StoreContext] adjustStock error:', err?.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const addCategory = async (categoryData: Omit<Category, 'id'> & { id?: string }) => {
-    const slug =
-      categoryData.slug ||
-      (categoryData.nameEn || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-    const tempId = categoryData.id || `cat-${slug || Date.now()}`;
-    const newCategory: Category = {
-      ...categoryData,
-      id: tempId,
-      slug: slug || tempId,
-      displayOrder: categoryData.displayOrder ?? (categories.length + 1),
-      active: categoryData.active !== undefined ? categoryData.active : true,
-    };
-    setCategories((prev) => [...prev, newCategory]);
-
+  const addCategory = async (categoryData: Omit<Category, 'id'> & { id?: string }): Promise<Category> => {
+    setIsSaving(true);
+    setSaveError(null);
     try {
-      const res = await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCategory),
-      });
-      const data = await res.json();
-      if (data?.success && data.category) {
-        setCategories((prev) =>
-          prev.map((c) => (c.id === tempId ? data.category : c))
-        );
-        return data.category;
-      }
-      refreshData();
-      return newCategory;
-    } catch (err) {
-      console.warn('Error saving category to MySQL database:', err);
-      return newCategory;
+      const saved = await api.createCategory(categoryData);
+      setCategories((prev) => [...prev.filter((c) => c.id !== saved.id), saved]);
+      return saved;
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Failed to save category to database';
+      setSaveError(errorMsg);
+      console.error('[StoreContext] addCategory error:', errorMsg);
+      throw err;
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const updateCategory = async (id: string, updates: Partial<Category>) => {
-    setCategories((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, ...updates } : c))
-    );
-
+  const updateCategory = async (id: string, updates: Partial<Category>): Promise<Category> => {
+    setIsSaving(true);
+    setSaveError(null);
     try {
-      const res = await fetch(`/api/categories/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      const data = await res.json();
-      if (data?.success && data.category) {
-        setCategories((prev) =>
-          prev.map((c) => (c.id === id ? data.category : c))
-        );
-        return data.category;
-      }
-      refreshData();
-    } catch (err) {
-      console.warn('Error updating category on server:', err);
+      const updated = await api.updateCategory(id, updates);
+      setCategories((prev) => prev.map((c) => (c.id === id ? updated : c)));
+      return updated;
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Failed to update category in database';
+      setSaveError(errorMsg);
+      console.error('[StoreContext] updateCategory error:', errorMsg);
+      throw err;
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const deleteCategory = async (id: string): Promise<boolean> => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-
+    setIsSaving(true);
+    setSaveError(null);
     try {
-      const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      refreshData();
-      return data?.success ?? true;
-    } catch (err) {
-      console.warn('Error deleting category on server:', err);
-      return false;
+      await api.deleteCategory(id);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      return true;
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Failed to delete category from database';
+      setSaveError(errorMsg);
+      console.error('[StoreContext] deleteCategory error:', errorMsg);
+      throw err;
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -504,63 +463,51 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order }),
       });
-      const data = await res.json();
-      refreshData();
-      return data;
-    } catch (err) {
-      console.warn('Failed to record product sales in MySQL database:', err);
+      return await res.json();
+    } catch {
       return null;
     }
   };
 
-  const addOrder = (order: Order) => {
-    setOrders((prev) => [order, ...prev]);
-
-    // Persist full order in MySQL
-    fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(order),
-    }).catch((err) => console.warn('Failed to save order in MySQL:', err));
-
-    // Asynchronously record individual product sales line items into MySQL
-    recordSalesForOrder(order);
+  const addOrder = async (order: Order): Promise<Order> => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      // 1. Transactional write to MariaDB
+      const saved = await api.createOrder(order);
+      // 2. On confirmed write, update local state
+      setOrders((prev) => [saved, ...prev.filter((o) => o.id !== saved.id)]);
+      // 3. Revalidate products in background as stock was decremented
+      api.getProducts().then((fresh) => setProducts(fresh)).catch(() => {});
+      return saved;
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Failed to place order in database';
+      setSaveError(errorMsg);
+      console.error('[StoreContext] addOrder error:', errorMsg);
+      throw err;
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const updateOrderStatus = (orderId: string, status: OrderStatus, note?: string) => {
-    setOrders((prev) =>
-      prev.map((o) => {
-        if (o.id !== orderId) return o;
-        const newHistory = [
-          ...o.statusHistory,
-          {
-            status,
-            timestamp: new Date().toISOString(),
-            note,
-          },
-        ];
-        return {
-          ...o,
-          orderStatus: status,
-          statusHistory: newHistory,
-          updatedAt: new Date().toISOString(),
-        };
-      })
-    );
-
-    // Persist status change to MySQL
-    fetch(`/api/orders/${orderId}/status`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status, note }),
-    }).catch((err) => console.warn('Failed to update order status in MySQL:', err));
+  const updateOrderStatus = async (orderId: string, status: OrderStatus, note?: string) => {
+    setIsSaving(true);
+    try {
+      const updated = await api.updateOrder(orderId, { orderStatus: status, note });
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+    } catch (err: any) {
+      console.error('[StoreContext] updateOrderStatus error:', err?.message);
+      throw err;
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const confirmDeliveryPayment = (
+  const confirmDeliveryPayment = async (
     orderId: string,
     enteredCode?: string,
     confirmedBy = 'Admin / Courier'
-  ): { success: boolean; message: string } => {
+  ): Promise<{ success: boolean; message: string }> => {
     const targetOrder = orders.find((o) => o.id === orderId || o.orderNumber === orderId);
     if (!targetOrder) {
       return { success: false, message: 'Order not found.' };
@@ -573,41 +520,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       };
     }
 
-    const now = new Date().toISOString();
-    setOrders((prev) =>
-      prev.map((o) => {
-        if (o.id === targetOrder.id) {
-          return {
-            ...o,
-            paymentStatus: 'Paid' as const,
-            isDeliveryPaidConfirmed: true,
-            deliveryPaymentConfirmedAt: now,
-            deliveryPaymentConfirmedBy: confirmedBy,
-            orderStatus: o.orderStatus === 'Shipped' || o.orderStatus === 'Preparing' ? ('Delivered' as const) : o.orderStatus,
-            statusHistory: [
-              ...o.statusHistory,
-              {
-                status: 'Delivered' as const,
-                timestamp: now,
-                note: `Payment confirmed upon delivery (${targetOrder.deliveryVerificationCode}) by ${confirmedBy}`,
-              },
-            ],
-            updatedAt: now,
-          };
-        }
-        return o;
-      })
-    );
-
-    // Persist payment confirmation to MySQL
-    fetch(`/api/orders/${targetOrder.id}/confirm-payment`, {
-      method: 'POST',
-    }).catch((err) => console.warn('Failed to confirm order payment in MySQL:', err));
-
-    return {
-      success: true,
-      message: `Delivery payment verified and marked as Paid for ${targetOrder.orderNumber}!`,
-    };
+    try {
+      const res = await fetch(`/api/orders/${targetOrder.id}/confirm-payment`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await refreshData();
+        return {
+          success: true,
+          message: `Delivery payment verified and marked as Paid for ${targetOrder.orderNumber}!`,
+        };
+      }
+      return { success: false, message: data?.error || 'Failed to confirm payment on server' };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Network error confirming payment' };
+    }
   };
 
   const addCoupon = (coupon: Coupon) => {
@@ -649,14 +577,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       })
     );
 
-    fetch('/api/inventory/deduct', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items }),
-    })
-      .then(refreshData)
-      .catch((e) => console.warn('Deduct sync error:', e));
-
     return true;
   };
 
@@ -672,6 +592,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         coupons,
         cms,
         isLoading,
+        isLoadingCatalog: isLoading,
+        isSaving,
+        saveError,
+        clearSaveError,
         dbStatus,
         inventoryOverview,
         salesAnalytics,
@@ -693,6 +617,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateCMS,
         deductInventory,
         refreshData,
+        manualRefresh,
         getProductById,
         getCategoryBySlug,
       }}
@@ -702,7 +627,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-export const useStore = (): StoreContextType => {
+export const useStore = () => {
   const context = useContext(StoreContext);
   if (!context) {
     throw new Error('useStore must be used within a StoreProvider');

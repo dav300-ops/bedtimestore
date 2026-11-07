@@ -97,9 +97,9 @@ export const OrderConfirmationPage: React.FC<OrderConfirmationPageProps> = ({
     }
   };
 
-  const handleSimulateAdminVerification = () => {
+  const handleSimulateAdminVerification = async () => {
     if (!order.deliveryVerificationCode) return;
-    const res = confirmDeliveryPayment(order.id, order.deliveryVerificationCode, 'Admin Demonstration Courier');
+    const res = await confirmDeliveryPayment(order.id, order.deliveryVerificationCode, 'Admin Demonstration Courier');
     if (res.success) {
       setSimulationFeedback(language === 'ar' ? 'تم تأكيد الدفع بنجاح عبر رمز التحقق!' : 'Payment verified and marked as Paid!');
       setTimeout(() => setSimulationFeedback(null), 3500);

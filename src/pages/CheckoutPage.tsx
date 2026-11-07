@@ -261,7 +261,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         updatedAt: new Date().toISOString(),
       };
 
-      addOrder(newOrder);
+      await addOrder(newOrder);
       clearCart();
       setIsProcessing(false);
       onOrderSuccess(newOrder);

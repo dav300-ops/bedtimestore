@@ -5,10 +5,76 @@ import { categoryService } from '../services/categoryService';
 import { authService } from '../services/authService';
 import { salesService } from '../services/salesService';
 import { orderService } from '../services/orderService';
-import { getDatabaseStatus, executeQuery } from '../db';
+import { getDatabaseStatus, executeQuery, pingDatabase } from '../db';
 import * as MySQLQueries from '../queries/mysqlQueries';
+import { config } from '../config';
+import { appCache } from '../cache';
 
 const router = express.Router();
+
+export const VALID_ORDER_STATUSES = ['Confirmed', 'Preparing', 'Shipped', 'Delivered', 'Cancelled'] as const;
+export const VALID_PAYMENT_STATUSES = ['Pending', 'Paid', 'Failed', 'Refunded'] as const;
+export const VALID_ROLES = ['customer', 'admin', 'superadmin'] as const;
+
+export function validateRole(role?: string): boolean {
+  if (!role) return true;
+  return (VALID_ROLES as readonly string[]).includes(role);
+}
+
+export function validateOrderStatus(status?: string): boolean {
+  if (!status) return true;
+  return (VALID_ORDER_STATUSES as readonly string[]).includes(status);
+}
+
+export function validatePaymentStatus(status?: string): boolean {
+  if (!status) return true;
+  return (VALID_PAYMENT_STATUSES as readonly string[]).includes(status);
+}
+
+/**
+ * Standard error response formatter:
+ * Returns JSON { error, code, sqlMessage } and logs err.code & err.sqlMessage to server console.
+ */
+export function formatErrorResponse(err: any, statusCode: number = 500) {
+  const code = err?.code || (statusCode === 400 ? 'VALIDATION_ERROR' : 'DATABASE_ERROR');
+  const sqlMessage = err?.sqlMessage || null;
+  const message = err?.message || (statusCode === 400 ? 'Validation error' : 'Database execution failure');
+
+  console.error('[API / Database Error]', {
+    statusCode,
+    code,
+    sqlMessage,
+    message,
+  });
+
+  return {
+    error: message,
+    code,
+    sqlMessage,
+  };
+}
+
+// ============================================================================
+// 0. Cache Management Endpoints
+// ============================================================================
+
+router.post('/cache/clear', (_req: Request, res: Response) => {
+  appCache.clear();
+  return res.json({
+    success: true,
+    message: 'Cache cleared successfully',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+router.get('/cache/stats', (_req: Request, res: Response) => {
+  return res.json({
+    success: true,
+    stats: appCache.getStats(),
+    env: config.env,
+    ttlMs: config.cacheTtlMs,
+  });
+});
 
 // ============================================================================
 // 1. User Authentication Endpoints (Powered by MySQL Database)
@@ -19,12 +85,15 @@ const router = express.Router();
  */
 router.post('/auth/register', async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, email, phone, password, isGuest } = req.body;
+    const { firstName, lastName, email, phone, password, isGuest, role } = req.body;
     if (!email) {
-      return res.status(400).json({ error: 'Email address is required' });
+      return res.status(400).json(formatErrorResponse(new Error('Email address is required'), 400));
     }
     if (!firstName) {
-      return res.status(400).json({ error: 'First name is required' });
+      return res.status(400).json(formatErrorResponse(new Error('First name is required'), 400));
+    }
+    if (role && !validateRole(role)) {
+      return res.status(400).json(formatErrorResponse(new Error(`Invalid role '${role}'. Must be customer, admin, or superadmin`), 400));
     }
 
     const clientIp = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || '127.0.0.1';
@@ -36,6 +105,7 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       email,
       phone,
       password: password || 'GuestPass@2026',
+      role: role || 'customer',
       isGuest: Boolean(isGuest),
       ip: clientIp,
       device: userAgent,
@@ -48,7 +118,7 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       token: result.token,
     });
   } catch (error: any) {
-    return res.status(400).json({ error: error?.message || 'Registration failed' });
+    return res.status(400).json(formatErrorResponse(error, 400));
   }
 });
 
@@ -244,29 +314,46 @@ router.get('/db/queries', (_req: Request, res: Response) => {
 });
 
 // ============================================================================
-// 3. Dynamic Categories Endpoints (MySQL)
+// 3. Dynamic Categories Endpoints (MySQL with Environment-Aware Cache)
 // ============================================================================
 
 router.get('/categories', async (_req: Request, res: Response) => {
   try {
+    const cached = appCache.get<any[]>('categories:list');
+    if (cached) {
+      return res.json({
+        success: true,
+        count: cached.length,
+        categories: cached,
+        cached: true,
+      });
+    }
     const categories = await categoryService.getCategories();
+    appCache.set('categories:list', categories);
     return res.json({
       success: true,
       count: categories.length,
       categories,
+      cached: false,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to fetch categories from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
 router.get('/categories/:id', async (req: Request, res: Response) => {
   try {
+    const cacheKey = `category:${req.params.id}`;
+    const cached = appCache.get<any>(cacheKey);
+    if (cached) {
+      return res.json({ success: true, category: cached, cached: true });
+    }
     const category = await categoryService.getCategoryById(req.params.id);
-    if (!category) return res.status(404).json({ error: 'Category not found in MySQL' });
-    return res.json({ success: true, category });
+    if (!category) return res.status(404).json(formatErrorResponse(new Error('Category not found in MySQL'), 404));
+    appCache.set(cacheKey, category);
+    return res.json({ success: true, category, cached: false });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to fetch category from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
@@ -274,7 +361,7 @@ router.post('/categories', async (req: Request, res: Response) => {
   try {
     const { nameEn, nameAr, slug, descriptionEn, descriptionAr, image, active, displayOrder } = req.body;
     if (!nameEn) {
-      return res.status(400).json({ error: 'Category English name is required' });
+      return res.status(400).json(formatErrorResponse(new Error('Category English name is required'), 400));
     }
     const category = await categoryService.addCategory({
       nameEn,
@@ -286,83 +373,115 @@ router.post('/categories', async (req: Request, res: Response) => {
       active,
       displayOrder,
     });
+    // Invalidate categories cache
+    appCache.delete('categories:list');
     return res.status(201).json({ success: true, category });
   } catch (err: any) {
-    return res.status(400).json({ error: err?.message || 'Failed to create category in MySQL' });
+    return res.status(400).json(formatErrorResponse(err, 400));
   }
 });
 
 router.put('/categories/:id', async (req: Request, res: Response) => {
   try {
     const category = await categoryService.updateCategory(req.params.id, req.body);
-    if (!category) return res.status(404).json({ error: 'Category not found in MySQL' });
+    if (!category) return res.status(404).json(formatErrorResponse(new Error('Category not found in MySQL'), 404));
+    // Invalidate categories cache
+    appCache.delete('categories:list');
+    appCache.delete(`category:${req.params.id}`);
     return res.json({ success: true, category });
   } catch (err: any) {
-    return res.status(400).json({ error: err?.message || 'Failed to update category in MySQL' });
+    return res.status(400).json(formatErrorResponse(err, 400));
   }
 });
 
 router.delete('/categories/:id', async (req: Request, res: Response) => {
   try {
     await categoryService.deleteCategory(req.params.id);
+    // Invalidate categories cache
+    appCache.delete('categories:list');
+    appCache.delete(`category:${req.params.id}`);
     return res.json({ success: true, message: 'Category deleted from MySQL database' });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to delete category from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
 // ============================================================================
-// 4. Dynamic Products & Inventory Stock Endpoints (MySQL)
+// 4. Dynamic Products & Inventory Stock Endpoints (MySQL with Environment-Aware Cache)
 // ============================================================================
 
 router.get('/products', async (_req: Request, res: Response) => {
   try {
+    const cached = appCache.get<any[]>('products:list');
+    if (cached) {
+      return res.json({
+        success: true,
+        count: cached.length,
+        products: cached,
+        cached: true,
+      });
+    }
     const products = await inventoryService.getProducts();
+    appCache.set('products:list', products);
     return res.json({
       success: true,
       count: products.length,
       products,
+      cached: false,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to fetch products from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
 router.get('/products/:id', async (req: Request, res: Response) => {
   try {
+    const cacheKey = `product:${req.params.id}`;
+    const cached = appCache.get<any>(cacheKey);
+    if (cached) {
+      return res.json({ success: true, product: cached, cached: true });
+    }
     const product = await inventoryService.getProductById(req.params.id);
-    if (!product) return res.status(404).json({ error: 'Product not found in MySQL' });
-    return res.json({ success: true, product });
+    if (!product) return res.status(404).json(formatErrorResponse(new Error('Product not found in MySQL'), 404));
+    appCache.set(cacheKey, product);
+    return res.json({ success: true, product, cached: false });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to fetch product from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
 router.post('/products', async (req: Request, res: Response) => {
   try {
     const product = await inventoryService.addProduct(req.body);
+    // Write-through saving invalidates product list cache
+    appCache.delete('products:list');
     return res.status(201).json({ success: true, product });
   } catch (err: any) {
-    return res.status(400).json({ error: err?.message || 'Failed to create product in MySQL' });
+    return res.status(400).json(formatErrorResponse(err, 400));
   }
 });
 
 router.put('/products/:id', async (req: Request, res: Response) => {
   try {
     const product = await inventoryService.updateProduct(req.params.id, req.body);
-    if (!product) return res.status(404).json({ error: 'Product not found in MySQL' });
+    if (!product) return res.status(404).json(formatErrorResponse(new Error('Product not found in MySQL'), 404));
+    // Invalidate product cache
+    appCache.delete('products:list');
+    appCache.delete(`product:${req.params.id}`);
     return res.json({ success: true, product });
   } catch (err: any) {
-    return res.status(400).json({ error: err?.message || 'Failed to update product in MySQL' });
+    return res.status(400).json(formatErrorResponse(err, 400));
   }
 });
 
 router.delete('/products/:id', async (req: Request, res: Response) => {
   try {
     await inventoryService.deleteProduct(req.params.id);
+    appCache.delete('products:list');
+    appCache.delete(`product:${req.params.id}`);
     return res.json({ success: true, message: 'Product deleted from MySQL database' });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to delete product from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
@@ -483,12 +602,31 @@ router.get('/orders', async (_req: Request, res: Response) => {
       orders,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to fetch orders from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
 /**
- * Get orders for a specific user ID or email from MySQL
+ * Get single order by ID or order number
+ */
+router.get('/orders/:id', async (req: Request, res: Response) => {
+  try {
+    const order = await orderService.getOrderById(req.params.id);
+    if (!order) {
+      return res.status(404).json(formatErrorResponse(new Error('Order not found'), 404));
+    }
+    return res.json({
+      success: true,
+      order,
+      id: order.id,
+    });
+  } catch (err: any) {
+    return res.status(500).json(formatErrorResponse(err, 500));
+  }
+});
+
+/**
+ * Get orders for a specific user ID or email from MariaDB/MySQL
  */
 router.get('/orders/user/:userId', async (req: Request, res: Response) => {
   try {
@@ -500,42 +638,123 @@ router.get('/orders/user/:userId', async (req: Request, res: Response) => {
       orders,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to fetch user orders from MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
 /**
- * Create new order in MySQL
+ * Create new order in MariaDB/MySQL with transaction, stock decrement, and sales logging
  */
 router.post('/orders', async (req: Request, res: Response) => {
   try {
     const orderData = req.body;
-    if (!orderData || !orderData.orderNumber) {
-      return res.status(400).json({ error: 'Order data with orderNumber is required' });
+    if (!orderData) {
+      return res.status(400).json(formatErrorResponse(new Error('Order body is required'), 400));
     }
-    const created = await orderService.createOrder(orderData);
+    if (!orderData.customerName) {
+      return res.status(400).json(formatErrorResponse(new Error('customerName is required'), 400));
+    }
+    if (!orderData.customerEmail) {
+      return res.status(400).json(formatErrorResponse(new Error('customerEmail is required'), 400));
+    }
+    if (!orderData.customerPhone) {
+      return res.status(400).json(formatErrorResponse(new Error('customerPhone is required'), 400));
+    }
+    if (!Array.isArray(orderData.items) || orderData.items.length === 0) {
+      return res.status(400).json(formatErrorResponse(new Error('Order items must be a non-empty array'), 400));
+    }
+
+    const orderStatus = orderData.orderStatus || orderData.order_status || 'Confirmed';
+    if (!validateOrderStatus(orderStatus)) {
+      return res.status(400).json(formatErrorResponse(new Error(`Invalid order_status '${orderStatus}'. Must be Confirmed, Preparing, Shipped, Delivered, or Cancelled`), 400));
+    }
+
+    const paymentStatus = orderData.paymentStatus || orderData.payment_status || 'Pending';
+    if (!validatePaymentStatus(paymentStatus)) {
+      return res.status(400).json(formatErrorResponse(new Error(`Invalid payment_status '${paymentStatus}'. Must be Pending, Paid, Failed, or Refunded`), 400));
+    }
+
+    const created = await orderService.createOrder({
+      ...orderData,
+      orderStatus,
+      paymentStatus,
+    });
+
+    // Invalidate product catalog cache because stock changed during order placement
+    appCache.delete('products:list');
+
     return res.status(201).json({
       success: true,
       order: created,
+      id: created.id,
     });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to save order in MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
 /**
- * Update order status in MySQL
+ * Update order in MariaDB/MySQL
+ */
+router.put('/orders/:id', async (req: Request, res: Response) => {
+  try {
+    const updates = req.body;
+    const orderStatus = updates.orderStatus || updates.order_status;
+    if (orderStatus && !validateOrderStatus(orderStatus)) {
+      return res.status(400).json(formatErrorResponse(new Error(`Invalid order_status '${orderStatus}'. Must be Confirmed, Preparing, Shipped, Delivered, or Cancelled`), 400));
+    }
+
+    const paymentStatus = updates.paymentStatus || updates.payment_status;
+    if (paymentStatus && !validatePaymentStatus(paymentStatus)) {
+      return res.status(400).json(formatErrorResponse(new Error(`Invalid payment_status '${paymentStatus}'. Must be Pending, Paid, Failed, or Refunded`), 400));
+    }
+
+    const updated = await orderService.updateOrder(req.params.id, updates);
+    if (!updated) {
+      return res.status(404).json(formatErrorResponse(new Error('Order not found'), 404));
+    }
+    return res.json({
+      success: true,
+      order: updated,
+      id: updated.id,
+    });
+  } catch (err: any) {
+    return res.status(500).json(formatErrorResponse(err, 500));
+  }
+});
+
+/**
+ * Delete order from MariaDB/MySQL
+ */
+router.delete('/orders/:id', async (req: Request, res: Response) => {
+  try {
+    await orderService.deleteOrder(req.params.id);
+    return res.json({
+      success: true,
+      id: req.params.id,
+      message: 'Order deleted successfully from database',
+    });
+  } catch (err: any) {
+    return res.status(500).json(formatErrorResponse(err, 500));
+  }
+});
+
+/**
+ * Update order status in MySQL (convenience endpoint)
  */
 router.put('/orders/:id/status', async (req: Request, res: Response) => {
   try {
     const { status } = req.body;
     if (!status) {
-      return res.status(400).json({ error: 'status is required' });
+      return res.status(400).json(formatErrorResponse(new Error('status is required'), 400));
+    }
+    if (!validateOrderStatus(status)) {
+      return res.status(400).json(formatErrorResponse(new Error(`Invalid order_status '${status}'. Must be Confirmed, Preparing, Shipped, Delivered, or Cancelled`), 400));
     }
     const updated = await orderService.updateOrderStatus(req.params.id, status);
-    return res.json({ success: updated });
+    return res.json({ success: updated, id: req.params.id, orderStatus: status });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to update order status in MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
@@ -545,9 +764,9 @@ router.put('/orders/:id/status', async (req: Request, res: Response) => {
 router.post('/orders/:id/confirm-payment', async (req: Request, res: Response) => {
   try {
     const success = await orderService.confirmDeliveryPayment(req.params.id);
-    return res.json({ success, message: 'Payment confirmed in MySQL database' });
+    return res.json({ success, id: req.params.id, message: 'Payment confirmed in database' });
   } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to confirm order payment in MySQL' });
+    return res.status(500).json(formatErrorResponse(err, 500));
   }
 });
 
@@ -776,14 +995,19 @@ router.get('/admin/product-buyers/:productId', async (req: Request, res: Respons
 // 7. Health & Status Check
 // ============================================================================
 
-router.get('/health', (_req: Request, res: Response) => {
+router.get('/health', async (_req: Request, res: Response) => {
+  const isUp = await pingDatabase();
+  const dbStatus = getDatabaseStatus();
   res.json({
-    status: 'ONLINE',
+    status: 'ok',
+    db: isUp ? 'up' : 'down',
+    env: config.env,
+    version: config.appVersion,
+    timestamp: new Date().toISOString(),
     service: 'THE BEDTIME STORE API',
     market: 'Kingdom of Bahrain (BHD)',
-    databaseEngine: 'MySQL',
-    db: getDatabaseStatus(),
-    timestamp: new Date().toISOString(),
+    databaseEngine: 'MariaDB/MySQL',
+    dbDetails: dbStatus,
   });
 });
 

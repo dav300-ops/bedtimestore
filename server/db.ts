@@ -1,7 +1,7 @@
-import mysql, { Pool, PoolOptions } from 'mysql2/promise';
-import dotenv from 'dotenv';
+import mysql, { Pool, PoolOptions, PoolConnection } from 'mysql2/promise';
 import fs from 'fs';
 import path from 'path';
+import { config, sanitizeData } from './config';
 import {
   DDL_CREATE_USERS_TABLE,
   DDL_CREATE_CATEGORIES_TABLE,
@@ -11,10 +11,8 @@ import {
   DDL_CREATE_PRODUCT_SALES_TABLE,
 } from './queries/mysqlQueries';
 
-dotenv.config();
-
 export interface MySQLDatabaseStatus {
-  engine: 'mysql';
+  engine: 'mysql' | 'mariadb';
   connected: boolean;
   state: 'connected' | 'connecting' | 'disconnected' | 'fallback_memory' | 'error';
   host: string;
@@ -31,56 +29,64 @@ export interface MySQLDatabaseStatus {
   queriesExecuted: number;
 }
 
-// Config extraction from URI or discrete variables
-function getMySQLConfig(): {
-  host: string;
-  port: number;
-  user: string;
-  password?: string;
-  database: string;
-} {
-  const uri = process.env.MYSQL_URI || process.env.DATABASE_URL;
-  if (uri && (uri.startsWith('mysql://') || uri.startsWith('mysql2://'))) {
-    try {
-      const parsed = new URL(uri);
-      return {
-        host: parsed.hostname || 'localhost',
-        port: Number(parsed.port || 3306),
-        user: parsed.username || 'thebedtime_str',
-        password: parsed.password || 'zZ48ByGhTn7385hdjd',
-        database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : 'thebedtime_store',
-      };
-    } catch {
-      // Fallback to discrete vars
-    }
-  }
-
-  return {
-    host: process.env.MYSQL_HOST || 'localhost',
-    port: Number(process.env.MYSQL_PORT || 3306),
-    user: process.env.MYSQL_USER || 'thebedtime_str',
-    password: process.env.MYSQL_PASSWORD || 'zZ48ByGhTn7385hdjd',
-    database: process.env.MYSQL_DATABASE || 'thebedtime_store',
-  };
-}
-
-const config = getMySQLConfig();
-
 let pool: Pool | null = null;
 let queriesCount = 0;
 
+export function getPool(): Pool | null {
+  return pool;
+}
+
+/**
+ * Parameter sanitizer: converts any undefined bind parameter to null (value ?? null)
+ * as required by mysql2 / MariaDB prepared statements.
+ */
+export function sanitizeParams(params: any[] = []): any[] {
+  return params.map((v) => (v === undefined ? null : v));
+}
+
+/**
+ * Wrap JSON columns in JSON.stringify when writing
+ */
+export function stringifyJson(val: any, fallback: any = []): string {
+  if (val === undefined || val === null) return JSON.stringify(fallback);
+  if (typeof val === 'string') {
+    try {
+      JSON.parse(val);
+      return val;
+    } catch {
+      return JSON.stringify(val);
+    }
+  }
+  return JSON.stringify(val);
+}
+
+/**
+ * Parse JSON columns when reading if the driver returns a string
+ */
+export function parseJson<T = any>(val: any, fallback: T): T {
+  if (val === undefined || val === null) return fallback;
+  if (typeof val === 'string') {
+    try {
+      return JSON.parse(val);
+    } catch {
+      return fallback;
+    }
+  }
+  return val as T;
+}
+
 let dbStatus: MySQLDatabaseStatus = {
-  engine: 'mysql',
+  engine: 'mariadb',
   connected: false,
   state: 'disconnected',
-  host: config.host,
-  port: config.port,
-  database: config.database,
-  user: config.user,
+  host: process.env.DB_HOST || config.db.host,
+  port: Number(process.env.DB_PORT || config.db.port),
+  database: process.env.DB_NAME || config.db.database,
+  user: process.env.DB_USER || config.db.user,
   queriesExecuted: 0,
 };
 
-// Resilient in-memory tables used when live MySQL server is not yet provisioned
+// Resilient in-memory tables used when live MariaDB/MySQL server is not yet provisioned
 const memoryStore = {
   users: new Map<string, any>(),
   categories: new Map<string, any>(),
@@ -145,28 +151,37 @@ export function getDatabaseStatus(): MySQLDatabaseStatus {
 }
 
 /**
- * Initialize MySQL Connection Pool and Bootstrap DDL Schemas
+ * Initialize MariaDB/MySQL Connection Pool and Bootstrap DDL Schemas
  */
 export async function connectToDatabase(): Promise<boolean> {
   dbStatus.state = 'connecting';
   queriesCount = 0;
 
+  const dbHost = process.env.DB_HOST || config.db.host;
+  const dbPort = Number(process.env.DB_PORT || config.db.port);
+  const dbUser = process.env.DB_USER || config.db.user;
+  const dbPassword = process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : config.db.password;
+  const dbName = process.env.DB_NAME || config.db.database;
+
   const poolOptions: PoolOptions = {
-    host: config.host,
-    port: config.port,
-    user: config.user,
-    password: config.password,
-    database: config.database,
+    host: dbHost,
+    port: dbPort,
+    user: dbUser,
+    password: dbPassword,
+    database: dbName,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    connectTimeout: 4000,
+    connectTimeout: 5000,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000,
+    ssl: config.db.ssl ? { rejectUnauthorized: false } : undefined,
   };
 
   try {
     pool = mysql.createPool(poolOptions);
 
-    // Test connectivity
+    // Test connectivity by checking connection
     const connection = await pool.getConnection();
     await connection.ping();
     connection.release();
@@ -174,12 +189,16 @@ export async function connectToDatabase(): Promise<boolean> {
     dbStatus.connected = true;
     dbStatus.state = 'connected';
     dbStatus.lastConnectedAt = new Date().toISOString();
+    dbStatus.host = dbHost;
+    dbStatus.port = dbPort;
+    dbStatus.user = dbUser;
+    dbStatus.database = dbName;
     dbStatus.pool = {
       connectionLimit: poolOptions.connectionLimit || 10,
       queueLimit: poolOptions.queueLimit || 0,
     };
 
-    console.log(`[MySQL] Successfully connected to MySQL database "${config.database}" on ${config.host}:${config.port}`);
+    console.log(`[MariaDB/MySQL] Connected successfully to database "${dbName}" on ${dbHost}:${dbPort}`);
 
     // Bootstrap DDL Schemas
     await initializeSchemas();
@@ -188,9 +207,73 @@ export async function connectToDatabase(): Promise<boolean> {
   } catch (err: any) {
     dbStatus.connected = false;
     dbStatus.state = 'fallback_memory';
-    dbStatus.error = err?.message || 'MySQL server unreachable, active resilient in-memory SQL driver';
-    console.warn(`[MySQL] Notice: ${dbStatus.error}. Operating with resilient SQL engine.`);
+    dbStatus.error = err?.message || 'MariaDB/MySQL server unreachable, active resilient in-memory SQL driver';
+    console.warn(`[MariaDB/MySQL] Notice: ${dbStatus.error}. Operating with resilient SQL engine.`);
     return false;
+  }
+}
+
+/**
+ * Ping database with SELECT 1
+ */
+export async function pingDatabase(): Promise<boolean> {
+  if (pool && dbStatus.connected) {
+    try {
+      await pool.execute('SELECT 1');
+      return true;
+    } catch (err: any) {
+      console.error('[MariaDB Ping Failed]', { code: err?.code, sqlMessage: err?.sqlMessage });
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * Execute a unit of work inside a managed transaction
+ */
+export async function withTransaction<T>(
+  callback: (connection: PoolConnection) => Promise<T>
+): Promise<T> {
+  if (pool && dbStatus.connected) {
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+    try {
+      const result = await callback(connection);
+      await connection.commit();
+      return result;
+    } catch (err: any) {
+      await connection.rollback();
+      console.error('[MariaDB/MySQL Transaction Rolled Back]', {
+        code: err?.code,
+        sqlMessage: err?.sqlMessage,
+        message: err?.message,
+      });
+      throw err;
+    } finally {
+      connection.release();
+    }
+  }
+
+  // Resilient memory fallback transaction
+  return callback(null as any);
+}
+
+/**
+ * Gracefully close the database pool
+ */
+export async function closePool(): Promise<void> {
+  if (pool) {
+    try {
+      console.log('[MariaDB/MySQL] Closing database connection pool gracefully...');
+      await pool.end();
+      pool = null;
+      dbStatus.connected = false;
+      dbStatus.state = 'disconnected';
+      console.log('[MariaDB/MySQL] Connection pool successfully closed.');
+    } catch (err: any) {
+      console.error('[MariaDB/MySQL] Error closing connection pool:', err?.message);
+    }
   }
 }
 
@@ -206,33 +289,68 @@ async function initializeSchemas() {
     await pool.query(DDL_CREATE_ORDERS_TABLE);
     await pool.query(DDL_CREATE_SECURITY_LOGS_TABLE);
     await pool.query(DDL_CREATE_PRODUCT_SALES_TABLE);
-    console.log('[MySQL] All relational tables verified: users, categories, products, orders, security_logs, product_sales');
+    console.log('[MariaDB/MySQL] All relational tables verified: users, categories, products, orders, security_logs, product_sales');
     dbStatus.tables = ['users', 'categories', 'products', 'orders', 'security_logs', 'product_sales'];
   } catch (err: any) {
-    console.warn('[MySQL] Schema initialization warning:', err?.message);
+    console.warn('[MariaDB/MySQL] Schema initialization warning:', err?.message);
   }
 }
 
+function isDroppedConnectionError(err: any): boolean {
+  if (!err) return false;
+  const code = err.code || '';
+  return (
+    code === 'PROTOCOL_CONNECTION_LOST' ||
+    code === 'ECONNRESET' ||
+    code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ||
+    code === 'ETIMEDOUT' ||
+    code === 'EPIPE'
+  );
+}
+
 /**
- * Universal Query Executor with Real MySQL Pool + Resilient Fallback Engine
+ * Universal Query Executor with MariaDB/MySQL Pool (pool.execute) + 1 Retry on Dropped Connections
  */
 export async function executeQuery<T = any>(sql: string, params: any[] = []): Promise<T[]> {
   queriesCount++;
+  const cleanParams = sanitizeParams(params);
 
-  // 1. If live pool is connected, execute directly on MySQL
+  // 1. If live pool is connected, execute directly on MariaDB/MySQL using pool.execute
   if (pool && dbStatus.connected) {
     try {
-      const [rows] = await pool.query(sql, params);
+      const [rows] = await pool.execute(sql, cleanParams);
+      // Synchronize in-memory copy
+      try {
+        executeInMemoryQuery(sql, cleanParams);
+      } catch {}
       return rows as T[];
     } catch (err: any) {
-      console.warn('[MySQL] Query error, checking memory sync:', err?.message);
-      // If error occurs, fall through to memory store for safety
+      if (isDroppedConnectionError(err)) {
+        console.warn(`[MariaDB/MySQL] Connection dropped (${err.code}). Retrying query once...`);
+        try {
+          const [retryRows] = await pool.execute(sql, cleanParams);
+          try {
+            executeInMemoryQuery(sql, cleanParams);
+          } catch {}
+          return retryRows as T[];
+        } catch (retryErr: any) {
+          console.error('[MariaDB/MySQL Retry Failed]', { code: retryErr?.code, sqlMessage: retryErr?.sqlMessage });
+          throw retryErr;
+        }
+      } else {
+        console.error('[MariaDB/MySQL Query Failed]', {
+          code: err?.code,
+          sqlMessage: err?.sqlMessage,
+          message: err?.message,
+          sql: sql.trim().split('\n')[0],
+        });
+        throw err;
+      }
     }
   }
 
   // 2. Resilient In-Memory SQL Simulation Engine
-  // Allows testing and execution of all queries even before user starts an external MySQL server
-  return executeInMemoryQuery<T>(sql, params);
+  return executeInMemoryQuery<T>(sql, cleanParams);
 }
 
 /**

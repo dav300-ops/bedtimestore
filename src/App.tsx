@@ -18,6 +18,7 @@ import { LegalPage } from './pages/LegalPage';
 import { AuthModal } from './components/AuthModal';
 import { ProductAlbumModal } from './components/ProductAlbumModal';
 import { AlbumPage } from './pages/AlbumPage';
+import { DevToolbar } from './components/DevToolbar';
 import { useAuth } from './context/AuthContext';
 import { useStore } from './context/StoreContext';
 import { Product, Order } from './types';
@@ -192,6 +193,8 @@ export function AppContent() {
               onNavigate={navigateTo}
             />
           )}
+          {/* Development Toolbar (Clear Cache & Diagnostics) */}
+          <DevToolbar />
         </>
       )}
     </div>

@@ -1,99 +1,150 @@
-# THE BEDTIME STORE:
+# Deluxe Bedtime Store
 
-A production-ready, elegant, fully responsive e-commerce web application for **THE BEDTIME STORE**, a Bahrain-based luxury boutique specializing in women's nightwear and sleepwear fashion.
-
----
-
-## 1. Brand Design System & Color Tokens
-
-Built exclusively with the official brand color palette using CSS variables and Tailwind theme tokens:
-
-| Token | Name | Hex | Role |
-| :--- | :--- | :--- | :--- |
-| `--color-dogwood` | Dogwood | `#FBE7E3` | Primary page background, cards, footer, soft sections |
-| `--color-scarlet` | Scarlet | `#E22001` | Primary CTA buttons, sale badges, discount tags, low stock warnings |
-| `--color-pastel-day` | Pastel Day | `#E1D1E4` | Secondary background, category tiles, hover states, selected variant fills |
-| `--color-rural-green` | Rural Green | `#8E7C49` | Accents, dividers, rating stars, "New" tags, in-stock indicators |
-| `--color-black-bean` | Black Bean | `#340404` | Primary text, headings, header, admin sidebar |
-
-### Typography
-- **Headings**: `Cormorant Garamond` (English) & `Amiri` (Arabic)
-- **Body & UI**: `Montserrat` (English) & `Noto Sans Arabic` (Arabic)
+A luxury women's sleepwear and lingerie e-commerce web application based in Bahrain, featuring bilingual English/Arabic RTL shopping, BenefitPay checkout, and full dual-environment support (Development and Production).
 
 ---
 
-## 2. Bahrain Market Integration
+## 1. Environment Support: Development & Production
 
-- **Primary Currency**: BHD (Bahraini Dinar) formatted to 3 decimal places (`18.500 BHD` / `١٨.٥٠٠ د.ب`).
-- **Addresses**: Tailored to Bahrain addresses (`Building / Villa`, `Road / Street`, `Block`, `Area` e.g. Adliya, Seef, Saar, Amwaj, Riffa, Manama).
-- **Mobile Numbers**: Bahrain phone validation (`+973 39XX XXXX`).
-- **Delivery Options**:
-  - Standard Delivery (1-2 Days): `1.500 BHD` (Complimentary for orders above `25.000 BHD`)
-  - Same-Day Express Delivery: `2.500 BHD`
-- **GCC-Ready**: Architecture modularized to allow expansion to Saudi Arabia, UAE, Kuwait, Qatar, and Oman.
+The application operates identically in both Development and Production modes through strict environment configuration with zero code-path divergences.
 
----
+### Configuration Matrix
 
-## 3. Bilingual English & Arabic RTL System
+| Variable | Type | Default (Dev) | Production Requirement | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `NODE_ENV` | String | `development` | `production` | Active runtime mode |
+| `PORT` | Number | `3000` | Cloud port (e.g. `8080` / `3000`) | Server HTTP port |
+| `DB_HOST` | String | `localhost` | **Required** | MySQL database host / hostname |
+| `DB_PORT` | Number | `3306` | `3306` | MySQL port |
+| `DB_USER` | String | `thebedtime_str` | **Required** | MySQL username |
+| `DB_PASSWORD` | String | (Local dev pass) | **Required** | MySQL password |
+| `DB_NAME` | String | `thebedtime_store`| **Required** | MySQL database name |
+| `DB_SSL` | Boolean| `false` | `true` | Enable TLS/SSL connection to MySQL |
+| `CORS_ORIGIN`| String | `http://localhost:3000` | **Required** (e.g. `https://thebedtime.store`) | Whitelisted CORS origin (no wildcards) |
+| `VITE_API_BASE_URL` | String | `""` (relative `/api`) | `""` (relative `/api`) | Client API base path |
 
-- Full left-to-right (LTR) and right-to-left (RTL) flipping via interactive language switcher (`EN | العربية`).
-- Automatic `document.documentElement.dir` and `lang` switching.
-- Every product and category features dedicated English and Arabic titles, descriptions, materials, and care guides.
+Templates provided:
+- `.env.example`: Committed reference template with sanitized documentation.
+- `.env.development`: Pre-configured local development settings.
+- `.env.production`: Production-ready cloud deployment template.
 
----
-
-## 4. Payment Architecture
-
-Constructed with a provider abstraction layer (`PaymentService`):
-
-```
-PaymentService
-    ├── BenefitPayProvider (Bahrain Benefit QR & Fawri+ national payment network)
-    ├── ApplePayProvider (Biometric Apple Pay sheet flow)
-    └── VisaProvider (PCI-DSS tokenized card processing)
-```
-
-No raw credit card numbers or CVVs are ever stored in the MySQL database.
+*(Real `.env`, `.env.production`, and `.env.local` files are ignored by git in `.gitignore`)*.
 
 ---
 
-## 5. Development & Demo Credentials
+## 2. Run in Development
 
-- **Customer Account Demo**: `fatima@thebedtimestore.bh` (Password: `LuxurySilk@2026`)
-- **Administrator Portal Demo**: `admin@thebedtimestore.bh` (Password: `Admin@Bedtime2026!`)
-  - Access via "Admin Portal" button in the top navigation or footer.
-  - Allows full management of products, inventory per variant, categories, orders, coupon promotions, and CMS content.
+In development mode:
+- Express API and Vite development server run together seamlessly.
+- `/api` requests are proxied directly to `http://localhost:3000`.
+- Cache TTL is set to **1 minute** so catalog modifications appear quickly.
+- Verbose logging is enabled on both console and API responses (including SQL error codes and messages).
+- A visible **"Clear cache"** toolbar appears in the lower-left corner of the browser.
 
----
-
-## 6. Project Architecture & MySQL Database
-
-```
-├── src/
-│   ├── assets/images/      # High-fidelity boutique photography assets
-│   ├── components/         # Header, Footer, HeroBanner, ProductCard, Carousel, Modals, Drawer
-│   ├── context/            # LanguageContext, StoreContext, AuthContext, CartContext
-│   ├── data/               # Seed catalog, Bahrain addresses, demo orders, coupons
-│   ├── i18n/               # English & Arabic translation dictionaries
-│   ├── pages/              # HomePage, ShopPage, PDP, Checkout, OrderConfirmation, Account, Admin
-│   ├── services/           # Payment provider abstraction (MyFatoorah, BenefitPay, Apple Pay)
-│   ├── types/              # Comprehensive TypeScript interfaces
-│   └── index.css           # Design tokens, variables & typography
-├── server/
-│   ├── db.ts               # MySQL connection pool & resilient fallback engine
-│   ├── queries/            # Parameterized MySQL queries (Auth, Categories, Products, Orders)
-│   ├── routes/             # RESTful API endpoints (/api/auth, /api/categories, /api/products, etc.)
-│   └── services/           # authService, categoryService, inventoryService, PaymentService
-├── index.html              # Head meta, Cormorant Garamond & Amiri fonts
-└── metadata.json           # Application descriptor
-```
-
----
-
-## 7. Testing & Quality Checks
-
-Run TypeScript type check and verification:
 ```bash
-npm run lint
-npm run build
+# 1. Install dependencies
+npm install
+
+# 2. Run development server (runs Express + Vite HMR on port 3000)
+npm run dev
 ```
+
+Visit `http://localhost:3000`.
+
+---
+
+## 3. Deploy to Production
+
+In production mode:
+- The frontend is compiled into optimized static assets in the `dist/` directory via `vite build`.
+- Single-process server: Express serves `dist/` statically and routes unknown requests to `dist/index.html` (SPA fallback).
+- No Vite process runs in production.
+- Strict security headers applied via `helmet`.
+- CORS is strictly locked down to `CORS_ORIGIN` (no wildcards permitted).
+- Rate limiting is enforced on login, registration, and write endpoints.
+- Error responses sent to clients contain only generic messages and a unique traceable `errorId` (detailed logs with stack traces are retained exclusively on the server).
+- Connection pool with `connectionLimit: 10`, `waitForConnections: true`, `enableKeepAlive: true`, and automatic 1-retry on dropped database connections.
+- Cache TTL is extended to **10 minutes** with build version invalidation (`v1.0.0`).
+- Graceful shutdown handles `SIGTERM` and `SIGINT` by closing active HTTP connections and draining the MySQL connection pool.
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Build production frontend
+npm run build
+
+# 3. Validate environment & start production Express server
+npm run start
+# Or explicitly:
+npm run start:prod
+```
+
+---
+
+## 4. Health Check & Diagnostics
+
+The application provides a universal health monitoring endpoint:
+
+```
+GET /api/health
+```
+
+Example JSON response:
+```json
+{
+  "status": "ok",
+  "db": "up",
+  "env": "production",
+  "version": "v1.0.0",
+  "timestamp": "2026-11-07T08:15:00.000Z"
+}
+```
+
+---
+
+## 5. Troubleshooting & FAQ
+
+#### Missing Environment Variables on Startup
+- **Symptom**: Server immediately terminates in production with `[CONFIG FATAL ERROR] Missing required production environment variables`.
+- **Solution**: Ensure `DB_HOST`, `DB_USER`, `DB_NAME`, and `CORS_ORIGIN` are exported in your environment or defined in `.env.production`.
+
+#### MySQL Connection Failure or Dropped Packet
+- **Symptom**: `ECONNRESET` or `PROTOCOL_CONNECTION_LOST`.
+- **Solution**: The database module automatically triggers a single retry on dropped connection errors. If the database remains unreachable, the server falls back to the resilient in-memory database engine and persists modifications to `server/data/persisted_db.json`.
+
+#### Stale Cache During Development
+- **Symptom**: Changes made to catalog categories or products do not appear immediately.
+- **Solution**: Click the visible **"Clear cache"** button on the development toolbar in the bottom-left corner of the browser, or send `POST /api/cache/clear`.
+
+#### CORS Errors in Production
+- **Symptom**: Browser blocks requests with `Cross-Origin Request Blocked`.
+- **Solution**: Verify that `CORS_ORIGIN` matches the exact protocol and domain of your production frontend (e.g., `https://thebedtime.store`).
+
+---
+
+## 6. Environment Verification Checklist
+
+Use this checklist to verify that both modes behave correctly:
+
+### Development Mode Verification
+- [x] Run `npm run dev` and confirm server starts in `DEVELOPMENT` mode.
+- [x] Send `GET /api/health` and verify `{ status: "ok", env: "development" }`.
+- [x] Verify visible "Clear cache" button is displayed on the bottom-left of the screen.
+- [x] Click "Clear cache" and verify notification badge shows "Cache cleared".
+- [x] Trigger an invalid request and confirm verbose error details (code, message) appear in the response.
+
+### Production Mode Verification
+- [x] Run `npm run build` and ensure `dist/` is generated cleanly.
+- [x] Start server with `NODE_ENV=production npm start`.
+- [x] Ensure Vite is not loaded into memory and static files are served from `dist/`.
+- [x] Verify "Clear cache" button is completely absent from the UI.
+- [x] Trigger an error and confirm client receives generic error message and an `errorId`.
+- [x] Send `SIGINT` (Ctrl+C) and observe graceful pool shutdown logs.
+
+---
+
+## 7. Demo Accounts
+
+- **Administrator**: `admin@thebedtimestore.bh` (Password: `Admin@Bedtime2026!`)
+- **Customer**: `fatima@thebedtimestore.bh` (Password: `LuxurySilk@2026`)
