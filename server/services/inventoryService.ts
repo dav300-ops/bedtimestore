@@ -230,6 +230,7 @@ export class MySQLInventoryService {
       merged.descriptionAr,
       merged.categoryId,
       merged.categoryNameEn,
+      merged.categoryNameAr || '',
       merged.price,
       merged.salePrice,
       JSON.stringify(merged.images),

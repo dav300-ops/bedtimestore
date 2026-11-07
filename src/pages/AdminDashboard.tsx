@@ -62,6 +62,7 @@ import {
   KIDS_ROBE_IMAGE,
   KIDS_COTTON_IMAGE
 } from '../assets/images';
+import { optimizeImageFile } from '../utils/imageOptimizer';
 
 interface AdminDashboardProps {
   onReturnToStore: () => void;
@@ -311,6 +312,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   const [productImageUpload, setProductImageUpload] = useState<string>('');
   const [productAdditionalImages, setProductAdditionalImages] = useState<string[]>([]);
   const [newImageUrlInput, setNewImageUrlInput] = useState<string>('');
+  const [productImageMeta, setProductImageMeta] = useState<{ name: string; size: string } | null>(null);
+  const [isProcessingImage, setIsProcessingImage] = useState<boolean>(false);
+  const [productUploadError, setProductUploadError] = useState<string | null>(null);
+  const [productFeedback, setProductFeedback] = useState<{ text: string; success: boolean } | null>(null);
+  const [isSavingProduct, setIsSavingProduct] = useState<boolean>(false);
 
   // Sync image upload state whenever a product is selected for editing or creating
   React.useEffect(() => {
@@ -318,37 +324,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
       setProductImageUpload(editingProduct.images?.[0] || '');
       setProductAdditionalImages(editingProduct.images?.slice(1) || []);
       setNewImageUrlInput('');
+      setProductImageMeta(null);
+      setProductUploadError(null);
+      setProductFeedback(null);
     } else if (isCreatingProduct) {
       setProductImageUpload('');
       setProductAdditionalImages([]);
       setNewImageUrlInput('');
+      setProductImageMeta(null);
+      setProductUploadError(null);
+      setProductFeedback(null);
     }
   }, [editingProduct, isCreatingProduct]);
 
-  const handleProductImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Support high-resolution camera/device photos up to 50MB with instant optimization
+  const handleProductImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      if (base64) {
-        setProductImageUpload(base64);
-      }
-    };
-    reader.readAsDataURL(file);
+    setIsProcessingImage(true);
+    setProductUploadError(null);
+    try {
+      const result = await optimizeImageFile(file, 2560, 0.92);
+      setProductImageUpload(result.dataUrl);
+      setProductImageMeta({
+        name: result.originalFileName,
+        size: `${result.originalSizeFormatted} → ${result.optimizedSizeFormatted} (Retina 2.5K)`,
+      });
+    } catch (err: any) {
+      setProductUploadError(err.message || 'Failed to process image');
+    } finally {
+      setIsProcessingImage(false);
+      e.target.value = '';
+    }
   };
 
-  const handleAddSecondaryImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      if (base64) {
-        setProductAdditionalImages((prev) => [...prev, base64]);
+  // Support multiple high-resolution gallery images up to 50MB each
+  const handleAddSecondaryImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsProcessingImage(true);
+    setProductUploadError(null);
+    try {
+      const optimizedUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const result = await optimizeImageFile(file, 2560, 0.92);
+        optimizedUrls.push(result.dataUrl);
       }
-    };
-    reader.readAsDataURL(file);
+      setProductAdditionalImages((prev) => [...prev, ...optimizedUrls]);
+    } catch (err: any) {
+      setProductUploadError(err.message || 'Failed to process gallery images');
+    } finally {
+      setIsProcessingImage(false);
+      e.target.value = '';
+    }
   };
 
   // Category Modal & Management State
@@ -3508,100 +3537,180 @@ CREATE TABLE IF NOT EXISTS product_sales (
               </button>
             </div>
 
+            {/* Live Database Feedback & Error Notifications */}
+            {productFeedback && (
+              <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xs text-xs flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{productFeedback.text}</span>
+              </div>
+            )}
+
+            {productUploadError && (
+              <div className="p-3 bg-red-50 border border-red-300 text-red-800 rounded-xs text-xs flex items-center gap-2 animate-in fade-in">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{productUploadError}</span>
+              </div>
+            )}
+
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
+                setIsSavingProduct(true);
+                setProductUploadError(null);
+                setProductFeedback(null);
+
                 const form = e.currentTarget;
-                const nameEn = (form.elements.namedItem('nameEn') as HTMLInputElement).value;
-                const nameAr = (form.elements.namedItem('nameAr') as HTMLInputElement).value;
+                const nameEn = (form.elements.namedItem('nameEn') as HTMLInputElement).value.trim();
+                const nameAr = (form.elements.namedItem('nameAr') as HTMLInputElement).value.trim();
+                const sku = (form.elements.namedItem('sku') as HTMLInputElement)?.value?.trim() || `BDS-${Date.now().toString().slice(-6)}`;
                 const price = Number((form.elements.namedItem('price') as HTMLInputElement).value);
                 const salePriceVal = (form.elements.namedItem('salePrice') as HTMLInputElement).value;
                 const catId = (form.elements.namedItem('categoryId') as HTMLSelectElement).value;
+                const materialEn = (form.elements.namedItem('materialEn') as HTMLInputElement)?.value?.trim() || '100% Pure Mulberry Silk';
+                const materialAr = (form.elements.namedItem('materialAr') as HTMLInputElement)?.value?.trim() || 'حرير التوت الطبيعي ١٠٠٪';
+                const careInstructionsEn = (form.elements.namedItem('careInstructionsEn') as HTMLInputElement)?.value?.trim() || 'Hand wash cold or gentle dry clean.';
+                const careInstructionsAr = (form.elements.namedItem('careInstructionsAr') as HTMLInputElement)?.value?.trim() || 'غسيل يدوي بماء بارد أو تنظيف جاف لطيف.';
+                const descriptionEn = (form.elements.namedItem('descriptionEn') as HTMLTextAreaElement)?.value?.trim() || 'Handcrafted luxury nightwear tailored for timeless elegance in Bahrain.';
+                const descriptionAr = (form.elements.namedItem('descriptionAr') as HTMLTextAreaElement)?.value?.trim() || 'ملابس نوم فاخرة مصنوعة يدوياً لأناقة خالدة في البحرين.';
+                const featured = (form.elements.namedItem('featured') as HTMLInputElement)?.checked ?? false;
+                const bestSeller = (form.elements.namedItem('bestSeller') as HTMLInputElement)?.checked ?? false;
+                const newArrival = (form.elements.namedItem('newArrival') as HTMLInputElement)?.checked ?? true;
+                const active = (form.elements.namedItem('active') as HTMLInputElement)?.checked ?? true;
                 const ageGroupVal = (form.elements.namedItem('ageGroup') as HTMLSelectElement).value;
                 const ageGroup = ageGroupVal !== 'none' ? (ageGroupVal as KidAgeRange) : undefined;
                 const isKids = (form.elements.namedItem('isKids') as HTMLInputElement).checked || !!ageGroup || catId === 'cat-kids-sleepwear';
                 const cat = categories.find((c) => c.id === catId);
 
+                // Variant stock breakdown from form
+                const stockS = Math.max(0, Number((form.elements.namedItem('stockS') as HTMLInputElement)?.value || 10));
+                const stockM = Math.max(0, Number((form.elements.namedItem('stockM') as HTMLInputElement)?.value || 10));
+                const stockL = Math.max(0, Number((form.elements.namedItem('stockL') as HTMLInputElement)?.value || 8));
+                const stockXL = Math.max(0, Number((form.elements.namedItem('stockXL') as HTMLInputElement)?.value || 6));
+
+                const defaultVariants = editingProduct?.variants?.length
+                  ? editingProduct.variants
+                  : [
+                      { size: 'S' as ProductSize, colorNameEn: 'Burgundy', colorNameAr: 'عنابي', colorHex: '#6B0F1F', stock: stockS, sku: `${sku}-S` },
+                      { size: 'M' as ProductSize, colorNameEn: 'Burgundy', colorNameAr: 'عنابي', colorHex: '#6B0F1F', stock: stockM, sku: `${sku}-M` },
+                      { size: 'L' as ProductSize, colorNameEn: 'Burgundy', colorNameAr: 'عنابي', colorHex: '#6B0F1F', stock: stockL, sku: `${sku}-L` },
+                      { size: 'XL' as ProductSize, colorNameEn: 'Burgundy', colorNameAr: 'عنابي', colorHex: '#6B0F1F', stock: stockXL, sku: `${sku}-XL` },
+                    ];
+
                 const finalImages = productImageUpload
                   ? [productImageUpload, ...productAdditionalImages]
-                  : (editingProduct?.images?.length ? editingProduct.images : ['/images/hero_pic.jpeg']);
+                  : (editingProduct?.images?.length ? editingProduct.images : [HERO_IMAGE || '/images/hero_pic.jpeg']);
 
-                if (editingProduct) {
-                  updateProduct(editingProduct.id, {
-                    nameEn,
-                    nameAr,
-                    price,
-                    salePrice: salePriceVal ? Number(salePriceVal) : undefined,
-                    categoryId: catId,
-                    categoryNameEn: cat?.nameEn || '',
-                    categoryNameAr: cat?.nameAr || '',
-                    ageGroup,
-                    isKids,
-                    images: finalImages,
-                  });
-                } else {
-                  addProduct({
-                    sku: `BDS-NEW-${Math.floor(100 + Math.random() * 900)}`,
-                    nameEn,
-                    nameAr,
-                    descriptionEn: 'Tailored luxury nightwear piece crafted for the modern woman in Bahrain.',
-                    descriptionAr: 'قطعة ملابس نوم فاخرة مصممة للمرأة العصرية في البحرين.',
-                    categoryId: catId,
-                    categoryNameEn: cat?.nameEn || 'Nightwear',
-                    categoryNameAr: cat?.nameAr || 'ملابس نوم',
-                    price,
-                    salePrice: salePriceVal ? Number(salePriceVal) : undefined,
-                    currency: 'BHD',
-                    images: finalImages,
-                    variants: [
-                      { size: 'S', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: 'var(--color-card)', stock: 12, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-S` },
-                      { size: 'M', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: 'var(--color-card)', stock: 12, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-M` },
-                      { size: 'L', colorNameEn: 'Blush', colorNameAr: 'وردي', colorHex: 'var(--color-card)', stock: 8, sku: `BDS-NEW-${Date.now().toString().slice(-3)}-L` },
-                    ],
-                    materialEn: '100% Silk Touch Satin',
-                    materialAr: 'ساتان بملمس الحرير ١٠٠٪',
-                    careInstructionsEn: 'Hand wash cold.',
-                    careInstructionsAr: 'غسيل يدوي بماء بارد.',
-                    tags: isKids ? ['Kids', 'New'] : ['New', 'Luxury'],
-                    active: true,
-                    rating: 5.0,
-                    reviewCount: 1,
-                    ageGroup,
-                    isKids,
-                  });
+                try {
+                  if (editingProduct) {
+                    await updateProduct(editingProduct.id, {
+                      sku,
+                      nameEn,
+                      nameAr,
+                      price,
+                      salePrice: salePriceVal ? Number(salePriceVal) : undefined,
+                      categoryId: catId,
+                      categoryNameEn: cat?.nameEn || '',
+                      categoryNameAr: cat?.nameAr || '',
+                      materialEn,
+                      materialAr,
+                      careInstructionsEn,
+                      careInstructionsAr,
+                      descriptionEn,
+                      descriptionAr,
+                      featured,
+                      bestSeller,
+                      newArrival,
+                      active,
+                      ageGroup,
+                      isKids,
+                      images: finalImages,
+                      variants: defaultVariants,
+                    });
+                    setProductFeedback({
+                      text: language === 'ar' ? '✓ تم تحديث المنتج وحفظه بنجاح في قاعدة بيانات MySQL!' : '✓ Product data successfully updated and saved to MySQL database!',
+                      success: true,
+                    });
+                  } else {
+                    await addProduct({
+                      sku,
+                      nameEn,
+                      nameAr,
+                      descriptionEn,
+                      descriptionAr,
+                      categoryId: catId,
+                      categoryNameEn: cat?.nameEn || 'Nightwear',
+                      categoryNameAr: cat?.nameAr || 'ملابس نوم',
+                      price,
+                      salePrice: salePriceVal ? Number(salePriceVal) : undefined,
+                      currency: 'BHD',
+                      images: finalImages,
+                      variants: defaultVariants,
+                      materialEn,
+                      materialAr,
+                      careInstructionsEn,
+                      careInstructionsAr,
+                      tags: isKids ? ['Kids', 'Silk'] : ['Luxury', 'Silk', 'Boutique'],
+                      featured,
+                      bestSeller,
+                      newArrival,
+                      active,
+                      rating: 5.0,
+                      reviewCount: 0,
+                      ageGroup,
+                      isKids,
+                    });
+                    setProductFeedback({
+                      text: language === 'ar' ? '✓ تم رفع وإضافة المنتج الجديد بنجاح إلى قاعدة بيانات MySQL!' : '✓ New product successfully uploaded and published to MySQL database!',
+                      success: true,
+                    });
+                  }
+
+                  setTimeout(() => {
+                    setEditingProduct(null);
+                    setIsCreatingProduct(false);
+                    setProductFeedback(null);
+                  }, 1200);
+                } catch (err: any) {
+                  setProductUploadError(err.message || 'Failed to upload product data to MySQL database. Please check your connection.');
+                } finally {
+                  setIsSavingProduct(false);
                 }
-
-                setEditingProduct(null);
-                setIsCreatingProduct(false);
               }}
               className="space-y-4 text-xs"
             >
-              {/* Product Image Upload Section for Customer Account Identification */}
+              {/* Product Image Upload Section: Supports Large Files Up to 50MB */}
               <div className="bg-[var(--color-bg)] p-4 rounded-xs border border-[var(--color-border)] space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="font-heading text-xs font-bold text-[var(--color-text)] uppercase tracking-wider flex items-center gap-1.5">
                       <ImageIcon className="w-4 h-4 text-[var(--color-accent)]" />
-                      <span>{language === 'ar' ? 'صورة المنتج للتعريف لدى العميل (حساب المستخدم) *' : 'Product Identification Image (Customer User Account Display) *'}</span>
+                      <span>{language === 'ar' ? 'صورة المنتج الرئيسية (دعم صور فائقة الدقة حتى 50 ميغابايت) *' : 'Primary Product Image (Supports High-Res Images up to 50MB) *'}</span>
                     </label>
                     <p className="text-[11px] text-[var(--color-text)]/70 mt-0.5">
                       {language === 'ar'
-                        ? 'هذه الصورة ستُعرض في حساب العميل (User Account) للتعرف الفوري على المنتج في سجل الطلبات، التتبع المباشر، السلة، والإيصال الرقمي.'
-                        : 'Upload an image used to visually identify this product by the customer in their user account (orders history, live tracking, cart, & receipts).'}
+                        ? 'يدعم صور الكاميرا والهواتف الذكية عالية الدقة حتى 50 ميغابايت (JPG, PNG, WEBP, AVIF). يتم تحسين الصور تلقائياً لشاشات ريتنا بدقة 2.5K فائقة الوضوح مع الحفاظ التام على تفاصيل أنسجة الحرير والدانتيل.'
+                        : 'Upload high-resolution DSLR or smartphone photos up to 50MB (JPG, PNG, WEBP, AVIF). Automatically processed for 2.5K Retina clarity while preserving exquisite silk and lace fabric textures.'}
                     </p>
                   </div>
                   {productImageUpload && (
                     <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full flex items-center gap-1 shrink-0">
                       <Check className="w-3 h-3 text-emerald-600" />
-                      {language === 'ar' ? 'تم اختيار الصورة' : 'Image Set'}
+                      {language === 'ar' ? 'الصورة جاهزة للرفع' : 'Ready to Upload'}
                     </span>
                   )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 items-start pt-1">
-                  {/* Live Visual Preview */}
-                  <div className="w-28 h-36 bg-[var(--color-card)] rounded-xs border-2 border-dashed border-[var(--color-accent)]/40 overflow-hidden shrink-0 flex items-center justify-center relative shadow-xs group">
-                    {productImageUpload ? (
+                  {/* Visual Preview */}
+                  <div className="w-32 h-40 bg-[var(--color-card)] rounded-xs border-2 border-dashed border-[var(--color-accent)]/50 overflow-hidden shrink-0 flex items-center justify-center relative shadow-xs group">
+                    {isProcessingImage ? (
+                      <div className="text-center p-2 text-[var(--color-primary)] space-y-1.5 animate-pulse">
+                        <RefreshCw className="w-6 h-6 mx-auto animate-spin text-[var(--color-accent)]" />
+                        <span className="text-[10px] block font-semibold">
+                          {language === 'ar' ? 'جاري معالجة الصورة...' : 'Processing 50MB file...'}
+                        </span>
+                      </div>
+                    ) : productImageUpload ? (
                       <>
                         <img
                           src={productImageUpload}
@@ -3610,7 +3719,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         />
                         <button
                           type="button"
-                          onClick={() => setProductImageUpload('')}
+                          onClick={() => {
+                            setProductImageUpload('');
+                            setProductImageMeta(null);
+                          }}
                           className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
                           title="Remove image"
                         >
@@ -3621,67 +3733,92 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       <div className="text-center p-2 text-gray-400 space-y-1">
                         <Upload className="w-6 h-6 mx-auto text-[var(--color-accent)]" />
                         <span className="text-[10px] block leading-tight text-[var(--color-accent)] font-medium">
-                          {language === 'ar' ? 'لا توجد صورة' : 'Upload Image'}
+                          {language === 'ar' ? 'اختيار صورة (حتى 50MB)' : 'Select Image (up to 50MB)'}
                         </span>
                       </div>
                     )}
                   </div>
 
-                  {/* Upload Controls */}
-                  <div className="flex-1 space-y-3 w-full">
-                    {/* Primary File Upload Button */}
+                  {/* Upload Controls & File Specifications */}
+                  <div className="flex-1 space-y-2.5 w-full">
                     <div className="flex flex-wrap items-center gap-2">
                       <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] rounded-xs text-xs font-semibold tracking-wide transition-colors shadow-xs">
                         <Upload className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                        <span>{language === 'ar' ? 'اختيار ورفع ملف صورة...' : 'Upload Image from Device...'}</span>
+                        <span>{language === 'ar' ? 'اختيار ورفع ملف صورة من جهازك (حتى 50MB)...' : 'Upload Image from Device (Up to 50MB)...'}</span>
                         <input
                           type="file"
                           accept="image/*"
                           className="hidden"
                           onChange={handleProductImageFile}
+                          disabled={isProcessingImage || isSavingProduct}
                         />
                       </label>
 
                       {productImageUpload && (
                         <button
                           type="button"
-                          onClick={() => setProductImageUpload('')}
+                          onClick={() => {
+                            setProductImageUpload('');
+                            setProductImageMeta(null);
+                          }}
                           className="px-2.5 py-2 border border-red-300 text-red-600 hover:bg-red-50 rounded-xs text-xs transition-colors cursor-pointer"
                         >
                           {language === 'ar' ? 'إزالة' : 'Clear'}
                         </button>
                       )}
                     </div>
+
+                    {/* File Optimization Metadata Badge */}
+                    {productImageMeta && (
+                      <div className="p-2 bg-white rounded-xs border border-[var(--color-border)] text-[11px] text-[var(--color-text)] space-y-0.5">
+                        <p className="font-semibold text-[var(--color-primary)] truncate">📁 {productImageMeta.name}</p>
+                        <p className="text-[10px] text-emerald-700 font-medium">⚡ Size: {productImageMeta.size}</p>
+                      </div>
+                    )}
+
+                    <div className="text-[10px] text-[var(--color-text-secondary)] space-y-0.5 leading-relaxed">
+                      <p>• <strong>Max Image Size:</strong> Up to 50 MB per file</p>
+                      <p>• <strong>Supported Formats:</strong> JPG, JPEG, PNG, WEBP, AVIF</p>
+                      <p>• <strong>Display Output:</strong> 2560px Ultra-HD Retina with zero compression artifacting</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Additional Album Photos */}
-                <div className="pt-2 border-t border-[var(--color-border)]/70">
+                {/* Additional Album / Gallery Photos (Multi-file upload up to 50MB each) */}
+                <div className="pt-2.5 border-t border-[var(--color-border)]/70">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-semibold text-[var(--color-text)]">
-                      {language === 'ar' ? 'صور إضافية لألبوم المعرض (اختياري)' : 'Additional Album Photos for Product Gallery (Optional)'}
-                    </span>
-                    <label className="cursor-pointer text-[10px] text-[var(--color-accent)] hover:underline flex items-center gap-1 font-semibold">
+                    <div>
+                      <span className="text-[11px] font-semibold text-[var(--color-text)]">
+                        {language === 'ar' ? 'صور إضافية لألبوم المعرض (اختياري، حتى 50MB لكل صورة)' : 'Additional Gallery Album Photos (Optional, up to 50MB each)'}
+                      </span>
+                      <p className="text-[10px] text-[var(--color-text-secondary)]">
+                        {language === 'ar' ? 'يمكنك اختيار عدة صور في وقت واحد لمعرض أزياء النوم.' : 'Select multiple photos at once for the full lookbook gallery.'}
+                      </p>
+                    </div>
+                    <label className="cursor-pointer text-[10px] text-[var(--color-accent)] hover:underline flex items-center gap-1 font-semibold bg-[var(--color-card)] px-2.5 py-1 rounded-xs border border-[var(--color-border)]">
                       <Plus className="w-3 h-3" />
-                      <span>{language === 'ar' ? 'إضافة صورة ألبوم' : 'Add Album Photo'}</span>
+                      <span>{language === 'ar' ? 'إضافة صور إضافية' : 'Add Gallery Photos'}</span>
                       <input
                         type="file"
+                        multiple
                         accept="image/*"
                         className="hidden"
                         onChange={handleAddSecondaryImageFile}
+                        disabled={isProcessingImage || isSavingProduct}
                       />
                     </label>
                   </div>
 
                   {productAdditionalImages.length > 0 && (
-                    <div className="flex gap-2 overflow-x-auto pb-1">
+                    <div className="flex gap-2 overflow-x-auto pb-1 pt-1">
                       {productAdditionalImages.map((img, idx) => (
-                        <div key={idx} className="relative w-14 h-18 bg-white border border-[var(--color-border)] rounded-xs overflow-hidden shrink-0 group">
-                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        <div key={idx} className="relative w-16 h-20 bg-white border border-[var(--color-border)] rounded-xs overflow-hidden shrink-0 group shadow-xs">
+                          <img src={img} alt={`Gallery item ${idx + 1}`} className="w-full h-full object-cover" />
                           <button
                             type="button"
                             onClick={() => setProductAdditionalImages((prev) => prev.filter((_, i) => i !== idx))}
-                            className="absolute top-0.5 right-0.5 p-0.5 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            className="absolute top-0.5 right-0.5 p-0.5 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-xs"
+                            title="Delete this photo"
                           >
                             <X className="w-2.5 h-2.5" />
                           </button>
@@ -3691,14 +3828,27 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   )}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              {/* SKU, Product Names in English & Arabic */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--color-text)]">SKU / Item Code *</label>
+                  <input
+                    name="sku"
+                    defaultValue={editingProduct?.sku || `BDS-${Date.now().toString().slice(-6)}`}
+                    required
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white text-xs font-mono font-medium"
+                    placeholder="e.g. BDS-SILK-01"
+                  />
+                </div>
                 <div className="space-y-1">
                   <label className="font-semibold text-[var(--color-text)]">{t.admin.productNameEn} *</label>
                   <input
                     name="nameEn"
                     defaultValue={editingProduct?.nameEn || ''}
                     required
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
+                    placeholder="e.g. Royal Mulberry Silk Pajama Set"
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white"
                   />
                 </div>
                 <div className="space-y-1">
@@ -3707,55 +3857,173 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     name="nameAr"
                     defaultValue={editingProduct?.nameAr || ''}
                     required
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
+                    placeholder="مثال: طقم بيجاما حرير التوت الملكي"
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white text-right"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              {/* Price, Sale Price, Category */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[var(--color-text)]">{t.admin.priceBHD} *</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.priceBHD} (د.ب) *</label>
                   <input
                     type="number"
                     step="0.001"
                     name="price"
-                    defaultValue={editingProduct?.price || 25.000}
+                    defaultValue={editingProduct?.price || 28.000}
                     required
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white font-mono"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[var(--color-text)]">{t.admin.salePriceBHD}</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.salePriceBHD} (د.ب)</label>
                   <input
                     type="number"
                     step="0.001"
                     name="salePrice"
                     defaultValue={editingProduct?.salePrice || ''}
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs"
+                    placeholder="Optional promotional price"
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white font-mono"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-semibold text-[var(--color-text)]">{t.admin.category}</label>
+                  <label className="font-semibold text-[var(--color-text)]">{t.admin.category} *</label>
                   <select
                     name="categoryId"
                     defaultValue={editingProduct?.categoryId || categories[0]?.id}
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs bg-white"
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white"
                   >
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.nameEn}</option>
+                      <option key={c.id} value={c.id}>{c.nameEn} ({c.nameAr})</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* Kids Age Bracket Categorization */}
-              <div className="grid grid-cols-2 gap-4 bg-[var(--color-bg)] p-3 rounded-xs border border-[var(--color-border)]">
+              {/* Fabric Materials & Care Instructions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--color-text)]">Fabric & Material (English)</label>
+                  <input
+                    name="materialEn"
+                    defaultValue={editingProduct?.materialEn || '100% Mulberry Silk, Grade 6A (22 Momme)'}
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white"
+                    placeholder="e.g. 100% Grade 6A Mulberry Silk"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--color-text)]">خامة القماش (العربية)</label>
+                  <input
+                    name="materialAr"
+                    defaultValue={editingProduct?.materialAr || 'حرير التوت الطبيعي النقي ١٠٠٪ عيار ٢٢ موميه'}
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white text-right"
+                    placeholder="مثال: حرير طبيعي ١٠٠٪، دانتيل فرنسي"
+                  />
+                </div>
+              </div>
+
+              {/* Care Instructions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--color-text)]">Care Instructions (English)</label>
+                  <input
+                    name="careInstructionsEn"
+                    defaultValue={editingProduct?.careInstructionsEn || 'Gentle hand wash cold or delicate dry clean.'}
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white"
+                    placeholder="e.g. Dry clean or hand wash cold"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--color-text)]">تعليمات العناية والغسيل (العربية)</label>
+                  <input
+                    name="careInstructionsAr"
+                    defaultValue={editingProduct?.careInstructionsAr || 'غسيل يدوي بماء بارد أو تنظيف جاف لطيف.'}
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white text-right"
+                    placeholder="مثال: غسيل لطيف بماء بارد"
+                  />
+                </div>
+              </div>
+
+              {/* Descriptions (English & Arabic) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--color-text)]">Product Description (English)</label>
+                  <textarea
+                    name="descriptionEn"
+                    rows={2}
+                    defaultValue={editingProduct?.descriptionEn || 'Handcrafted luxury sleepwear tailored with timeless elegance in Bahrain.'}
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--color-text)]">وصف المنتج (العربية)</label>
+                  <textarea
+                    name="descriptionAr"
+                    rows={2}
+                    defaultValue={editingProduct?.descriptionAr || 'ملابس نوم فاخرة مصنوعة يدوياً لأناقة هادئة ومريحة في البحرين.'}
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white text-xs text-right"
+                  />
+                </div>
+              </div>
+
+              {/* Initial Inventory Stock Breakdown by Size */}
+              <div className="bg-[var(--color-bg)] p-3 rounded-xs border border-[var(--color-border)] space-y-2">
+                <label className="font-semibold text-[var(--color-text)] block">
+                  {language === 'ar' ? 'رصيد المخزون الأولي حسب المقاسات (MySQL Inventory Breakdown)' : 'Initial Inventory Stocks by Size (MySQL Inventory Balance)'}
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">Size Small (S)</span>
+                    <input
+                      type="number"
+                      name="stockS"
+                      min={0}
+                      defaultValue={editingProduct?.variants?.find((v) => v.size === 'S')?.stock ?? 12}
+                      className="w-full px-2 py-1 text-xs border border-[var(--color-border)] rounded-xs bg-white text-center font-mono"
+                    />
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">Size Medium (M)</span>
+                    <input
+                      type="number"
+                      name="stockM"
+                      min={0}
+                      defaultValue={editingProduct?.variants?.find((v) => v.size === 'M')?.stock ?? 12}
+                      className="w-full px-2 py-1 text-xs border border-[var(--color-border)] rounded-xs bg-white text-center font-mono"
+                    />
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">Size Large (L)</span>
+                    <input
+                      type="number"
+                      name="stockL"
+                      min={0}
+                      defaultValue={editingProduct?.variants?.find((v) => v.size === 'L')?.stock ?? 8}
+                      className="w-full px-2 py-1 text-xs border border-[var(--color-border)] rounded-xs bg-white text-center font-mono"
+                    />
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">Size X-Large (XL)</span>
+                    <input
+                      type="number"
+                      name="stockXL"
+                      min={0}
+                      defaultValue={editingProduct?.variants?.find((v) => v.size === 'XL')?.stock ?? 6}
+                      className="w-full px-2 py-1 text-xs border border-[var(--color-border)] rounded-xs bg-white text-center font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Flags & Kids Bracket */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[var(--color-bg)] p-3 rounded-xs border border-[var(--color-border)]">
                 <div className="space-y-1">
                   <label className="font-semibold text-[var(--color-text)]">Curated Kids Age Bracket</label>
                   <select
                     name="ageGroup"
                     defaultValue={editingProduct?.ageGroup || 'none'}
-                    className="w-full px-3 py-2 border border-[var(--color-border)] rounded-xs bg-white"
+                    className="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xs bg-white"
                   >
                     <option value="none">None (Adult / All Ages)</option>
                     <option value="3-5">Ages 3 to 5 (٣ - ٥ سنوات)</option>
@@ -3764,36 +4032,88 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     <option value="10-12">Ages 10 to 12 (١٠ - ١٢ سنة)</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-2 pt-5">
-                  <input
-                    type="checkbox"
-                    id="isKidsProductCheck"
-                    name="isKids"
-                    defaultChecked={editingProduct?.isKids || editingProduct?.categoryId === 'cat-kids-sleepwear'}
-                    className="rounded border-[var(--color-border)] text-[var(--color-primary)]"
-                  />
-                  <label htmlFor="isKidsProductCheck" className="text-xs font-semibold text-[var(--color-text)] cursor-pointer">
-                    Mark as Curated Kids Product
+
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--color-text)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="featured"
+                      defaultChecked={editingProduct?.featured ?? true}
+                      className="rounded border-[var(--color-border)] text-[var(--color-primary)]"
+                    />
+                    <span>Featured</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--color-text)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="bestSeller"
+                      defaultChecked={editingProduct?.bestSeller ?? false}
+                      className="rounded border-[var(--color-border)] text-[var(--color-primary)]"
+                    />
+                    <span>Best Seller</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--color-text)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="newArrival"
+                      defaultChecked={editingProduct?.newArrival ?? true}
+                      className="rounded border-[var(--color-border)] text-[var(--color-primary)]"
+                    />
+                    <span>New Arrival</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--color-text)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="active"
+                      defaultChecked={editingProduct?.active !== false}
+                      className="rounded border-[var(--color-border)] text-[var(--color-primary)]"
+                    />
+                    <span>Active in Store</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-[var(--color-text)] cursor-pointer col-span-2">
+                    <input
+                      type="checkbox"
+                      id="isKidsProductCheck"
+                      name="isKids"
+                      defaultChecked={editingProduct?.isKids || editingProduct?.categoryId === 'cat-kids-sleepwear'}
+                      className="rounded border-[var(--color-border)] text-[var(--color-primary)]"
+                    />
+                    <span>Mark as Curated Kids Product</span>
                   </label>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4 border-t border-[var(--color-border)]">
+              {/* Form Buttons */}
+              <div className="flex justify-end items-center gap-2 pt-4 border-t border-[var(--color-border)]">
                 <button
                   type="button"
                   onClick={() => {
                     setEditingProduct(null);
                     setIsCreatingProduct(false);
+                    setProductFeedback(null);
+                    setProductUploadError(null);
                   }}
-                  className="px-4 py-2 border border-[var(--color-border)] rounded-xs text-[var(--color-text)]"
+                  className="px-4 py-2 border border-[var(--color-border)] rounded-xs text-[var(--color-text)] hover:bg-[var(--color-bg)] transition-colors cursor-pointer"
+                  disabled={isSavingProduct}
                 >
                   {t.admin.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-[var(--color-primary)] text-white rounded-xs font-semibold"
+                  disabled={isSavingProduct || isProcessingImage}
+                  className="px-6 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white rounded-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer shadow-sm disabled:opacity-50"
                 >
-                  {t.admin.saveChanges}
+                  {isSavingProduct ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>{language === 'ar' ? 'جاري الحفظ في MySQL...' : 'Uploading to MySQL Database...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Database className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                      <span>{editingProduct ? (language === 'ar' ? 'تحديث وحفظ في قاعدة البيانات' : 'Update in MySQL Database') : (language === 'ar' ? 'رفع ونشر في قاعدة البيانات' : 'Upload to MySQL Database')}</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

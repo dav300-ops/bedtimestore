@@ -1,5 +1,7 @@
 import mysql, { Pool, PoolOptions } from 'mysql2/promise';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import {
   DDL_CREATE_USERS_TABLE,
   DDL_CREATE_CATEGORIES_TABLE,
@@ -87,6 +89,53 @@ const memoryStore = {
   security_logs: new Map<string, any>(),
   product_sales: new Map<string, any>(),
 };
+
+const PERSISTENCE_DIR = path.join(process.cwd(), 'server', 'data');
+const PERSISTENCE_FILE = path.join(PERSISTENCE_DIR, 'persisted_db.json');
+
+function loadPersistedData() {
+  try {
+    if (fs.existsSync(PERSISTENCE_FILE)) {
+      const raw = fs.readFileSync(PERSISTENCE_FILE, 'utf-8');
+      const data = JSON.parse(raw);
+      if (data.products && Array.isArray(data.products)) {
+        for (const p of data.products) memoryStore.products.set(p.id, p);
+      }
+      if (data.categories && Array.isArray(data.categories)) {
+        for (const c of data.categories) memoryStore.categories.set(c.id, c);
+      }
+      if (data.orders && Array.isArray(data.orders)) {
+        for (const o of data.orders) memoryStore.orders.set(o.id, o);
+      }
+      if (data.users && Array.isArray(data.users)) {
+        for (const u of data.users) memoryStore.users.set(u.id, u);
+      }
+      console.log(`[DB] Restored ${memoryStore.products.size} products from local persistence store.`);
+    }
+  } catch (err: any) {
+    console.warn('[DB] Persistence load notice:', err?.message);
+  }
+}
+
+function savePersistedData() {
+  try {
+    if (!fs.existsSync(PERSISTENCE_DIR)) {
+      fs.mkdirSync(PERSISTENCE_DIR, { recursive: true });
+    }
+    const data = {
+      products: Array.from(memoryStore.products.values()),
+      categories: Array.from(memoryStore.categories.values()),
+      orders: Array.from(memoryStore.orders.values()),
+      users: Array.from(memoryStore.users.values()),
+    };
+    fs.writeFileSync(PERSISTENCE_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err: any) {
+    // Non-blocking
+  }
+}
+
+// Load existing persisted data on startup
+loadPersistedData();
 
 export function getDatabaseStatus(): MySQLDatabaseStatus {
   return {
@@ -400,6 +449,7 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         updatedAt: new Date().toISOString(),
       };
       memoryStore.products.set(id, prod);
+      savePersistedData();
       return [{ insertId: id, affectedRows: 1 }] as any;
     }
 
@@ -410,6 +460,7 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         if (prod) {
           prod.variants = safeParse(variants);
           prod.updatedAt = new Date().toISOString();
+          savePersistedData();
         }
         return [{ affectedRows: prod ? 1 : 0 }] as any;
       }
@@ -448,6 +499,7 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         prod.targetAudience = target_audience;
         prod.kidAgeRange = kid_age_range;
         prod.updatedAt = new Date().toISOString();
+        savePersistedData();
       }
       return [{ affectedRows: prod ? 1 : 0 }] as any;
     }
@@ -455,6 +507,7 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
     if (lower.startsWith('delete from products')) {
       const [id] = params;
       const deleted = memoryStore.products.delete(id);
+      savePersistedData();
       return [{ affectedRows: deleted ? 1 : 0 }] as any;
     }
   }

@@ -289,20 +289,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const addProduct = async (newProd: Omit<Product, 'id' | 'createdAt'>) => {
     const product: Product = {
       ...newProd,
-      id: `prod-${Date.now()}`,
+      id: (newProd as any).id || `prod-${Date.now()}`,
       createdAt: new Date().toISOString(),
     };
-    setProducts((prev) => [product, ...prev]);
 
     try {
-      await fetch('/api/products', {
+      const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
       });
-      refreshData();
-    } catch (err) {
-      console.warn('Error saving product to server:', err);
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || `Server responded with status ${res.status}`);
+      }
+
+      const savedProduct = data.product || product;
+      setProducts((prev) => [savedProduct, ...prev.filter((p) => p.id !== savedProduct.id)]);
+      await refreshData();
+      return savedProduct;
+    } catch (err: any) {
+      console.error('Error saving product to database:', err);
+      // Fallback local update to keep UI responsive even in edge network interruptions
+      setProducts((prev) => [product, ...prev]);
+      throw err;
     }
   };
 
@@ -312,14 +324,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
 
     try {
-      await fetch(`/api/products/${id}`, {
+      const res = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      refreshData();
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || `Server update failed with status ${res.status}`);
+      }
+
+      await refreshData();
     } catch (err) {
-      console.warn('Error updating product on server:', err);
+      console.error('Error updating product on server:', err);
+      throw err;
     }
   };
 
@@ -327,10 +346,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setProducts((prev) => prev.filter((p) => p.id !== id));
 
     try {
-      await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      refreshData();
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        throw new Error(`Server delete failed with status ${res.status}`);
+      }
+      await refreshData();
     } catch (err) {
-      console.warn('Error deleting product on server:', err);
+      console.error('Error deleting product on server:', err);
+      throw err;
     }
   };
 
