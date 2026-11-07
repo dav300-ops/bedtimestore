@@ -607,9 +607,15 @@ FROM product_sales
 WHERE payment_status = 'Paid'
 `;
 
+// export const SQL_UPDATE_SALE_PAYMENT_STATUS = `
+// UPDATE product_sales
+// SET payment_status = ?, updated_at = NOW()
+// WHERE order_id = ? OR order_number = ?
+// `;
+
 export const SQL_UPDATE_SALE_PAYMENT_STATUS = `
 UPDATE product_sales
-SET payment_status = ?, updated_at = NOW()
+SET payment_status = ?
 WHERE order_id = ? OR order_number = ?
 `;
 
