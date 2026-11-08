@@ -357,33 +357,6 @@ class ApiService {
     return await this.request('/api/health');
   }
 
-  /**
-   * Manual Refresh Data: flushes in-memory and browser cache and re-queries MariaDB directly
-   */
-  public async clearCacheAndRefresh(): Promise<{
-    categories: Category[];
-    products: Product[];
-    orders: Order[];
-  }> {
-    // 1. Clear frontend browser cache
-    browserCache.clearAll();
-
-    // 2. Notify server to flush API cache as well
-    try {
-      await this.request('/api/cache/clear', { method: 'POST' });
-    } catch {
-      // Non-fatal
-    }
-
-    // 3. Re-fetch all dynamic data fresh from MariaDB
-    const [categories, products, orders] = await Promise.all([
-      this.getCategories(),
-      this.getProducts(),
-      this.getOrders(),
-    ]);
-
-    return { categories, products, orders };
-  }
 }
 
 export const api = new ApiService();

@@ -205,7 +205,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               onMouseMove={handleMouseMove}
             >
               <img
-                src={product.images[activeImageIndex] || product.images[0]}
+                src={(product.images?.[activeImageIndex] && product.images[activeImageIndex].trim() !== '') 
+                  ? product.images[activeImageIndex] 
+                  : ((product.images?.[0] && product.images[0].trim() !== '') ? product.images[0] : '/images/hero_pic.jpeg')}
                 alt={displayName}
                 className={`w-full h-full object-cover object-center transition-transform duration-200 ${
                   isZoomed ? 'scale-150 origin-center' : 'scale-100'
@@ -265,7 +267,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                         : 'border-transparent opacity-70 hover:opacity-100 hover:border-[var(--color-border)]'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={(img && img.trim() !== '') ? img : '/images/hero_pic.jpeg'} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

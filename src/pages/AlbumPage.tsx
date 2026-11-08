@@ -214,13 +214,14 @@ export const AlbumPage: React.FC<AlbumPageProps> = ({
               : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6'
           }>
             {filteredProducts.map((product) => {
-              const images = product.images && product.images.length > 0
-                ? product.images
-                : ['/images/hero_pic.jpeg'];
+              const rawImages = (product.images && Array.isArray(product.images))
+                ? product.images.filter((img) => typeof img === 'string' && img.trim() !== '')
+                : [];
+              const images = rawImages.length > 0 ? rawImages : ['/images/hero_pic.jpeg'];
 
               const totalImages = images.length;
               const activeImageIdx = activeCardImageIndexes[product.id] || 0;
-              const currentImg = images[activeImageIdx] || images[0];
+              const currentImg = images[activeImageIdx] || images[0] || '/images/hero_pic.jpeg';
 
               const totalStock = (product.variants || []).reduce(
                 (sum, v) => sum + (Number(v.stock) || 0),

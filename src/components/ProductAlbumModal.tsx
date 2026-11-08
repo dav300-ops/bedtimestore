@@ -82,12 +82,13 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
 
   if (!isOpen || !activeProduct) return null;
 
-  const images = activeProduct.images && activeProduct.images.length > 0
-    ? activeProduct.images
-    : ['/images/hero_pic.jpeg'];
+  const rawImages = (activeProduct.images && Array.isArray(activeProduct.images))
+    ? activeProduct.images.filter((img) => typeof img === 'string' && img.trim() !== '')
+    : [];
+  const images = rawImages.length > 0 ? rawImages : ['/images/hero_pic.jpeg'];
 
   const totalImages = images.length;
-  const currentImage = images[currentImageIndex] || images[0];
+  const currentImage = images[currentImageIndex] || images[0] || '/images/hero_pic.jpeg';
 
   const totalStock = (activeProduct.variants || []).reduce(
     (sum, v) => sum + (Number(v.stock) || 0),

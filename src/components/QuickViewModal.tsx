@@ -119,7 +119,9 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           <div className="p-6 bg-[var(--color-bg)]/30 flex flex-col justify-between border-b md:border-b-0 md:border-r rtl:md:border-r-0 rtl:md:border-l border-[var(--color-border)]">
             <div className="aspect-[3/4] bg-[var(--color-card)] rounded-sm overflow-hidden relative shadow-inner">
               <img
-                src={product.images[activeImageIndex] || product.images[0]}
+                src={(product.images?.[activeImageIndex] && product.images[activeImageIndex].trim() !== '')
+                  ? product.images[activeImageIndex]
+                  : ((product.images?.[0] && product.images[0].trim() !== '') ? product.images[0] : '/images/hero_pic.jpeg')}
                 alt={displayName}
                 className="w-full h-full object-cover object-center"
                 referrerPolicy="no-referrer"
@@ -139,7 +141,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                         : 'border-[var(--color-border)] opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={(img && img.trim() !== '') ? img : '/images/hero_pic.jpeg'} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

@@ -350,7 +350,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                           {ord.items.map((item, idx) => {
                             const matchedProd = products.find((p) => p.id === item.productId);
-                            const imgUrl = item.image || matchedProd?.images?.[0] || '/images/hero_pic.jpeg';
+                            const imgUrl = (item.image && item.image.trim() !== '') 
+                              ? item.image 
+                              : ((matchedProd?.images?.[0] && matchedProd.images[0].trim() !== '') ? matchedProd.images[0] : '/images/hero_pic.jpeg');
 
                             return (
                               <div
@@ -841,7 +843,9 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                   <div className="divide-y divide-[var(--color-border)] border border-[var(--color-border)] rounded-xs bg-[var(--color-bg)] overflow-hidden max-h-48 overflow-y-auto">
                     {inspectOrder.items.map((item, idx) => {
                       const matchedProd = products.find((p) => p.id === item.productId);
-                      const img = item.image || matchedProd?.images?.[0] || '/images/hero_pic.jpeg';
+                      const img = (item.image && item.image.trim() !== '') 
+                        ? item.image 
+                        : ((matchedProd?.images?.[0] && matchedProd.images[0].trim() !== '') ? matchedProd.images[0] : '/images/hero_pic.jpeg');
 
                       return (
                         <div key={idx} className="p-2.5 flex items-center justify-between gap-3 text-xs bg-white">

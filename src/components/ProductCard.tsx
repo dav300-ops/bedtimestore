@@ -45,20 +45,23 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
         ? (product as any).categoryNameFr
         : product.categoryNameEn;
 
-  // Extract unique colors from variants
+  // Extract unique colors from variants with safe fallbacks
   const uniqueColors = useMemo(() => {
-    return Array.from(
-      new Map(
-        product.variants.map((v) => [
-          v.colorHex,
-          { hex: v.colorHex, nameEn: v.colorNameEn, nameAr: v.colorNameAr },
-        ])
-      ).values()
-    );
+    if (!product.variants || !Array.isArray(product.variants)) return [];
+    const colorMap = new Map<string, { hex: string; nameEn: string; nameAr: string }>();
+    product.variants.forEach((v, idx) => {
+      const hex = v.colorHex || (v as any).color_hex || '#4A0A15';
+      const nameEn = v.colorNameEn || (v as any).color || 'Standard';
+      const nameAr = v.colorNameAr || (v as any).color || 'الأساسي';
+      if (!colorMap.has(hex)) {
+        colorMap.set(hex, { hex, nameEn, nameAr });
+      }
+    });
+    return Array.from(colorMap.values());
   }, [product.variants]);
 
   const activeColor = uniqueColors[selectedColorIndex] || uniqueColors[0] || {
-    hex: '#340404',
+    hex: '#4A0A15',
     nameEn: 'Standard',
     nameAr: 'الأساسي',
   };
@@ -86,10 +89,16 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
     return Array.from(set);
   }, [product.variants]);
 
-  // Image handling
-  const hasSecondImage = Boolean(product.images && product.images[1]);
-  const primaryImage = product.images?.[0] || '/images/hero_pic.jpeg';
-  const secondaryImage = product.images?.[1] || primaryImage;
+  // Robust Image handling - never pass empty string ("") to src
+  const validImages = useMemo(() => {
+    if (!product.images || !Array.isArray(product.images)) return ['/images/hero_pic.jpeg'];
+    const filtered = product.images.filter((img) => typeof img === 'string' && img.trim() !== '');
+    return filtered.length > 0 ? filtered : ['/images/hero_pic.jpeg'];
+  }, [product.images]);
+
+  const primaryImage = validImages[0] || '/images/hero_pic.jpeg';
+  const hasSecondImage = validImages.length > 1;
+  const secondaryImage = hasSecondImage ? validImages[1] : primaryImage;
 
   // Direct quick add for single variant / free size
   const handleDirectQuickAdd = (e: React.MouseEvent) => {
@@ -314,7 +323,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
           >
             {uniqueColors.slice(0, 5).map((color, idx) => (
               <button
-                key={color.hex}
+                key={`${product.id}-color-${color.hex}-${idx}`}
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();

@@ -673,7 +673,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     <div key={item.id} className="pt-3 first:pt-0 flex items-center justify-between gap-3 text-xs">
                       <div className="flex items-center gap-3">
                         <img
-                          src={item.product.images[0]}
+                          src={(item.product.images?.[0] && item.product.images[0].trim() !== '') ? item.product.images[0] : '/images/hero_pic.jpeg'}
                           alt=""
                           className="w-12 h-14 object-cover rounded-xs border border-[var(--color-border)]"
                         />

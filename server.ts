@@ -25,13 +25,23 @@ async function startServer() {
   const app = express();
   const PORT = config.port;
 
-  // 2. Security Headers via Helmet (with CSP disabled for preview iframe compatibility)
+  // 2. Security Headers via Helmet (configured for AI Studio preview iframe compatibility)
   app.use(
     helmet({
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false,
+      frameguard: false,
+      originAgentCluster: false,
     })
   );
+
+  // Ensure iframe embedding is allowed in development / preview
+  app.use((_req, res, next) => {
+    res.removeHeader('X-Frame-Options');
+    next();
+  });
 
   // 3. CORS Configuration
   if (config.isProd) {

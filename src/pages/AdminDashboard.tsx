@@ -80,7 +80,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
     salesAnalytics,
     adjustStock,
     refreshData,
-    manualRefresh,
     isLoadingCatalog,
     addProduct, 
     updateProduct, 
@@ -718,17 +717,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => manualRefresh()}
-              disabled={isLoadingCatalog}
-              className="px-3 py-2 bg-[var(--color-card)] hover:bg-[var(--color-border)] text-[var(--color-text)] border border-[var(--color-border)] text-xs font-semibold rounded-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-              title="Clear browser cache and reload fresh data from database"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-[var(--color-primary)] ${isLoadingCatalog ? 'animate-spin' : ''}`} />
-              <span>{isLoadingCatalog ? (language === 'ar' ? 'جاري التحديث...' : 'Refreshing...') : (language === 'ar' ? 'تحديث البيانات' : 'Refresh data')}</span>
-            </button>
-
             {activeTab === 'admins' && (
               <button
                 type="button"
@@ -1017,7 +1005,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
                   ).map((item) => (
                     <div key={item.id} className="flex items-center gap-3 p-2 rounded-xs hover:bg-[var(--color-bg)]/30">
                       <img
-                        src={item.image}
+                        src={(item.image && item.image.trim() !== '') ? item.image : '/images/hero_pic.jpeg'}
                         alt=""
                         className="w-10 h-12 object-cover rounded-xs border border-[var(--color-border)]"
                       />
@@ -2071,7 +2059,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       return (
                         <tr key={p.id} className="hover:bg-[var(--color-bg)]/20">
                           <td className="p-4">
-                            <img src={p.images[0]} alt="" className="w-10 h-12 object-cover rounded-xs border" />
+                            <img src={(p.images?.[0] && p.images[0].trim() !== '') ? p.images[0] : '/images/hero_pic.jpeg'} alt="" className="w-10 h-12 object-cover rounded-xs border" />
                           </td>
                           <td className="p-4">
                             <p className="font-semibold text-[var(--color-text)]">{p.nameEn}</p>
@@ -2288,7 +2276,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-3.5">
                             <img
-                              src={product.images[0]}
+                              src={(product.images?.[0] && product.images[0].trim() !== '') ? product.images[0] : '/images/hero_pic.jpeg'}
                               alt=""
                               className="w-14 h-16 object-cover rounded-xs border border-[var(--color-border)] shrink-0"
                             />

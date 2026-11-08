@@ -149,7 +149,7 @@ export const OAuthDialogModal: React.FC<OAuthDialogModalProps> = ({
                   >
                     <div className="flex items-center gap-3">
                       <img
-                        src={preset.avatarUrl}
+                        src={(preset.avatarUrl && preset.avatarUrl.trim() !== '') ? preset.avatarUrl : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
                         alt={preset.name}
                         className="w-9 h-9 rounded-full object-cover border border-gray-200"
                       />
@@ -206,7 +206,7 @@ export const OAuthDialogModal: React.FC<OAuthDialogModalProps> = ({
                     >
                       <div className="flex items-center gap-3">
                         <img
-                          src={preset.avatarUrl}
+                          src={(preset.avatarUrl && preset.avatarUrl.trim() !== '') ? preset.avatarUrl : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
                           alt={preset.name}
                           className="w-8 h-8 rounded-full object-cover border"
                         />

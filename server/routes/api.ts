@@ -58,14 +58,6 @@ export function formatErrorResponse(err: any, statusCode: number = 500) {
 // 0. Cache Management Endpoints
 // ============================================================================
 
-router.post('/cache/clear', (_req: Request, res: Response) => {
-  appCache.clear();
-  return res.json({
-    success: true,
-    message: 'Cache cleared successfully',
-    timestamp: new Date().toISOString(),
-  });
-});
 
 router.get('/cache/stats', (_req: Request, res: Response) => {
   return res.json({

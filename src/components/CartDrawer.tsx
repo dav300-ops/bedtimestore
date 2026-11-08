@@ -135,7 +135,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     {/* Item Image */}
                     <div className="w-20 h-24 bg-white rounded-xs overflow-hidden shrink-0">
                       <img
-                        src={item.product.images[0]}
+                        src={(item.product.images?.[0] && item.product.images[0].trim() !== '') ? item.product.images[0] : '/images/hero_pic.jpeg'}
                         alt={name}
                         className="w-full h-full object-cover object-center"
                         referrerPolicy="no-referrer"

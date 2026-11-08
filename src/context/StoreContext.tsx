@@ -145,7 +145,6 @@ interface StoreContextType {
   updateCMS: (settings: Partial<CMSBannerSettings>) => void;
   deductInventory: (items: { productId: string; size: string; color: string; quantity: number }[]) => boolean;
   refreshData: () => Promise<void>;
-  manualRefresh: () => Promise<void>;
   getProductById: (id: string) => Product | undefined;
   getCategoryBySlug: (slug: string) => Category | undefined;
 }
@@ -265,24 +264,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
     } catch (err: any) {
       console.warn('[StoreContext] Refresh notice:', err?.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Manual Refresh: clears browser cache completely and fetches fresh data
-   */
-  const manualRefresh = async () => {
-    setIsLoading(true);
-    try {
-      const { categories: freshCats, products: freshProds, orders: freshOrds } =
-        await api.clearCacheAndRefresh();
-      setCategories(freshCats);
-      setProducts(freshProds);
-      setOrders(freshOrds);
-    } catch (err: any) {
-      console.error('[StoreContext] Manual refresh error:', err?.message);
     } finally {
       setIsLoading(false);
     }
@@ -617,7 +598,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateCMS,
         deductInventory,
         refreshData,
-        manualRefresh,
         getProductById,
         getCategoryBySlug,
       }}

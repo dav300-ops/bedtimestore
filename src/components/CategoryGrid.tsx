@@ -46,6 +46,10 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onSelectCategory }) 
             const desc = language === 'ar' ? cat.descriptionAr : cat.descriptionEn;
             const isKids = cat.id === 'cat-kids-sleepwear';
 
+            const catImage = (cat.image && typeof cat.image === 'string' && cat.image.trim() !== '') 
+              ? cat.image 
+              : '/images/white_robe.jpeg';
+
             return (
               <button
                 key={cat.id}
@@ -55,7 +59,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onSelectCategory }) 
                 {/* Visual Thumbnail with clean white container */}
                 <div className="w-full aspect-square rounded-sm overflow-hidden bg-white mb-2.5 relative border border-[var(--color-border)]/50 group-hover:border-[var(--color-gold)]/60 transition-colors">
                   <img
-                    src={cat.image}
+                    src={catImage}
                     alt={name}
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"

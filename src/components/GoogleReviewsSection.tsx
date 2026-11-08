@@ -241,7 +241,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({
                     {/* Reviewer Meta Footer */}
                     <div className="pt-3 border-t border-[var(--color-border)]/60 flex items-center gap-3">
                       <img
-                        src={rev.avatar}
+                        src={(rev.avatar && rev.avatar.trim() !== '') ? rev.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}
                         alt={rev.author}
                         className="w-9 h-9 rounded-full object-cover border border-[var(--color-border)] shrink-0"
                       />
