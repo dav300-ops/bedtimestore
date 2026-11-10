@@ -626,6 +626,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[var(--color-bg)]">
+
+      {/* Database status: shown only when MariaDB is NOT connected, so a failed save is never a mystery */}
+      {dbStatus && !dbStatus.connected && dbStatus.state !== 'connecting' && (
+        <div
+          role="alert"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] max-w-xl w-[92%] p-3 bg-red-50 border border-red-400 text-red-900 rounded-xs text-xs shadow-lg flex items-start gap-2"
+        >
+          <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold">
+              {language === 'ar' ? 'قاعدة البيانات غير متصلة — لن يتم حفظ أي تغييرات' : 'Database not connected — changes cannot be saved'}
+            </p>
+            <p className="mt-0.5 opacity-80">
+              {dbStatus.error ? `${dbStatus.error}. ` : ''}Check the server log for the exact cause, or run <code>npm run db:check</code>.
+            </p>
+          </div>
+        </div>
+      )}
       
       {/* 1. Sidebar - Black Bean background with Dogwood text */}
       <aside className="w-full md:w-64 bg-[var(--color-text)] text-[var(--color-bg)] p-6 flex flex-col justify-between shrink-0 border-r border-[var(--color-accent)]/30">

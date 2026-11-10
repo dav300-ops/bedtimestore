@@ -20,6 +20,7 @@ export interface MySQLDatabaseStatus {
   database: string;
   user: string;
   error?: string;
+  errorCode?: string;
   lastConnectedAt?: string;
   pool?: {
     connectionLimit: number;
@@ -140,8 +141,8 @@ function savePersistedData() {
   }
 }
 
-// Load existing persisted data on startup
-loadPersistedData();
+// The JSON snapshot belongs to the in-memory demo engine only
+if (config.allowMemoryFallback) loadPersistedData();
 
 export function getDatabaseStatus(): MySQLDatabaseStatus {
   return {
@@ -151,11 +152,39 @@ export function getDatabaseStatus(): MySQLDatabaseStatus {
 }
 
 /**
- * Initialize MariaDB/MySQL Connection Pool and Bootstrap DDL Schemas
+ * Turn a raw driver error into a short, actionable explanation.
+ */
+export function describeDbError(err: any): { code: string; hint: string } {
+  const code: string = err?.code || err?.errno?.toString() || 'UNKNOWN';
+  const where = `${config.db.host || '(no host)'}:${config.db.port}`;
+  const hints: Record<string, string> = {
+    ECONNREFUSED: `Nothing is listening at ${where}. Is MariaDB running, and are DB_HOST/DB_PORT correct? (A cloud preview such as AI Studio cannot reach a database on your own PC or on "localhost".)`,
+    ENOTFOUND: `The host name "${config.db.host}" cannot be resolved. Check DB_HOST.`,
+    EAI_AGAIN: `DNS lookup for "${config.db.host}" failed. Check DB_HOST and the server's network.`,
+    ETIMEDOUT: `Connection to ${where} timed out. The host may be firewalled. For a hosted database enable "Remote MySQL" and allow this server's IP.`,
+    EHOSTUNREACH: `Host ${where} is unreachable from this server.`,
+    ER_ACCESS_DENIED_ERROR: 'Wrong DB_USER or DB_PASSWORD (or this user is not allowed to connect from this host).',
+    ER_DBACCESS_DENIED_ERROR: `User "${config.db.user}" has no privileges on database "${config.db.database}". Grant INSERT/UPDATE/DELETE/SELECT/CREATE in the hosting panel.`,
+    ER_BAD_DB_ERROR: `Database "${config.db.database}" does not exist. Create it first.`,
+    ER_NET_PACKET_TOO_LARGE: 'A query exceeded max_allowed_packet (usually a very large base64 image).',
+  };
+  return { code, hint: hints[code] || err?.sqlMessage || err?.message || 'Unknown database error' };
+}
+
+export function isDatabaseAvailable(): boolean {
+  return dbStatus.connected || config.allowMemoryFallback;
+}
+
+export function isUsingMemoryFallback(): boolean {
+  return !dbStatus.connected && config.allowMemoryFallback;
+}
+
+/**
+ * One connection attempt: build the pool, ping, create tables.
+ * Returns true only if MariaDB/MySQL is genuinely reachable.
  */
 export async function connectToDatabase(): Promise<boolean> {
   dbStatus.state = 'connecting';
-  queriesCount = 0;
 
   const dbHost = process.env.DB_HOST || config.db.host;
   const dbPort = Number(process.env.DB_PORT || config.db.port);
@@ -169,6 +198,7 @@ export async function connectToDatabase(): Promise<boolean> {
     user: dbUser,
     password: dbPassword,
     database: dbName,
+    charset: 'utf8mb4',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
@@ -179,15 +209,20 @@ export async function connectToDatabase(): Promise<boolean> {
   };
 
   try {
+    if (pool) {
+      try { await pool.end(); } catch {}
+      pool = null;
+    }
     pool = mysql.createPool(poolOptions);
 
-    // Test connectivity by checking connection
     const connection = await pool.getConnection();
     await connection.ping();
     connection.release();
 
     dbStatus.connected = true;
     dbStatus.state = 'connected';
+    dbStatus.error = undefined;
+    dbStatus.errorCode = undefined;
     dbStatus.lastConnectedAt = new Date().toISOString();
     dbStatus.host = dbHost;
     dbStatus.port = dbPort;
@@ -198,19 +233,57 @@ export async function connectToDatabase(): Promise<boolean> {
       queueLimit: poolOptions.queueLimit || 0,
     };
 
-    console.log(`[MariaDB/MySQL] Connected successfully to database "${dbName}" on ${dbHost}:${dbPort}`);
+    console.log(`[MariaDB/MySQL] Connected successfully to database "${dbName}" on ${dbHost}:${dbPort} as "${dbUser}"`);
 
-    // Bootstrap DDL Schemas
     await initializeSchemas();
-
     return true;
   } catch (err: any) {
+    const { code, hint } = describeDbError(err);
     dbStatus.connected = false;
-    dbStatus.state = 'fallback_memory';
-    dbStatus.error = err?.message || 'MariaDB/MySQL server unreachable, active resilient in-memory SQL driver';
-    console.warn(`[MariaDB/MySQL] Notice: ${dbStatus.error}. Operating with resilient SQL engine.`);
+    dbStatus.state = config.allowMemoryFallback ? 'fallback_memory' : 'error';
+    dbStatus.error = hint;
+    dbStatus.errorCode = code;
+    dbStatus.host = dbHost;
+    dbStatus.port = dbPort;
+    dbStatus.user = dbUser;
+    dbStatus.database = dbName;
+
+    console.error('==============================================================================');
+    console.error(`[DATABASE UNAVAILABLE] ${code}`);
+    console.error(`  ${hint}`);
+    console.error(`  Tried: ${dbUser}@${dbHost}:${dbPort}/${dbName}`);
+    if (config.allowMemoryFallback) {
+      console.error('  ALLOW_MEMORY_FALLBACK=true -> using a TEMPORARY in-memory store. NOTHING IS SAVED TO THE DATABASE.');
+    } else {
+      console.error('  Data endpoints will answer 503 until the database is reachable (retrying automatically).');
+    }
+    console.error('==============================================================================');
     return false;
   }
+}
+
+let retryTimer: NodeJS.Timeout | null = null;
+
+/**
+ * Connect now, and keep retrying in the background until it succeeds,
+ * so starting the app before the database is up does not leave it broken forever.
+ * `onConnected` runs once after each successful (re)connection (e.g. to seed data).
+ */
+export async function startConnectionManager(onConnected?: () => Promise<void>, retryMs = 15000): Promise<void> {
+  const attempt = async () => {
+    const ok = await connectToDatabase();
+    if (ok) {
+      if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
+      try {
+        if (onConnected) await onConnected();
+      } catch (err: any) {
+        console.warn('[MySQL] Post-connect bootstrap notice:', err?.message || err);
+      }
+      return;
+    }
+    retryTimer = setTimeout(attempt, retryMs);
+  };
+  await attempt();
 }
 
 /**
@@ -255,8 +328,11 @@ export async function withTransaction<T>(
     }
   }
 
-  // Resilient memory fallback transaction
-  return callback(null as any);
+  if (config.allowMemoryFallback) {
+    // Explicit opt-in demo mode only
+    return callback(null as any);
+  }
+  throw makeUnavailableError();
 }
 
 /**
@@ -308,49 +384,53 @@ function isDroppedConnectionError(err: any): boolean {
   );
 }
 
+function makeUnavailableError(): Error & { code?: string } {
+  const e: Error & { code?: string } = new Error(
+    `Database is not connected${dbStatus.errorCode ? ` (${dbStatus.errorCode})` : ''}. Nothing was saved.`
+  );
+  e.code = 'DB_UNAVAILABLE';
+  return e;
+}
+
 /**
- * Universal Query Executor with MariaDB/MySQL Pool (pool.execute) + 1 Retry on Dropped Connections
+ * Universal Query Executor: MariaDB/MySQL pool (pool.execute) + 1 retry on dropped connections.
+ * If the database is down it THROWS (code DB_UNAVAILABLE) rather than pretending to save.
+ * The in-memory engine is used only when ALLOW_MEMORY_FALLBACK=true.
  */
 export async function executeQuery<T = any>(sql: string, params: any[] = []): Promise<T[]> {
   queriesCount++;
   const cleanParams = sanitizeParams(params);
 
-  // 1. If live pool is connected, execute directly on MariaDB/MySQL using pool.execute
   if (pool && dbStatus.connected) {
     try {
       const [rows] = await pool.execute(sql, cleanParams);
-      // Synchronize in-memory copy
-      try {
-        executeInMemoryQuery(sql, cleanParams);
-      } catch {}
       return rows as T[];
     } catch (err: any) {
       if (isDroppedConnectionError(err)) {
         console.warn(`[MariaDB/MySQL] Connection dropped (${err.code}). Retrying query once...`);
         try {
           const [retryRows] = await pool.execute(sql, cleanParams);
-          try {
-            executeInMemoryQuery(sql, cleanParams);
-          } catch {}
           return retryRows as T[];
         } catch (retryErr: any) {
           console.error('[MariaDB/MySQL Retry Failed]', { code: retryErr?.code, sqlMessage: retryErr?.sqlMessage });
           throw retryErr;
         }
-      } else {
-        console.error('[MariaDB/MySQL Query Failed]', {
-          code: err?.code,
-          sqlMessage: err?.sqlMessage,
-          message: err?.message,
-          sql: sql.trim().split('\n')[0],
-        });
-        throw err;
       }
+      console.error('[MariaDB/MySQL Query Failed]', {
+        code: err?.code,
+        sqlMessage: err?.sqlMessage,
+        message: err?.message,
+        sql: sql.trim().split('\n')[0],
+      });
+      throw err;
     }
   }
 
-  // 2. Resilient In-Memory SQL Simulation Engine
-  return executeInMemoryQuery<T>(sql, cleanParams);
+  if (config.allowMemoryFallback) {
+    return executeInMemoryQuery<T>(sql, cleanParams);
+  }
+
+  throw makeUnavailableError();
 }
 
 /**

@@ -443,7 +443,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Persist to MySQL Relational Database
     try {
-      await fetch('/api/auth/register', {
+      const regRes = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -455,6 +455,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isGuest: false,
         }),
       });
+      if (!regRes.ok) {
+        const body = await regRes.json().catch(() => ({}));
+        console.error('[Auth] Account was NOT saved to the database:', regRes.status, body?.error || body);
+      }
     } catch (apiErr) {
       console.warn('MySQL auth registration sync note:', apiErr);
     }

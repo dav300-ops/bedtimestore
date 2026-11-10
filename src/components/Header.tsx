@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   ShoppingBag, 
@@ -21,13 +22,13 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { AnnouncementBar } from './AnnouncementBar';
 import boutiqueLogo from '../assets/images/boutique_logo.jpeg';
-
+ 
 interface HeaderProps {
   onNavigate: (page: string, params?: any) => void;
   currentPage: string;
   currentParams?: any;
 }
-
+ 
 export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, currentParams }) => {
   const { language, setLanguage, t, isRtl } = useLanguage();
   const { cartCount, setIsCartOpen } = useCart();
@@ -35,43 +36,43 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
+ 
   // Desktop Explore Menu State & Ref for Click-Outside / Escape
   const [isExploreOpen, setIsExploreOpen] = useState(false);
   const exploreMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
+ 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (exploreMenuRef.current && !exploreMenuRef.current.contains(event.target as Node)) {
         setIsExploreOpen(false);
       }
     };
-
+ 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsExploreOpen(false);
         setIsSearchOpen(false);
       }
     };
-
+ 
     if (isExploreOpen || isSearchOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleKeyDown);
     }
-
+ 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isExploreOpen, isSearchOpen]);
-
+ 
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [isSearchOpen]);
-
+ 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -79,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
       setIsSearchOpen(false);
     }
   };
-
+ 
   // Highlights curated into the Explore dropdown
   const exploreItems = [
     {
@@ -113,14 +114,14 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
       isActive: currentPage === 'shop' && currentParams?.filter === 'sale',
     },
   ];
-
+ 
   const isExploreActive = exploreItems.some((item) => item.isActive);
-
+ 
   return (
     <>
       {/* 1. Announcement Bar */}
       <AnnouncementBar />
-
+ 
       {/* 2. Sticky Header (56px, Burgundy #6B0F1F, thin metallic gold hairline border) */}
       <header 
         className="sticky top-0 z-40 bg-[#6B0F1F] border-b border-[#C9A24B]/40 shadow-md transition-colors"
@@ -138,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               >
                 {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
               </button>
-
+ 
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
@@ -149,23 +150,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   className="w-8 h-8 rounded-full border border-[#C9A24B] bg-gradient-to-br from-[#E3C878]/25 via-[#C9A24B]/15 to-[#A67C2E]/30 flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform"
                   title="Bedtime Store Crest"
                 >
-                  <svg className="w-4 h-4 text-[#E3C878]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeDasharray="1 2" strokeWidth="0.8" />
-                    <text 
-                      x="12" 
-                      y="15.5" 
-                      textAnchor="middle" 
-                      fill="#E3C878" 
-                      fontSize="8.5" 
-                      fontFamily="'Cormorant Garamond', Georgia, serif" 
-                      fontWeight="bold"
-                      letterSpacing="0.5"
-                    >
-                      BTS
-                    </text>
-                  </svg>
+                  <img src={boutiqueLogo} alt="The Deluxe Bedtime Store" className="h-10 w-auto" />
                 </div>
-
+ 
                 {/* "Deluxe Bedtime Store" in gold uppercase serif with wide letter-spacing */}
                 <span 
                   className="font-serif text-sm sm:text-base font-semibold tracking-[0.22em] uppercase text-[#E3C878] group-hover:text-white transition-colors select-none leading-none pt-0.5"
@@ -175,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 </span>
               </button>
             </div>
-
+ 
             {/* Center-left navigation: HOME (active, gold underline), SHOP, EXPLORE */}
             <nav className="hidden lg:flex items-center gap-7 ml-8 rtl:ml-0 rtl:mr-8 mr-auto">
               {/* HOME link (active, gold underline) */}
@@ -190,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               >
                 {t.nav.home}
               </button>
-
+ 
               {/* SHOP link */}
               <button
                 type="button"
@@ -203,7 +190,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               >
                 {t.nav.shop}
               </button>
-
+ 
               {/* EXPLORE with small chevron dropdown */}
               <div className="relative" ref={exploreMenuRef}>
                 <button
@@ -220,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   <span>{language === 'ar' ? 'استكشف' : 'EXPLORE'}</span>
                   <ChevronDown className={`w-3.5 h-3.5 text-[#E3C878] transition-transform duration-200 ${isExploreOpen ? 'rotate-180' : ''}`} />
                 </button>
-
+ 
                 {/* Explore Dropdown Panel */}
                 {isExploreOpen && (
                   <div
@@ -236,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                         3 {language === 'ar' ? 'أقسام' : 'Collections'}
                       </span>
                     </div>
-
+ 
                     <div className="space-y-1">
                       {exploreItems.map((item) => {
                         const IconComponent = item.icon;
@@ -257,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                             <div className="p-2 rounded-md bg-[var(--color-bg)] text-[var(--color-primary)] shrink-0 mt-0.5">
                               <IconComponent className="w-4 h-4 stroke-[2]" />
                             </div>
-
+ 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-1.5">
                                 <span className="text-xs font-bold uppercase tracking-wider">
@@ -275,7 +262,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                         );
                       })}
                     </div>
-
+ 
                     <div className="mt-2 pt-2 border-t border-[var(--color-border)] px-2 flex items-center justify-between text-[11px] text-[var(--color-text-secondary)]">
                       <span className="flex items-center gap-1 text-[var(--color-primary)]">
                         <Sparkles className="w-3 h-3 text-[var(--color-accent)]" />
@@ -287,7 +274,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 )}
               </div>
             </nav>
-
+ 
             {/* Zone 3: Right side in exact order: Search, Reem pill, Heart (2), BAG button, Language pill, Shield */}
             <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               
@@ -324,7 +311,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   </button>
                 )}
               </div>
-
+ 
               {/* 2. Pill button with gold outline + user avatar icon reading "Reem" */}
               <button
                 type="button"
@@ -339,7 +326,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   {currentUser && !currentUser.isGuest ? currentUser.firstName : 'Reem'}
                 </span>
               </button>
-
+ 
               {/* 3. Heart icon with small gold notification badge showing "2" */}
               <button
                 type="button"
@@ -353,7 +340,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   {currentUser?.wishlist && currentUser.wishlist.length > 0 ? currentUser.wishlist.length : '2'}
                 </span>
               </button>
-
+ 
               {/* 4. Rounded-rectangle outlined "BAG" button with bag icon */}
               <button
                 type="button"
@@ -373,7 +360,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   {language === 'ar' ? 'الحقيبة' : language === 'ru' ? 'Корзина' : language === 'fr' ? 'Panier' : 'BAG'}
                 </span>
               </button>
-
+ 
               {/* 5. Language switcher pill with "EN" highlighted in solid gold fill and "العربية  RU  FR" beside it */}
               <div className="hidden sm:flex items-center border border-[#C9A24B] rounded-full p-0.5 bg-[#4A0A15]/50 shadow-xs">
                 <button
@@ -425,7 +412,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   FR
                 </button>
               </div>
-
+ 
               {/* 6. Small gold shield or security icon at the far right */}
               <button
                 type="button"
@@ -436,12 +423,12 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               >
                 <ShieldCheck className="w-3.5 h-3.5 stroke-[2]" />
               </button>
-
+ 
             </div>
-
+ 
           </div>
         </div>
-
+ 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-[var(--color-card)] border-t border-[var(--color-border)] px-6 py-4 space-y-3 animate-in fade-in duration-150">
@@ -470,7 +457,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               >
                 {t.nav.shop}
               </button>
-
+ 
               <div className="pt-2 border-t border-[var(--color-border)]">
                 <span className="text-[11px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block mb-1">
                   {language === 'ar' ? 'استكشف المجموعات' : language === 'ru' ? 'Коллекции бутиков' : 'Explore Collections'}
@@ -492,7 +479,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   </button>
                 ))}
               </div>
-
+ 
               {/* 4-Language Selector in Mobile Menu */}
               <div className="pt-3 border-t border-[var(--color-border)] space-y-2">
                 <span className="text-[11px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider block">
@@ -544,7 +531,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     FR
                   </button>
                 </div>
-
+ 
                 {isAdmin && (
                   <div className="pt-2 text-left rtl:text-right">
                     <button
@@ -568,3 +555,6 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
     </>
   );
 };
+ 
+
+

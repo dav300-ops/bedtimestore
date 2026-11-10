@@ -5,12 +5,41 @@ import { categoryService } from '../services/categoryService';
 import { authService } from '../services/authService';
 import { salesService } from '../services/salesService';
 import { orderService } from '../services/orderService';
-import { getDatabaseStatus, executeQuery, pingDatabase } from '../db';
+import { getDatabaseStatus, executeQuery, pingDatabase, isDatabaseAvailable, isUsingMemoryFallback } from '../db';
 import * as MySQLQueries from '../queries/mysqlQueries';
 import { config } from '../config';
 import { appCache } from '../cache';
 
 const router = express.Router();
+
+// ----------------------------------------------------------------------------
+// Database gate.
+// If MariaDB is unreachable (and the in-memory demo mode was not explicitly enabled),
+// data endpoints answer 503 with the reason instead of pretending the save worked.
+// ----------------------------------------------------------------------------
+const DB_FREE_PREFIXES = ['/health', '/payments', '/auth/logout'];
+const INTERNAL_PREFIXES = ['/db/', '/cache/'];
+
+router.use((req: Request, res: Response, next) => {
+  // Never expose DB internals (host, user, DDL, cache stats) on a public production site
+  if (config.isProd && INTERNAL_PREFIXES.some((p) => req.path.startsWith(p))) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  if (DB_FREE_PREFIXES.some((p) => req.path.startsWith(p)) || INTERNAL_PREFIXES.some((p) => req.path.startsWith(p))) {
+    return next();
+  }
+  if (isDatabaseAvailable()) return next();
+
+  const status = getDatabaseStatus();
+  console.error(`[503] ${req.method} ${req.originalUrl} blocked: database not connected (${status.errorCode || 'unknown'})`);
+  return res.status(503).json({
+    error: 'The database is unavailable, so nothing was saved. Please try again shortly.',
+    code: 'DB_UNAVAILABLE',
+    reason: status.errorCode || null,
+    // Detailed, host-specific hint only outside production
+    ...(config.isDev ? { sqlMessage: status.error || null } : {}),
+  });
+});
 
 export const VALID_ORDER_STATUSES = ['Confirmed', 'Preparing', 'Shipped', 'Delivered', 'Cancelled'] as const;
 export const VALID_PAYMENT_STATUSES = ['Pending', 'Paid', 'Failed', 'Refunded'] as const;
@@ -991,15 +1020,18 @@ router.get('/health', async (_req: Request, res: Response) => {
   const isUp = await pingDatabase();
   const dbStatus = getDatabaseStatus();
   res.json({
-    status: 'ok',
+    status: isUp ? 'ok' : 'degraded',
     db: isUp ? 'up' : 'down',
+    mode: isUp ? 'database' : isUsingMemoryFallback() ? 'memory-fallback (NOT SAVED)' : 'unavailable',
+    dbErrorCode: isUp ? null : dbStatus.errorCode || null,
     env: config.env,
     version: config.appVersion,
     timestamp: new Date().toISOString(),
     service: 'THE BEDTIME STORE API',
     market: 'Kingdom of Bahrain (BHD)',
     databaseEngine: 'MariaDB/MySQL',
-    dbDetails: dbStatus,
+    // Host / user / database names and the human-readable hint are for development only
+    ...(config.isDev ? { dbDetails: dbStatus } : {}),
   });
 });
 

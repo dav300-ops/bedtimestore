@@ -252,10 +252,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (health) {
             setDbStatus({
               connected: health.db === 'up',
-              state: health.db === 'up' ? 'connected' : 'disconnected',
+              state: health.db === 'up' ? 'connected' : (health.mode || 'disconnected'),
               host: health.dbDetails?.host,
               database: health.dbDetails?.database,
-              error: health.error,
+              error: health.dbDetails?.error || health.dbErrorCode || health.error,
             });
           }
         })

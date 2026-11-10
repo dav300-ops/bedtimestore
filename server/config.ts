@@ -31,7 +31,7 @@ function parseDatabaseConfig() {
       return {
         host: parsed.hostname || 'localhost',
         port: Number(parsed.port || 3306),
-        user: parsed.username || 'thebedtime_str',
+        user: parsed.username || '',
         password: parsed.password || '',
         database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : 'thebedtime_store',
       };
@@ -43,9 +43,9 @@ function parseDatabaseConfig() {
   return {
     host: process.env.DB_HOST || process.env.MYSQL_HOST || (isProd ? '' : 'localhost'),
     port: Number(process.env.DB_PORT || process.env.MYSQL_PORT || 3306),
-    user: process.env.DB_USER || process.env.MYSQL_USER || (isProd ? '' : 'thebedtime_str'),
-    password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : (process.env.MYSQL_PASSWORD || (isProd ? '' : 'zZ48ByGhTn7385hdjd')),
-    database: process.env.DB_NAME || process.env.MYSQL_DATABASE || (isProd ? '' : 'thebedtime_store'),
+    user: process.env.DB_USER || process.env.MYSQL_USER || '',
+    password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : (process.env.MYSQL_PASSWORD || ''),
+    database: process.env.DB_NAME || process.env.MYSQL_DATABASE || '',
   };
 }
 
@@ -64,6 +64,10 @@ export const config = {
     database: parsedDb.database,
     ssl: process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true',
   },
+  // When false (default), a database outage makes data endpoints return 503 instead of
+  // silently pretending to save into a throw-away in-memory store.
+  // Set ALLOW_MEMORY_FALLBACK=true ONLY for UI demos / previews with no database.
+  allowMemoryFallback: process.env.ALLOW_MEMORY_FALLBACK === 'true',
   corsOrigin: process.env.CORS_ORIGIN || (isProd ? 'https://thebedtime.store' : 'http://localhost:3000'),
   clientApiBaseUrl: process.env.VITE_API_BASE_URL || '',
   appVersion: process.env.VITE_APP_VERSION || process.env.APP_VERSION || 'v1.0.0',
@@ -81,7 +85,10 @@ export function validateEnvironment(): void {
     if (!config.db.host) missing.push('DB_HOST (or MYSQL_HOST / MYSQL_URI)');
     if (!config.db.user) missing.push('DB_USER (or MYSQL_USER / MYSQL_URI)');
     if (!config.db.database) missing.push('DB_NAME (or MYSQL_DATABASE / MYSQL_URI)');
-    if (!process.env.CORS_ORIGIN) missing.push('CORS_ORIGIN');
+
+    if (!process.env.CORS_ORIGIN) {
+      console.warn(`[Config Notice] CORS_ORIGIN is not set; defaulting to ${config.corsOrigin}. Same-origin requests (site and API served by this server) are unaffected.`);
+    }
 
     if (missing.length > 0) {
       console.error('================================================================================');
@@ -99,7 +106,7 @@ export function validateEnvironment(): void {
     if (!config.db.database) devWarnings.push('DB_NAME');
 
     if (devWarnings.length > 0) {
-      console.warn(`[Config Notice] Running in development mode with local fallback defaults for: ${devWarnings.join(', ')}.`);
+      console.warn(`[Config Notice] Missing database settings: ${devWarnings.join(', ')}. Set them in .env (see .env.example).`);
     }
   }
 }
