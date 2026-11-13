@@ -118,10 +118,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         }
       } else {
         if (onClose) onClose();
-        // Automatically redirect admin to the admin dashboard after authentication
-        if (res.user?.role === 'admin') {
-          onNavigate?.('admin');
-        }
       }
     } finally {
       setIsSubmitting(false);
@@ -751,11 +747,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <OAuthDialogModal
           provider={activeOAuthProvider}
           onClose={() => setActiveOAuthProvider(null)}
-          onSuccess={(oauthUser) => {
+          onSuccess={() => {
             if (onClose) onClose();
-            if (oauthUser?.role === 'admin') {
-              onNavigate?.('admin');
-            }
           }}
         />
       )}

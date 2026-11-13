@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import { Product, Category, Order, Coupon, OrderStatus, ProductSize, KidAgeRange } from '../types';
 import { DeliveryQrCode } from '../components/DeliveryQrCode';
 import { ReceiptModal } from '../components/ReceiptModal';
@@ -66,9 +67,10 @@ import { optimizeImageFile } from '../utils/imageOptimizer';
 
 interface AdminDashboardProps {
   onReturnToStore: () => void;
+  onLogout?: () => void;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore, onLogout }) => {
   const { 
     products, 
     categories, 
@@ -97,7 +99,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   } = useStore();
 
   const { language, formatBHD, t } = useLanguage();
-  const { currentUser } = useAuth();
+  const { adminUser, logoutAdmin } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'customers' | 'products' | 'inventory' | 'categories' | 'orders' | 'coupons' | 'cms' | 'admins'>('overview');
   const [inventorySearch, setInventorySearch] = useState('');
@@ -114,41 +116,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
 
   const fetchAdmins = () => {
     setIsLoadingAdmins(true);
-    fetch('/api/admin/administrators')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && Array.isArray(data.admins) && data.admins.length > 0) {
-          setAdminList(data.admins);
-        } else {
-          // Default fallback demo administrators if newly initialized
-          setAdminList([
-            {
-              id: 'usr-admin-01',
-              firstName: 'Reem',
-              lastName: 'Al Mansoor',
-              email: 'admin@thebedtimestore.bh',
-              phone: '+973 1722 8844',
-              role: 'admin',
-              twoFactorEnabled: true,
-              createdAt: '2026-01-01T00:00:00Z',
-            },
-          ]);
+    api.getAdministrators()
+      .then((admins) => {
+        if (Array.isArray(admins) && admins.length > 0) {
+          setAdminList(admins);
+        } else if (adminUser) {
+          setAdminList([adminUser]);
         }
       })
       .catch((err) => {
         console.warn('Failed to load administrators from MySQL:', err);
-        setAdminList([
-          {
-            id: 'usr-admin-01',
-            firstName: 'Reem',
-            lastName: 'Al Mansoor',
-            email: 'admin@thebedtimestore.bh',
-            phone: '+973 1722 8844',
-            role: 'admin',
-            twoFactorEnabled: true,
-            createdAt: '2026-01-01T00:00:00Z',
-          },
-        ]);
+        if (adminUser) {
+          setAdminList([adminUser]);
+        }
       })
       .finally(() => setIsLoadingAdmins(false));
   };
@@ -177,11 +157,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
   React.useEffect(() => {
     if (activeTab === 'sales' || activeTab === 'overview' || activeTab === 'customers') {
       setIsLoadingSales(true);
-      fetch('/api/sales?limit=100')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.success && Array.isArray(data.sales)) {
-            setSalesRecords(data.sales);
+      api.getAdminSales(100)
+        .then((sales) => {
+          if (Array.isArray(sales)) {
+            setSalesRecords(sales);
           }
         })
         .catch((err) => console.warn('Failed to load sales line items from MySQL:', err))
@@ -190,11 +169,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
 
     if (activeTab === 'customers' || activeTab === 'overview') {
       setIsLoadingCustomers(true);
-      fetch('/api/admin/customer-purchases')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.success && Array.isArray(data.customers)) {
-            setCustomerPurchases(data.customers);
+      api.getAdminCustomerPurchases()
+        .then((customers) => {
+          if (Array.isArray(customers)) {
+            setCustomerPurchases(customers);
           }
         })
         .catch((err) => console.warn('Failed to load customer purchases from MySQL:', err))
@@ -214,11 +192,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
     }
     setSelectedCustomerEmail(email);
     setIsLoadingCustomerDetail(true);
-    fetch(`/api/admin/customer-purchases/${encodeURIComponent(email)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && Array.isArray(data.purchases)) {
-          setCustomerDetailSales(data.purchases);
+    api.getAdminCustomerPurchaseDetail(email)
+      .then((purchases) => {
+        if (Array.isArray(purchases)) {
+          setCustomerDetailSales(purchases);
         }
       })
       .catch((err) => console.warn('Failed to load customer detail sales:', err))
@@ -233,11 +210,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
     }
     setSelectedProductIdForBuyers(productId);
     setIsLoadingProductBuyers(true);
-    fetch(`/api/admin/product-buyers/${encodeURIComponent(productId)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.success && Array.isArray(data.buyers)) {
-          setProductBuyersList(data.buyers);
+    api.getAdminProductBuyers(productId)
+      .then((buyers) => {
+        if (Array.isArray(buyers)) {
+          setProductBuyersList(buyers);
         }
       })
       .catch((err) => console.warn('Failed to load product buyers:', err))
@@ -290,7 +266,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
       const res = await confirmDeliveryPayment(
         matched.id,
         pin || matched.deliveryVerificationCode,
-        currentUser?.email || 'Admin / Courier Scanner'
+        adminUser?.email || 'Admin / Courier Scanner'
       );
       if (res.success) {
         setVerificationFeedback({
@@ -700,15 +676,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore 
         </div>
 
         {/* Footer actions */}
-        <div className="pt-6 border-t border-white/10 space-y-3">
+        <div className="pt-6 border-t border-white/10 space-y-2.5">
           <button
             onClick={onReturnToStore}
-            className="w-full py-2.5 bg-white/10 hover:bg-white text-white hover:text-[var(--color-text)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors text-center"
+            className="w-full py-2.5 bg-white/10 hover:bg-white text-white hover:text-[var(--color-text)] text-xs font-semibold uppercase tracking-wider rounded-xs transition-colors text-center cursor-pointer"
           >
             {language === 'ar' ? 'العودة للمتجر الرئيسي' : 'Return to Boutique'}
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              logoutAdmin();
+              if (onLogout) onLogout();
+            }}
+            className="w-full py-2 bg-red-900/40 hover:bg-red-800 text-red-100 border border-red-400/30 text-[11px] font-semibold uppercase tracking-wider rounded-xs transition-colors text-center cursor-pointer"
+          >
+            {language === 'ar' ? 'تسجيل الخروج من الإدارة' : 'Sign Out Admin'}
+          </button>
           <p className="text-[10px] text-[var(--color-bg)]/50 text-center">
-            {currentUser?.email} (Admin)
+            {adminUser?.email} (Admin)
           </p>
         </div>
       </aside>
@@ -2944,7 +2930,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     return;
                   }
 
-                  const res = await confirmDeliveryPayment(target.id, enteredVerificationCode.trim(), currentUser?.email || 'Admin');
+                  const res = await confirmDeliveryPayment(target.id, enteredVerificationCode.trim(), adminUser?.email || 'Admin');
                   if (res.success) {
                     setVerificationFeedback({ text: res.message, success: true });
                     setEnteredVerificationCode('');
@@ -3121,7 +3107,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                               <button
                                 type="button"
                                 onClick={() => {
-                                  confirmDeliveryPayment(o.id, o.deliveryVerificationCode, currentUser?.email || 'Admin');
+                                  confirmDeliveryPayment(o.id, o.deliveryVerificationCode, adminUser?.email || 'Admin');
                                 }}
                                 className="px-2 py-1 bg-[var(--color-accent)] hover:bg-[var(--color-primary-hover)] text-white text-[10px] font-bold uppercase rounded-xs cursor-pointer"
                                 title="Mark Paid on Handover"
@@ -3432,7 +3418,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   );
                 })
                 .map((admin) => {
-                  const isCurrent = currentUser?.email && admin.email.toLowerCase() === currentUser.email.toLowerCase();
+                  const isCurrent = adminUser?.email && admin.email.toLowerCase() === adminUser.email.toLowerCase();
                   return (
                     <div
                       key={admin.id}
@@ -4195,7 +4181,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
               <button
                 type="button"
                 onClick={async () => {
-                  const res = await confirmDeliveryPayment(qrInspectOrder.id, qrInspectOrder.deliveryVerificationCode, currentUser?.email || 'Admin');
+                  const res = await confirmDeliveryPayment(qrInspectOrder.id, qrInspectOrder.deliveryVerificationCode, adminUser?.email || 'Admin');
                   if (res.success) {
                     setVerificationFeedback({ text: res.message, success: true });
                     setQrInspectOrder(null);

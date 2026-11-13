@@ -14,6 +14,7 @@ import { authService } from './server/services/authService';
 import { salesService } from './server/services/salesService';
 import { orderService } from './server/services/orderService';
 import apiRouter from './server/routes/api';
+import adminApiRouter from './server/routes/adminApi';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,6 +79,7 @@ async function startServer() {
   // Apply rate limits
   app.use('/api/auth/login', authRateLimiter);
   app.use('/api/auth/register', authRateLimiter);
+  app.use('/api/admin/login', authRateLimiter);
   app.use('/api', writeRateLimiter);
 
   // 5. Logging Middleware (Verbose in Dev, Sanitized & Lean in Production)
@@ -110,7 +112,8 @@ async function startServer() {
     res.json({ ok: true, env: config.env, time: new Date().toISOString() });
   });
 
-  // 8. Mount Core API Router
+  // 8. Mount Separated Admin API Router and Public Storefront API Router
+  app.use('/api/admin', adminApiRouter);
   app.use('/api', apiRouter);
 
   // 8b. Unmatched /api requests get a JSON 404 (never the SPA's index.html).

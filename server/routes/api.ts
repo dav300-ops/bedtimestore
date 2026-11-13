@@ -106,15 +106,12 @@ router.get('/cache/stats', (_req: Request, res: Response) => {
  */
 router.post('/auth/register', async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, email, phone, password, isGuest, role } = req.body;
+    const { firstName, lastName, email, phone, password, isGuest } = req.body;
     if (!email) {
       return res.status(400).json(formatErrorResponse(new Error('Email address is required'), 400));
     }
     if (!firstName) {
       return res.status(400).json(formatErrorResponse(new Error('First name is required'), 400));
-    }
-    if (role && !validateRole(role)) {
-      return res.status(400).json(formatErrorResponse(new Error(`Invalid role '${role}'. Must be customer, admin, or superadmin`), 400));
     }
 
     const clientIp = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || '127.0.0.1';
@@ -126,7 +123,7 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       email,
       phone,
       password: password || 'GuestPass@2026',
-      role: role || 'customer',
+      role: 'customer',
       isGuest: Boolean(isGuest),
       ip: clientIp,
       device: userAgent,
@@ -215,51 +212,7 @@ router.get('/auth/logs/:userId', async (req: Request, res: Response) => {
   }
 });
 
-/**
- * Create New Administrator Account (Admin Role Only)
- */
-router.post('/admin/create-admin', async (req: Request, res: Response) => {
-  try {
-    const { firstName, lastName, email, phone, password, createdByAdminId } = req.body;
-    if (!email || !firstName || !password) {
-      return res.status(400).json({ error: 'First name, official email, and password are required.' });
-    }
 
-    const clientIp = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || '127.0.0.1';
-    const userAgent = req.headers['user-agent'] || 'Boutique Admin Portal';
-
-    const newAdmin = await authService.createAdmin({
-      firstName,
-      lastName: lastName || '',
-      email,
-      phone,
-      password,
-      createdByAdminId,
-      ip: clientIp,
-      device: userAgent,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: 'New boutique administrator created and registered in MySQL successfully.',
-      admin: newAdmin,
-    });
-  } catch (error: any) {
-    return res.status(400).json({ error: error?.message || 'Failed to create administrator' });
-  }
-});
-
-/**
- * List all administrators from MySQL database
- */
-router.get('/admin/administrators', async (_req: Request, res: Response) => {
-  try {
-    const admins = await authService.getAllAdmins();
-    return res.json({ success: true, admins });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to retrieve administrators' });
-  }
-});
 
 /**
  * Logout
@@ -378,54 +331,7 @@ router.get('/categories/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/categories', async (req: Request, res: Response) => {
-  try {
-    const { nameEn, nameAr, slug, descriptionEn, descriptionAr, image, active, displayOrder } = req.body;
-    if (!nameEn) {
-      return res.status(400).json(formatErrorResponse(new Error('Category English name is required'), 400));
-    }
-    const category = await categoryService.addCategory({
-      nameEn,
-      nameAr: nameAr || nameEn,
-      slug,
-      descriptionEn,
-      descriptionAr,
-      image,
-      active,
-      displayOrder,
-    });
-    // Invalidate categories cache
-    appCache.delete('categories:list');
-    return res.status(201).json({ success: true, category });
-  } catch (err: any) {
-    return res.status(400).json(formatErrorResponse(err, 400));
-  }
-});
 
-router.put('/categories/:id', async (req: Request, res: Response) => {
-  try {
-    const category = await categoryService.updateCategory(req.params.id, req.body);
-    if (!category) return res.status(404).json(formatErrorResponse(new Error('Category not found in MySQL'), 404));
-    // Invalidate categories cache
-    appCache.delete('categories:list');
-    appCache.delete(`category:${req.params.id}`);
-    return res.json({ success: true, category });
-  } catch (err: any) {
-    return res.status(400).json(formatErrorResponse(err, 400));
-  }
-});
-
-router.delete('/categories/:id', async (req: Request, res: Response) => {
-  try {
-    await categoryService.deleteCategory(req.params.id);
-    // Invalidate categories cache
-    appCache.delete('categories:list');
-    appCache.delete(`category:${req.params.id}`);
-    return res.json({ success: true, message: 'Category deleted from MySQL database' });
-  } catch (err: any) {
-    return res.status(500).json(formatErrorResponse(err, 500));
-  }
-});
 
 // ============================================================================
 // 4. Dynamic Products & Inventory Stock Endpoints (MySQL with Environment-Aware Cache)
@@ -471,81 +377,7 @@ router.get('/products/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/products', async (req: Request, res: Response) => {
-  try {
-    const product = await inventoryService.addProduct(req.body);
-    // Write-through saving invalidates product list cache
-    appCache.delete('products:list');
-    return res.status(201).json({ success: true, product });
-  } catch (err: any) {
-    return res.status(400).json(formatErrorResponse(err, 400));
-  }
-});
 
-router.put('/products/:id', async (req: Request, res: Response) => {
-  try {
-    const product = await inventoryService.updateProduct(req.params.id, req.body);
-    if (!product) return res.status(404).json(formatErrorResponse(new Error('Product not found in MySQL'), 404));
-    // Invalidate product cache
-    appCache.delete('products:list');
-    appCache.delete(`product:${req.params.id}`);
-    return res.json({ success: true, product });
-  } catch (err: any) {
-    return res.status(400).json(formatErrorResponse(err, 400));
-  }
-});
-
-router.delete('/products/:id', async (req: Request, res: Response) => {
-  try {
-    await inventoryService.deleteProduct(req.params.id);
-    appCache.delete('products:list');
-    appCache.delete(`product:${req.params.id}`);
-    return res.json({ success: true, message: 'Product deleted from MySQL database' });
-  } catch (err: any) {
-    return res.status(500).json(formatErrorResponse(err, 500));
-  }
-});
-
-router.post('/products/:id/stock', async (req: Request, res: Response) => {
-  try {
-    const { skuOrSize, colorHex, delta, absoluteNewStock } = req.body;
-    const updated = await inventoryService.adjustStock(
-      req.params.id,
-      skuOrSize,
-      colorHex,
-      Number(delta || 0),
-      typeof absoluteNewStock === 'number' ? absoluteNewStock : undefined
-    );
-    return res.json({ success: true, product: updated });
-  } catch (err: any) {
-    return res.status(400).json({ error: err?.message || 'Failed to adjust stock in MySQL' });
-  }
-});
-
-router.get('/inventory/balances', async (_req: Request, res: Response) => {
-  try {
-    const balances = await inventoryService.getInventoryBalances();
-    return res.json({
-      success: true,
-      ...balances,
-    });
-  } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to calculate inventory balances from MySQL' });
-  }
-});
-
-router.post('/inventory/deduct', async (req: Request, res: Response) => {
-  try {
-    const { items } = req.body;
-    if (!Array.isArray(items)) {
-      return res.status(400).json({ error: 'items array is required' });
-    }
-    const result = await inventoryService.deductStock(items);
-    return res.json(result);
-  } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Failed to deduct stock in MySQL' });
-  }
-});
 
 // ============================================================================
 // 5. Payment & Checkout Endpoints
@@ -611,21 +443,7 @@ router.post('/payments/webhook', async (req: Request, res: Response) => {
 // 5b. Dynamic Orders Endpoints (MySQL Relational Storage)
 // ============================================================================
 
-/**
- * Get all orders dynamically from MySQL
- */
-router.get('/orders', async (_req: Request, res: Response) => {
-  try {
-    const orders = await orderService.getOrders();
-    return res.json({
-      success: true,
-      count: orders.length,
-      orders,
-    });
-  } catch (err: any) {
-    return res.status(500).json(formatErrorResponse(err, 500));
-  }
-});
+
 
 /**
  * Get single order by ID or order number
@@ -714,82 +532,7 @@ router.post('/orders', async (req: Request, res: Response) => {
   }
 });
 
-/**
- * Update order in MariaDB/MySQL
- */
-router.put('/orders/:id', async (req: Request, res: Response) => {
-  try {
-    const updates = req.body;
-    const orderStatus = updates.orderStatus || updates.order_status;
-    if (orderStatus && !validateOrderStatus(orderStatus)) {
-      return res.status(400).json(formatErrorResponse(new Error(`Invalid order_status '${orderStatus}'. Must be Confirmed, Preparing, Shipped, Delivered, or Cancelled`), 400));
-    }
 
-    const paymentStatus = updates.paymentStatus || updates.payment_status;
-    if (paymentStatus && !validatePaymentStatus(paymentStatus)) {
-      return res.status(400).json(formatErrorResponse(new Error(`Invalid payment_status '${paymentStatus}'. Must be Pending, Paid, Failed, or Refunded`), 400));
-    }
-
-    const updated = await orderService.updateOrder(req.params.id, updates);
-    if (!updated) {
-      return res.status(404).json(formatErrorResponse(new Error('Order not found'), 404));
-    }
-    return res.json({
-      success: true,
-      order: updated,
-      id: updated.id,
-    });
-  } catch (err: any) {
-    return res.status(500).json(formatErrorResponse(err, 500));
-  }
-});
-
-/**
- * Delete order from MariaDB/MySQL
- */
-router.delete('/orders/:id', async (req: Request, res: Response) => {
-  try {
-    await orderService.deleteOrder(req.params.id);
-    return res.json({
-      success: true,
-      id: req.params.id,
-      message: 'Order deleted successfully from database',
-    });
-  } catch (err: any) {
-    return res.status(500).json(formatErrorResponse(err, 500));
-  }
-});
-
-/**
- * Update order status in MySQL (convenience endpoint)
- */
-router.put('/orders/:id/status', async (req: Request, res: Response) => {
-  try {
-    const { status } = req.body;
-    if (!status) {
-      return res.status(400).json(formatErrorResponse(new Error('status is required'), 400));
-    }
-    if (!validateOrderStatus(status)) {
-      return res.status(400).json(formatErrorResponse(new Error(`Invalid order_status '${status}'. Must be Confirmed, Preparing, Shipped, Delivered, or Cancelled`), 400));
-    }
-    const updated = await orderService.updateOrderStatus(req.params.id, status);
-    return res.json({ success: updated, id: req.params.id, orderStatus: status });
-  } catch (err: any) {
-    return res.status(500).json(formatErrorResponse(err, 500));
-  }
-});
-
-/**
- * Confirm Pay-on-Delivery payment in MySQL
- */
-router.post('/orders/:id/confirm-payment', async (req: Request, res: Response) => {
-  try {
-    const success = await orderService.confirmDeliveryPayment(req.params.id);
-    return res.json({ success, id: req.params.id, message: 'Payment confirmed in database' });
-  } catch (err: any) {
-    return res.status(500).json(formatErrorResponse(err, 500));
-  }
-});
 
 // ============================================================================
 // 6. Product Sales & Line-Item Analytics Endpoints (MySQL Relational Engine)
@@ -878,139 +621,7 @@ router.post('/sales/record-order', async (req: Request, res: Response) => {
   }
 });
 
-/**
- * Get all individual product sale line items from MySQL (paginated)
- */
-router.get('/sales', async (req: Request, res: Response) => {
-  try {
-    const limit = Math.min(Number(req.query.limit || 50), 200);
-    const offset = Math.max(Number(req.query.offset || 0), 0);
-    const sales = await salesService.getAllSales(limit, offset);
-    return res.json({
-      success: true,
-      count: sales.length,
-      limit,
-      offset,
-      sales,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to fetch sales records from MySQL' });
-  }
-});
 
-/**
- * Get aggregated sales analytics from MySQL
- * Returns overall summary, top selling products, category breakdown, payment methods, Bahrain regions, and daily trends
- */
-router.get('/sales/analytics', async (req: Request, res: Response) => {
-  try {
-    const topLimit = Math.min(Number(req.query.topLimit || 8), 50);
-    const analytics = await salesService.getSalesAnalytics(topLimit);
-    return res.json({
-      success: true,
-      engine: 'mysql',
-      ...analytics,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to calculate sales analytics in MySQL' });
-  }
-});
-
-/**
- * Get top selling products by units and revenue
- */
-router.get('/sales/top-products', async (req: Request, res: Response) => {
-  try {
-    const limit = Math.min(Number(req.query.limit || 8), 50);
-    const analytics = await salesService.getSalesAnalytics(limit);
-    return res.json({
-      success: true,
-      topProducts: analytics.topProducts,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to fetch top selling products from MySQL' });
-  }
-});
-
-/**
- * Get sales line items for a specific order
- */
-router.get('/sales/order/:orderId', async (req: Request, res: Response) => {
-  try {
-    const sales = await salesService.getSalesByOrder(req.params.orderId);
-    return res.json({
-      success: true,
-      count: sales.length,
-      sales,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to fetch sales for order from MySQL' });
-  }
-});
-
-/**
- * Get sales line items for a specific product or SKU
- */
-router.get('/sales/product/:productId', async (req: Request, res: Response) => {
-  try {
-    const sales = await salesService.getSalesByProduct(req.params.productId);
-    return res.json({
-      success: true,
-      count: sales.length,
-      sales,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to fetch product sales from MySQL' });
-  }
-});
-
-/**
- * Admin: Get aggregated customer purchases profiles (all users & products bought)
- */
-router.get('/admin/customer-purchases', async (_req: Request, res: Response) => {
-  try {
-    const customers = await salesService.getCustomerPurchasesSummary();
-    return res.json({
-      success: true,
-      count: customers.length,
-      customers,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to fetch customer purchases from MySQL' });
-  }
-});
-
-/**
- * Admin: Get detailed product purchase history for a specific customer
- */
-router.get('/admin/customer-purchases/:customerIdOrEmail', async (req: Request, res: Response) => {
-  try {
-    const purchases = await salesService.getCustomerPurchasesDetail(req.params.customerIdOrEmail);
-    return res.json({
-      success: true,
-      count: purchases.length,
-      purchases,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to fetch customer purchase history' });
-  }
-});
-
-/**
- * Admin: Get all customers who bought a specific product
- */
-router.get('/admin/product-buyers/:productId', async (req: Request, res: Response) => {
-  try {
-    const buyers = await salesService.getProductBuyers(req.params.productId);
-    return res.json({
-      success: true,
-      count: buyers.length,
-      buyers,
-    });
-  } catch (error: any) {
-    return res.status(500).json({ error: error?.message || 'Failed to fetch product buyers' });
-  }
-});
 
 // ============================================================================
 // 7. Health & Status Check

@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Product, Category, Order, Coupon, OrderStatus } from '../types';
 import { api } from '../services/api';
 import { browserCache } from '../services/cache';
+import { useAuth } from './AuthContext';
 
 export interface CMSBannerSettings {
   announcementTextEn: string;
@@ -152,6 +153,7 @@ interface StoreContextType {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentUser, isAdmin, adminToken } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -208,51 +210,58 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   /**
    * Stale-While-Revalidate Refresh:
-   * Revalidates categories, products, and orders in the background.
+   * Public catalog loads for everyone; admin orders & analytics load only for authenticated admins.
    */
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     try {
-      // 1. Fetch categories via Stale-While-Revalidate
+      // 1. Fetch public categories via Stale-While-Revalidate
       const cats = await api.getCategories((fresh) => setCategories(fresh));
       if (cats && cats.length > 0) {
         setCategories(cats);
       }
 
-      // 2. Fetch products via Stale-While-Revalidate
+      // 2. Fetch public products via Stale-While-Revalidate
       const prods = await api.getProducts((fresh) => setProducts(fresh));
       if (prods && prods.length > 0) {
         setProducts(prods);
       }
 
-      // 3. Fetch orders (session/memory only)
-      const ords = await api.getOrders((fresh) => setOrders(fresh));
-      if (ords && ords.length > 0) {
-        setOrders(ords);
+      // 3. Orders & Admin Metrics (strictly separated by session role)
+      if (isAdmin && adminToken) {
+        const ords = await api.getOrders((fresh) => setOrders(fresh));
+        if (ords && ords.length > 0) {
+          setOrders(ords);
+        }
+
+        api.getAdminInventoryBalances()
+          .then((invData) => {
+            if (invData?.success) setInventoryOverview(invData);
+          })
+          .catch(() => {});
+
+        api.getAdminSalesAnalytics()
+          .then((salesData) => {
+            if (salesData?.success) setSalesAnalytics(salesData);
+          })
+          .catch(() => {});
+      } else {
+        setInventoryOverview(null);
+        setSalesAnalytics(null);
+        if (currentUser && !currentUser.isGuest && currentUser.email) {
+          const customerOrders = await api.getCustomerOrders(currentUser.id, currentUser.email);
+          setOrders(customerOrders);
+        } else {
+          setOrders([]);
+        }
       }
 
-      // 4. Fetch inventory balances & sales metrics
-      fetch('/api/inventory/balances')
-        .then((res) => (res.ok ? res.json() : null))
-        .then((invData) => {
-          if (invData?.success) setInventoryOverview(invData);
-        })
-        .catch(() => {});
-
-      fetch('/api/sales/analytics')
-        .then((res) => (res.ok ? res.json() : null))
-        .then((salesData) => {
-          if (salesData?.success) setSalesAnalytics(salesData);
-        })
-        .catch(() => {});
-
-      // 5. Check database status via SELECT 1 health
-      fetch('/api/health')
-        .then((res) => (res.ok ? res.json() : null))
-        .then((health) => {
+      // 4. Check database status via SELECT 1 health
+      api.checkHealth()
+        .then((health: any) => {
           if (health) {
             setDbStatus({
-              connected: health.db === 'up',
-              state: health.db === 'up' ? 'connected' : (health.mode || 'disconnected'),
+              connected: health.db === 'up' || health.ok === true,
+              state: health.db === 'up' || health.ok === true ? 'connected' : (health.mode || 'disconnected'),
               host: health.dbDetails?.host,
               database: health.dbDetails?.database,
               error: health.dbDetails?.error || health.dbErrorCode || health.error,
@@ -267,13 +276,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAdmin, adminToken, currentUser?.id, currentUser?.isGuest, currentUser?.email]);
 
   useEffect(() => {
     refreshData();
     const interval = setInterval(refreshData, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshData]);
 
   // Save non-sensitive metadata (CMS, coupons)
   useEffect(() => {
@@ -369,15 +378,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   ) => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/products/${productId}/stock`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skuOrSize, colorHex, delta, absoluteNewStock }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success && data.product) {
-        setProducts((prev) => prev.map((p) => (p.id === productId ? data.product : p)));
-        browserCache.invalidate('catalog_products');
+      const updated = await api.adjustProductStock(productId, skuOrSize, colorHex, delta, absoluteNewStock);
+      if (updated) {
+        setProducts((prev) => prev.map((p) => (p.id === productId ? updated : p)));
       }
     } catch (err: any) {
       console.error('[StoreContext] adjustStock error:', err?.message);
@@ -438,16 +441,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const recordSalesForOrder = async (order: Order) => {
-    try {
-      const res = await fetch('/api/sales/record-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order }),
-      });
-      return await res.json();
-    } catch {
-      return null;
-    }
+    return await api.recordOrderSales(order);
   };
 
   const addOrder = async (order: Order): Promise<Order> => {
@@ -487,7 +481,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const confirmDeliveryPayment = async (
     orderId: string,
     enteredCode?: string,
-    confirmedBy = 'Admin / Courier'
+    _confirmedBy = 'Admin / Courier'
   ): Promise<{ success: boolean; message: string }> => {
     const targetOrder = orders.find((o) => o.id === orderId || o.orderNumber === orderId);
     if (!targetOrder) {
@@ -502,18 +496,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     try {
-      const res = await fetch(`/api/orders/${targetOrder.id}/confirm-payment`, {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
+      const data = await api.confirmDeliveryPayment(targetOrder.id);
+      if (data.success) {
         await refreshData();
         return {
           success: true,
           message: `Delivery payment verified and marked as Paid for ${targetOrder.orderNumber}!`,
         };
       }
-      return { success: false, message: data?.error || 'Failed to confirm payment on server' };
+      return { success: false, message: 'Failed to confirm payment on server' };
     } catch (err: any) {
       return { success: false, message: err?.message || 'Network error confirming payment' };
     }

@@ -1,4 +1,6 @@
 import { executeQuery } from '../db';
+import { hashPassword, isHashedPassword, verifyPassword } from '../utils/password';
+import { signAdminToken } from '../utils/adminToken';
 import {
   SQL_REGISTER_USER,
   SQL_FIND_USER_BY_EMAIL,
@@ -29,16 +31,18 @@ export interface MySQLUser {
 export class MySQLAuthService {
   /**
    * Seed Initial Luxury Boutique Demo Users (Admin and Verified Customer) into MySQL
+   * All seeded passwords are stored using salted scrypt hashes.
    */
   public async seedDefaultUsers(): Promise<void> {
     try {
-      const existingAdmin = await this.findUserByEmail('admin@thebedtimestore.bh');
-      if (!existingAdmin) {
-        console.log(' Seeding default administrator account...');
+      const existingAdminRows = await executeQuery(SQL_FIND_USER_BY_EMAIL, ['admin@thebedtimestore.bh']);
+      if (!existingAdminRows || existingAdminRows.length === 0) {
+        console.log(' Seeding default administrator account with scrypt password hash...');
+        const hashedAdminPassword = hashPassword('Admin@Bedtime2026!');
         await executeQuery(SQL_REGISTER_USER, [
           'usr-admin-01',
           'admin@thebedtimestore.bh',
-          'Admin@Bedtime2026!',
+          hashedAdminPassword,
           'Reem',
           'Al Mansoor',
           '+973 3922 8899',
@@ -60,15 +64,22 @@ export class MySQLAuthService {
           JSON.stringify(['prod-1', 'prod-3']),
           JSON.stringify({ google: true, email: true }),
         ]);
+      } else {
+        const rawAdmin = existingAdminRows[0];
+        const storedHash = rawAdmin.password_hash || rawAdmin.password;
+        if (storedHash && !isHashedPassword(storedHash)) {
+          await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(storedHash), rawAdmin.id]);
+        }
       }
 
-      const existingCustomer = await this.findUserByEmail('fatima@thebedtimestore.bh');
-      if (!existingCustomer) {
+      const existingCustomerRows = await executeQuery(SQL_FIND_USER_BY_EMAIL, ['fatima@thebedtimestore.bh']);
+      if (!existingCustomerRows || existingCustomerRows.length === 0) {
         console.log('[MySQL] Seeding default verified customer account...');
+        const hashedCustomerPassword = hashPassword('LuxurySilk@2026');
         await executeQuery(SQL_REGISTER_USER, [
           'usr-customer-01',
           'fatima@thebedtimestore.bh',
-          'LuxurySilk@2026',
+          hashedCustomerPassword,
           'Fatima',
           'Al Khalifa',
           '+973 3922 1144',
@@ -90,6 +101,12 @@ export class MySQLAuthService {
           JSON.stringify(['prod-1', 'prod-2', 'prod-5']),
           JSON.stringify({ google: true, email: true }),
         ]);
+      } else {
+        const rawCustomer = existingCustomerRows[0];
+        const storedHash = rawCustomer.password_hash || rawCustomer.password;
+        if (storedHash && !isHashedPassword(storedHash)) {
+          await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(storedHash), rawCustomer.id]);
+        }
       }
     } catch (err: any) {
       console.warn(' Notice during user seeding:', err?.message);
@@ -115,7 +132,7 @@ export class MySQLAuthService {
   }
 
   /**
-   * Register a new user in MySQL
+   * Register a new public customer user in MySQL (never assigns admin role)
    */
   public async register(userData: {
     firstName: string;
@@ -134,12 +151,14 @@ export class MySQLAuthService {
     }
 
     const userId = `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
-    const role = userData.role || (userData.email.toLowerCase().includes('admin') ? 'admin' : 'customer');
+    // Public registration strictly creates customer accounts only
+    const role: 'customer' = 'customer';
+    const hashedPassword = hashPassword(userData.password || 'GuestPassword@2026');
 
     await executeQuery(SQL_REGISTER_USER, [
       userId,
       userData.email.toLowerCase().trim(),
-      userData.password || 'GuestPassword@2026',
+      hashedPassword,
       userData.firstName.trim(),
       userData.lastName.trim(),
       userData.phone || '',
@@ -167,7 +186,7 @@ export class MySQLAuthService {
   }
 
   /**
-   * Authenticate / Login user against MySQL database
+   * Authenticate / Login customer user against MySQL database
    */
   public async login(
     email: string,
@@ -176,14 +195,17 @@ export class MySQLAuthService {
   ): Promise<{ user: MySQLUser; token: string }> {
     const rows = await executeQuery(SQL_FIND_USER_BY_EMAIL, [email]);
     if (!rows || rows.length === 0) {
-      throw new Error('Invalid credentials. No user found with this email in  database.');
+      throw new Error('Invalid credentials. No user found with this email in database.');
     }
 
     const rawUser = rows[0];
+    if (rawUser.role === 'admin' || rawUser.role === 'superadmin') {
+      throw new Error('Administrator accounts must sign in through the dedicated Admin Login page (/admin/login).');
+    }
+
     const passwordHash = rawUser.password_hash || rawUser.password;
 
-    // Check password
-    if (passwordHash && passwordHash !== passwordAttempt) {
+    if (!verifyPassword(passwordAttempt, passwordHash)) {
       await this.logSecurityEvent({
         userId: rawUser.id,
         action: 'login_failed',
@@ -194,7 +216,11 @@ export class MySQLAuthService {
       throw new Error('Invalid password for this account.');
     }
 
-    // Success log
+    // Migrate legacy plaintext password hash on successful login
+    if (passwordHash && !isHashedPassword(passwordHash)) {
+      await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(passwordAttempt), rawUser.id]);
+    }
+
     await this.logSecurityEvent({
       userId: rawUser.id,
       action: 'login_success',
@@ -210,10 +236,72 @@ export class MySQLAuthService {
   }
 
   /**
-   * Update password in MySQL
+   * Dedicated Administrator Authentication against MySQL database
+   */
+  public async loginAdmin(
+    email: string,
+    passwordAttempt: string,
+    meta?: { ip?: string; device?: string }
+  ): Promise<{ user: MySQLUser; token: string }> {
+    const cleanEmail = email.toLowerCase().trim();
+    const rows = await executeQuery(SQL_FIND_USER_BY_EMAIL, [cleanEmail]);
+    if (!rows || rows.length === 0) {
+      throw new Error('Invalid administrator email or password.');
+    }
+
+    const rawUser = rows[0];
+    if (rawUser.role !== 'admin' && rawUser.role !== 'superadmin') {
+      await this.logSecurityEvent({
+        userId: rawUser.id,
+        action: 'admin_login_denied',
+        ip: meta?.ip || '127.0.0.1',
+        location: 'Manama, Bahrain',
+        device: meta?.device || 'Admin Portal',
+      });
+      throw new Error('Access denied: this account does not have administrator privileges.');
+    }
+
+    const passwordHash = rawUser.password_hash || rawUser.password;
+    if (!verifyPassword(passwordAttempt, passwordHash)) {
+      await this.logSecurityEvent({
+        userId: rawUser.id,
+        action: 'admin_login_failed',
+        ip: meta?.ip || '127.0.0.1',
+        location: 'Manama, Bahrain',
+        device: meta?.device || 'Admin Portal',
+      });
+      throw new Error('Invalid administrator email or password.');
+    }
+
+    // Upgrade legacy plaintext hash transparently if needed
+    if (passwordHash && !isHashedPassword(passwordHash)) {
+      await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(passwordAttempt), rawUser.id]);
+    }
+
+    await this.logSecurityEvent({
+      userId: rawUser.id,
+      action: 'admin_login_success',
+      ip: meta?.ip || '127.0.0.1',
+      location: 'Manama, Bahrain',
+      device: meta?.device || 'Admin Portal',
+    });
+
+    const user = this.mapUserRow(rawUser);
+    const token = signAdminToken({
+      id: user.id,
+      email: user.email,
+      role: user.role === 'superadmin' ? 'superadmin' : 'admin',
+    });
+
+    return { user, token };
+  }
+
+  /**
+   * Update password in MySQL (always hashed with scrypt)
    */
   public async updatePassword(userId: string, newPassword: string): Promise<boolean> {
-    await executeQuery(SQL_UPDATE_USER_PASSWORD, [newPassword, userId]);
+    const hashed = hashPassword(newPassword);
+    await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashed, userId]);
     await this.logSecurityEvent({
       userId,
       action: 'password_change',
@@ -285,18 +373,23 @@ export class MySQLAuthService {
 
   /**
    * Create New Boutique Administrator Account (Admin Role Only)
+   * Password is always hashed with salted scrypt before writing to MySQL.
    */
   public async createAdmin(adminData: {
     firstName: string;
     lastName: string;
     email: string;
-    password?: string;
+    password: string;
     phone?: string;
     createdByAdminId?: string;
     ip?: string;
     device?: string;
   }): Promise<MySQLUser> {
     const cleanEmail = adminData.email.toLowerCase().trim();
+    if (!adminData.password || adminData.password.length < 8) {
+      throw new Error('Administrator password must be at least 8 characters.');
+    }
+
     const existing = await this.findUserByEmail(cleanEmail);
     if (existing) {
       throw new Error(`An account with email "${cleanEmail}" already exists in the MySQL database.`);
@@ -304,11 +397,12 @@ export class MySQLAuthService {
 
     const userId = `usr-admin-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     const role = 'admin';
+    const hashedPassword = hashPassword(adminData.password);
 
     await executeQuery(SQL_REGISTER_USER, [
       userId,
       cleanEmail,
-      adminData.password || 'Admin@Bedtime2026!',
+      hashedPassword,
       adminData.firstName.trim(),
       adminData.lastName.trim(),
       adminData.phone || '+973 1722 8844',

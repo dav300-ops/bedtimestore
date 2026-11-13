@@ -32,7 +32,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, currentParams }) => {
   const { language, setLanguage, t, isRtl } = useLanguage();
   const { cartCount, setIsCartOpen } = useCart();
-  const { currentUser, isAdmin, openAuthModal } = useAuth();
+  const { currentUser, openAuthModal } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -416,9 +416,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               {/* 6. Small gold shield or security icon at the far right */}
               <button
                 type="button"
-                onClick={() => isAdmin ? onNavigate('admin') : onNavigate('home')}
+                onClick={() => onNavigate('legal', { section: 'privacy' })}
                 className="p-1.5 text-[#E3C878] hover:text-white rounded-full border border-[#C9A24B]/60 hover:border-[#E3C878] transition-colors cursor-pointer"
-                title={isAdmin ? "Admin Dashboard" : "Verified Luxury Sleepwear · Kingdom of Bahrain"}
+                title="Verified Luxury Sleepwear · Kingdom of Bahrain"
                 aria-label="Security guarantee"
               >
                 <ShieldCheck className="w-3.5 h-3.5 stroke-[2]" />
@@ -531,22 +531,6 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                     FR
                   </button>
                 </div>
- 
-                {isAdmin && (
-                  <div className="pt-2 text-left rtl:text-right">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onNavigate('admin');
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="text-[var(--color-primary)] font-semibold text-xs flex items-center gap-1.5"
-                    >
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>{t.nav.admin}</span>
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>

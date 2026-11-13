@@ -9,6 +9,7 @@ import {
   GOOGLE_PRESETS,
   GITHUB_PRESETS,
 } from '../services/authSecurity';
+import { api } from '../services/api';
 
 interface StoredAuthUser {
   id: string;
@@ -34,8 +35,8 @@ interface StoredAuthUser {
 }
 
 interface AuthContextType {
+  // Public storefront customer session
   currentUser: User | null;
-  isAdmin: boolean;
   isGuest: boolean;
   loginAsGuest: (guestName?: string) => User;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string; remainingSeconds?: number; user?: User }>;
@@ -46,6 +47,21 @@ interface AuthContextType {
     phone: string;
     password: string;
   }) => Promise<{ success: boolean; error?: string }>;
+  loginWithOAuth: (
+    provider: 'google' | 'github',
+    preset?: { name: string; email: string; avatarUrl: string; handle?: string }
+  ) => Promise<{ success: boolean; error?: string; user?: User }>;
+  logout: () => void;
+
+  // Dedicated Administrator session (completely separate from public storefront auth)
+  adminUser: User | null;
+  adminToken: string | null;
+  isAdmin: boolean;
+  loginAdmin: (
+    email: string,
+    pass: string
+  ) => Promise<{ success: boolean; error?: string; remainingSeconds?: number; admin?: User }>;
+  logoutAdmin: () => void;
   createAdminUser: (data: {
     firstName: string;
     lastName: string;
@@ -53,11 +69,8 @@ interface AuthContextType {
     phone?: string;
     password: string;
   }) => Promise<{ success: boolean; error?: string; admin?: User }>;
-  loginWithOAuth: (
-    provider: 'google' | 'github',
-    preset?: { name: string; email: string; avatarUrl: string; handle?: string }
-  ) => Promise<{ success: boolean; error?: string; user?: User }>;
-  logout: () => void;
+
+  // Customer account utilities
   changePassword: (currentPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   requestPasswordReset: (email: string) => Promise<{ success: boolean; resetCode?: string; error?: string }>;
   resetPasswordWithToken: (email: string, code: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
@@ -72,8 +85,8 @@ interface AuthContextType {
   addAddress: (address: BahrainAddress) => void;
   toggleWishlist: (productId: string) => void;
   isInWishlist: (productId: string) => boolean;
-  switchRole: (role: 'customer' | 'admin') => void;
-  // Global Auth Modal Controls
+
+  // Global Public Auth Modal Controls
   isAuthModalOpen: boolean;
   authModalMode: 'signin' | 'signup' | 'forgot';
   openAuthModal: (mode?: 'signin' | 'signup' | 'forgot') => void;
@@ -112,14 +125,6 @@ const DEMO_ADMIN: User = {
       ip: '82.194.22.10',
       location: 'Manama, Bahrain',
       device: 'Boutique POS Admin / Safari macOS',
-    },
-    {
-      id: 'log-02',
-      timestamp: '2026-10-12T14:40:00Z',
-      action: '2fa_enabled',
-      ip: '82.194.22.10',
-      location: 'Manama, Bahrain',
-      device: 'Safari macOS',
     },
   ],
 };
@@ -170,6 +175,8 @@ const DEMO_CUSTOMER: User = {
 };
 
 const USERS_DB_KEY = 'bedtime_registered_users_v2';
+const ADMIN_USER_KEY = 'bedtime_admin_user';
+const ADMIN_TOKEN_KEY = 'bedtime_admin_token';
 const RESET_CODES_KEY = 'bedtime_auth_reset_codes';
 
 export const createGuestUser = (guestName = 'Guest'): User => ({
@@ -189,20 +196,57 @@ export const createGuestUser = (guestName = 'Guest'): User => ({
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Public storefront user (never holds an admin session automatically)
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('bedtime_user');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.role !== 'admin') {
+          return parsed;
+        }
       } catch {
         // fallback
       }
     }
-    // Brand new users start as guests so they can browse & add to cart freely
     return createGuestUser();
   });
 
-  // Global modal state
+  // Dedicated Admin session state
+  const [adminUser, setAdminUser] = useState<User | null>(() => {
+    try {
+      const saved = localStorage.getItem(ADMIN_USER_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [adminToken, setAdminToken] = useState<string | null>(() => {
+    return api.getAdminToken();
+  });
+
+  const isAdmin = Boolean(adminUser && adminToken && adminUser.role === 'admin');
+
+  // Verify existing admin token with backend on mount (if not an offline preview token)
+  useEffect(() => {
+    if (!adminToken || adminToken.startsWith('offline-admin-')) return;
+    api.getAdminSession(adminToken).then((res) => {
+      if (res?.success && res.admin) {
+        setAdminUser(res.admin);
+        localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(res.admin));
+      }
+    }).catch((err: any) => {
+      if (err?.status === 401 || err?.status === 403) {
+        setAdminUser(null);
+        setAdminToken(null);
+        api.setAdminToken(null);
+        localStorage.removeItem(ADMIN_USER_KEY);
+      }
+    });
+  }, [adminToken]);
+
+  // Global modal state (customer auth only)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
 
@@ -232,7 +276,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthModalOpen(false);
   };
 
-  // Helper to load user db
   const getStoredUsers = (): StoredAuthUser[] => {
     try {
       const raw = localStorage.getItem(USERS_DB_KEY);
@@ -255,30 +298,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       location: 'Manama, Bahrain',
       device: navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop Browser',
     };
-    const updated = {
+    return {
       ...user,
       securityLogs: [newLog, ...(user.securityLogs || []).slice(0, 19)],
     };
-    return updated;
   };
 
-  const isAdmin = currentUser?.role === 'admin';
-
   /**
-   * Password Authentication Login with Brute-Force Rate Limiting
+   * Public Storefront Customer Login (Strict Role Separation: rejects admins)
    */
   const login = async (
     email: string,
     pass: string
   ): Promise<{ success: boolean; error?: string; remainingSeconds?: number; user?: User }> => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
     const trimmedEmail = email.toLowerCase().trim();
-
     if (!trimmedEmail) {
       return { success: false, error: 'Email address is required.' };
     }
 
-    // 1. Check Brute-Force lockout
     const lockStatus = getBruteForceStatus(trimmedEmail);
     if (lockStatus.isLocked) {
       return {
@@ -288,15 +325,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     }
 
-    // 2. Compute hash of submitted password
-    const submittedHash = await hashPasswordWithSalt(pass);
+    // Try real backend customer login first
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmedEmail, password: pass }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.success && data.user) {
+        resetFailedLogin(trimmedEmail);
+        const loggedIn = logSecurityAction(data.user, 'login_success');
+        setCurrentUser(loggedIn);
+        return { success: true, user: loggedIn };
+      }
+      if (res.status === 401 || res.status === 403) {
+        const failRecord = recordFailedLogin(trimmedEmail);
+        return {
+          success: false,
+          error: data?.error || `Invalid email or password. ${failRecord.attemptsRemaining} attempt(s) remaining.`,
+          remainingSeconds: failRecord.isLocked ? 60 : undefined,
+        };
+      }
+      // On 503 DB unavailable, fall through to client-side customer verification
+    } catch {
+      // Network offline fallback below
+    }
 
-    // 3. Check registered users in localStorage
+    const submittedHash = await hashPasswordWithSalt(pass);
     const storedUsers = getStoredUsers();
     const storedUser = storedUsers.find((u) => u.email.toLowerCase() === trimmedEmail);
 
     if (storedUser) {
-      if (storedUser.passwordHash === submittedHash || pass === 'Secret@2026') {
+      if (storedUser.role === 'admin') {
+        return {
+          success: false,
+          error: 'Administrator accounts must sign in through the dedicated Admin Login page (/admin/login).',
+        };
+      }
+      if (storedUser.passwordHash === submittedHash) {
         resetFailedLogin(trimmedEmail);
         const { passwordHash: _, ...safeUser } = storedUser;
         const loggedIn = logSecurityAction(safeUser, 'login_success');
@@ -305,19 +372,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 4. Check Demo Admin
-    if (trimmedEmail === 'admin@thebedtimestore.bh' || trimmedEmail.includes('admin')) {
-      if (pass === 'admin123' || pass === 'Admin@Bedtime2026!' || pass.includes('admin')) {
-        resetFailedLogin(trimmedEmail);
-        const loggedIn = logSecurityAction(DEMO_ADMIN, 'login_success');
-        setCurrentUser(loggedIn);
-        return { success: true, user: loggedIn };
-      }
+    // Reject demo admin on public storefront login
+    if (trimmedEmail === 'admin@thebedtimestore.bh') {
+      return {
+        success: false,
+        error: 'Administrator accounts must sign in through the dedicated Admin Login page (/admin/login).',
+      };
     }
 
-    // 5. Check Demo Customer
-    if (trimmedEmail === 'fatima@thebedtimestore.bh' || trimmedEmail.includes('fatima')) {
-      if (pass === 'secret123' || pass === 'LuxurySilk@2026' || pass.includes('secret')) {
+    // Check Demo Customer
+    if (trimmedEmail === 'fatima@thebedtimestore.bh') {
+      if (pass === 'secret123' || pass === 'LuxurySilk@2026') {
         resetFailedLogin(trimmedEmail);
         const loggedIn = logSecurityAction(DEMO_CUSTOMER, 'login_success');
         setCurrentUser(loggedIn);
@@ -325,24 +390,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 6. Generic email fallback for testing convenience if password meets minimum strength
-    if (trimmedEmail && pass.length >= 6) {
-      resetFailedLogin(trimmedEmail);
-      const user: User = {
-        ...DEMO_CUSTOMER,
-        id: `usr-${Date.now()}`,
-        email: trimmedEmail,
-        firstName: trimmedEmail.split('@')[0],
-        lastName: 'Member',
-        authProvider: 'email',
-        connectedProviders: { email: true },
-      };
-      const loggedIn = logSecurityAction(user, 'login_success');
-      setCurrentUser(loggedIn);
-      return { success: true, user: loggedIn };
-    }
-
-    // 7. Failed attempt: Record brute force
     const failRecord = recordFailedLogin(trimmedEmail);
     if (failRecord.isLocked) {
       return {
@@ -359,7 +406,110 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
-   * Secure Sign Up with Password Analysis & Hashing
+   * Dedicated Administrator Login (/admin/login -> POST /api/admin/login)
+   */
+  const loginAdmin = async (
+    email: string,
+    pass: string
+  ): Promise<{ success: boolean; error?: string; remainingSeconds?: number; admin?: User }> => {
+    const trimmedEmail = email.toLowerCase().trim();
+    if (!trimmedEmail || !pass) {
+      return { success: false, error: 'Administrator email and password are required.' };
+    }
+
+    const lockKey = `admin:${trimmedEmail}`;
+    const lockStatus = getBruteForceStatus(lockKey);
+    if (lockStatus.isLocked) {
+      return {
+        success: false,
+        error: `Administrator portal temporarily locked. Please wait ${lockStatus.remainingSeconds} seconds before trying again.`,
+        remainingSeconds: lockStatus.remainingSeconds,
+      };
+    }
+
+    try {
+      const res = await api.loginAdmin(trimmedEmail, pass);
+      if (res?.success && res.admin && res.token) {
+        resetFailedLogin(lockKey);
+        const loggedInAdmin = logSecurityAction(res.admin, 'login_success');
+        api.setAdminToken(res.token);
+        setAdminToken(res.token);
+        setAdminUser(loggedInAdmin);
+        localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(loggedInAdmin));
+        return { success: true, admin: loggedInAdmin };
+      }
+    } catch (err: any) {
+      // Real auth rejection from server (invalid password / non-admin user)
+      if (err?.status === 401 || err?.status === 403 || err?.status === 400) {
+        const failRecord = recordFailedLogin(lockKey);
+        return {
+          success: false,
+          error: failRecord.isLocked
+            ? 'Too many failed administrator sign-in attempts. Locked for 60 seconds.'
+            : err?.message || `Invalid administrator credentials. ${failRecord.attemptsRemaining} attempt(s) remaining.`,
+          remainingSeconds: failRecord.isLocked ? 60 : undefined,
+        };
+      }
+      // Only fall back to hashed local store if DB is unavailable (503) or network error
+    }
+
+    // Hashed local fallback when MariaDB is offline in preview
+    const submittedHash = await hashPasswordWithSalt(pass);
+    const storedUsers = getStoredUsers();
+    const storedAdmin = storedUsers.find(
+      (u) => u.email.toLowerCase() === trimmedEmail && u.role === 'admin'
+    );
+
+    if (storedAdmin && storedAdmin.passwordHash === submittedHash) {
+      resetFailedLogin(lockKey);
+      const { passwordHash: _, ...safeAdmin } = storedAdmin;
+      const loggedInAdmin = logSecurityAction(safeAdmin, 'login_success');
+      const fallbackToken = `offline-admin-${safeAdmin.id}-${Date.now()}`;
+      api.setAdminToken(fallbackToken);
+      setAdminToken(fallbackToken);
+      setAdminUser(loggedInAdmin);
+      localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(loggedInAdmin));
+      return { success: true, admin: loggedInAdmin };
+    }
+
+    const demoAdminHash = await hashPasswordWithSalt('Admin@Bedtime2026!');
+    if (trimmedEmail === DEMO_ADMIN.email && submittedHash === demoAdminHash) {
+      resetFailedLogin(lockKey);
+      const loggedInAdmin = logSecurityAction(DEMO_ADMIN, 'login_success');
+      const fallbackToken = `offline-admin-${DEMO_ADMIN.id}-${Date.now()}`;
+      api.setAdminToken(fallbackToken);
+      setAdminToken(fallbackToken);
+      setAdminUser(loggedInAdmin);
+      localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(loggedInAdmin));
+      return { success: true, admin: loggedInAdmin };
+    }
+
+    const failRecord = recordFailedLogin(lockKey);
+    if (failRecord.isLocked) {
+      return {
+        success: false,
+        error: 'Too many failed administrator sign-in attempts. Locked for 60 seconds.',
+        remainingSeconds: 60,
+      };
+    }
+
+    return {
+      success: false,
+      error: `Invalid administrator email or password. ${failRecord.attemptsRemaining} attempt(s) remaining.`,
+    };
+  };
+
+  const logoutAdmin = () => {
+    api.logoutAdmin();
+    api.setAdminToken(null);
+    setAdminToken(null);
+    setAdminUser(null);
+    localStorage.removeItem(ADMIN_USER_KEY);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+  };
+
+  /**
+   * Public Customer Sign Up (Customer Role Only)
    */
   const register = async (data: {
     firstName: string;
@@ -368,20 +518,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     phone: string;
     password: string;
   }) => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
     const emailTrimmed = data.email.toLowerCase().trim();
     if (!emailTrimmed || !data.firstName || !data.lastName) {
       return { success: false, error: 'Please fill in all required profile fields.' };
     }
 
-    // Validate email pattern
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailTrimmed)) {
       return { success: false, error: 'Please enter a valid email address (e.g. name@domain.com).' };
     }
 
-    // Enforce Password Security Best Practices
     const analysis = analyzePassword(data.password);
     if (!analysis.checks.minLength) {
       return { success: false, error: 'Password must be at least 8 characters in length.' };
@@ -399,13 +545,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: 'Password is too common or easily guessable. Please choose a more complex phrase.' };
     }
 
-    // Check if email already registered
     const storedUsers = getStoredUsers();
     if (storedUsers.some((u) => u.email.toLowerCase() === emailTrimmed)) {
       return { success: false, error: 'An account with this email address already exists. Please sign in.' };
     }
 
-    // Hash password cryptographically
     const passwordHash = await hashPasswordWithSalt(data.password);
 
     const newUser: User = {
@@ -434,14 +578,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ],
     };
 
-    // Save in local user cache
     const storedRecord: StoredAuthUser = {
       ...newUser,
       passwordHash,
     };
     saveStoredUsers([...storedUsers, storedRecord]);
 
-    // Persist to MySQL Relational Database
     try {
       const regRes = await fetch('/api/auth/register', {
         method: 'POST',
@@ -468,34 +610,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
-   * Google & GitHub OAuth Integration
+   * Google & GitHub OAuth Integration (Public Customer Storefront Only)
    */
   const loginWithOAuth = async (
     provider: 'google' | 'github',
     preset?: { name: string; email: string; avatarUrl: string; handle?: string }
   ) => {
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
     let chosen = preset;
     if (!chosen) {
-      if (provider === 'google') {
-        chosen = GOOGLE_PRESETS[0];
-      } else {
-        chosen = GITHUB_PRESETS[0];
-      }
+      chosen = provider === 'google' ? GOOGLE_PRESETS[0] : GITHUB_PRESETS[0];
     }
 
     const nameParts = chosen.name.split(' ');
     const firstName = nameParts[0] || (provider === 'github' ? chosen.handle || 'GitHub User' : 'Google User');
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    // Check if user already exists
     const storedUsers = getStoredUsers();
-    const existing = storedUsers.find((u) => u.email.toLowerCase() === chosen!.email.toLowerCase());
+    const existing = storedUsers.find((u) => u.email.toLowerCase() === chosen!.email.toLowerCase() && u.role !== 'admin');
 
     if (existing) {
       const updatedUser: User = {
         ...existing,
+        role: 'customer',
         avatarUrl: chosen.avatarUrl || existing.avatarUrl,
         connectedProviders: {
           ...existing.connectedProviders,
@@ -513,7 +651,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       lastName,
       email: chosen.email,
       phone: '+973 3900 8822',
-      role: chosen.email.includes('admin') ? 'admin' : 'customer',
+      role: 'customer',
       authProvider: provider,
       avatarUrl: chosen.avatarUrl,
       connectedProviders: {
@@ -540,8 +678,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
-   * Create New Boutique Administrator (Authorized Admin Role Only)
-   * Enforces admin authorization, password strength, hashing, local cache, and MySQL persistence
+   * Create New Boutique Administrator (Authenticated Admin Session Only)
+   * Password is hashed via salted SHA-256 locally and salted scrypt on the backend before MySQL storage.
    */
   const createAdminUser = async (data: {
     firstName: string;
@@ -550,8 +688,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     phone?: string;
     password: string;
   }): Promise<{ success: boolean; error?: string; admin?: User }> => {
-    if (!isAdmin) {
-      return { success: false, error: 'Unauthorized: Only an active boutique administrator can create new admin accounts.' };
+    if (!isAdmin || !adminToken) {
+      return { success: false, error: 'Unauthorized: Please sign in through the Admin Portal to create administrators.' };
     }
 
     const emailTrimmed = data.email.toLowerCase().trim();
@@ -559,13 +697,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: 'Please provide first name, official boutique email, and password.' };
     }
 
-    // Validate email pattern
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailTrimmed)) {
       return { success: false, error: 'Please enter a valid official email address.' };
     }
 
-    // Enforce Password Security Best Practices
     const analysis = analyzePassword(data.password);
     if (!analysis.checks.minLength) {
       return { success: false, error: 'Admin password must be at least 8 characters in length.' };
@@ -580,16 +716,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: 'Admin password must contain at least one special symbol (!@#$%^&*).' };
     }
 
+    const passwordHash = await hashPasswordWithSalt(data.password);
     const storedUsers = getStoredUsers();
-    if (storedUsers.some((u) => u.email.toLowerCase() === emailTrimmed)) {
-      return { success: false, error: 'An administrator or user account with this email already exists.' };
+
+    // Persist to MySQL via separated protected /api/admin/create-admin route (hashes with scrypt on server)
+    let createdServerAdmin: User | null = null;
+    try {
+      const apiRes = await api.createAdminAccount({
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        email: emailTrimmed,
+        phone: data.phone?.trim() || '+973 1722 8844',
+        password: data.password,
+      });
+      if (apiRes?.success && apiRes.admin) {
+        createdServerAdmin = apiRes.admin;
+      }
+    } catch (apiErr: any) {
+      // Reject validation, duplicate, or auth errors directly
+      if (apiErr?.status && apiErr.status !== 503) {
+        return { success: false, error: apiErr?.message || 'Failed to create administrator in database.' };
+      }
+      // If 503 DB unavailable, fall through only if not duplicate in local cache
+      if (storedUsers.some((u) => u.email.toLowerCase() === emailTrimmed)) {
+        return { success: false, error: 'An administrator or user account with this email already exists.' };
+      }
     }
 
-    const passwordHash = await hashPasswordWithSalt(data.password);
-    const newAdminId = `usr-admin-${Date.now()}`;
-
-    const newAdminUser: User = {
-      id: newAdminId,
+    const newAdminUser: User = createdServerAdmin || {
+      id: `usr-admin-${Date.now()}`,
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
       email: emailTrimmed,
@@ -618,35 +773,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           action: 'admin_created',
           ip: '82.194.22.10',
           location: 'Manama, Bahrain',
-          device: `Created by admin ${currentUser?.email || 'Boutique Console'}`,
+          device: `Created by admin ${adminUser?.email || 'Boutique Console'}`,
         },
       ],
     };
 
-    // Save in local user cache so offline and local client logins recognize the new admin
     const storedRecord: StoredAuthUser = {
       ...newAdminUser,
       passwordHash,
     };
-    saveStoredUsers([...storedUsers, storedRecord]);
-
-    // Persist to MySQL Relational Database
-    try {
-      await fetch('/api/admin/create-admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: data.firstName.trim(),
-          lastName: data.lastName.trim(),
-          email: emailTrimmed,
-          phone: data.phone?.trim() || '+973 1722 8844',
-          password: data.password,
-          createdByAdminId: currentUser?.id,
-        }),
-      });
-    } catch (apiErr) {
-      console.warn('MySQL admin creation API sync note:', apiErr);
-    }
+    saveStoredUsers([...storedUsers.filter((u) => u.email.toLowerCase() !== emailTrimmed), storedRecord]);
 
     return { success: true, admin: newAdminUser };
   };
@@ -672,11 +808,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const index = storedUsers.findIndex((u) => u.id === currentUser.id);
 
     if (index !== -1) {
-      if (storedUsers[index].passwordHash !== currentHash && currentPass !== 'admin123' && currentPass !== 'secret123') {
+      if (storedUsers[index].passwordHash !== currentHash) {
         return { success: false, error: 'Current password provided is incorrect.' };
       }
       storedUsers[index].passwordHash = newHash;
       saveStoredUsers(storedUsers);
+    }
+
+    try {
+      await fetch('/api/auth/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id, newPassword: newPass }),
+      });
+    } catch {
+      // best effort
     }
 
     const updated = logSecurityAction(
@@ -690,37 +836,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true };
   };
 
-  /**
-   * Request Password Reset (simulated OTP verification code)
-   */
   const requestPasswordReset = async (
     email: string
   ): Promise<{ success: boolean; resetCode?: string; error?: string }> => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 400));
     const trimmed = email.toLowerCase().trim();
     if (!trimmed) return { success: false, error: 'Email address is required.' };
 
-    // Generate 6-digit code
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     const resetData = {
       email: trimmed,
       code: resetCode,
-      expiresAt: Date.now() + 15 * 60 * 1000, // 15 mins
+      expiresAt: Date.now() + 15 * 60 * 1000,
     };
 
     localStorage.setItem(RESET_CODES_KEY, JSON.stringify(resetData));
     return { success: true, resetCode };
   };
 
-  /**
-   * Reset Password with OTP Code
-   */
   const resetPasswordWithToken = async (
     email: string,
     code: string,
     newPass: string
   ): Promise<{ success: boolean; error?: string }> => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
     const raw = localStorage.getItem(RESET_CODES_KEY);
     if (!raw) return { success: false, error: 'No active password reset request found.' };
@@ -756,9 +895,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  /**
-   * Two-Factor Authentication (2FA) Setup & Toggle
-   */
   const toggleTwoFactor = async (
     enabled: boolean
   ): Promise<{
@@ -771,14 +907,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (enabled) {
       const secret = 'BDS-' + Array.from({ length: 16 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'[Math.floor(Math.random() * 32)]).join('');
-      const backupCodes = [
-        '9214-4820',
-        '8812-3901',
-        '7721-6543',
-        '1109-8422',
-        '4521-9988',
-        '3320-1178',
-      ];
+      const backupCodes = ['9214-4820', '8812-3901', '7721-6543', '1109-8422', '4521-9988', '3320-1178'];
       const qrData = `otpauth://totp/TheBedtimeStore:${encodeURIComponent(currentUser.email)}?secret=${secret}&issuer=TheBedtimeStoreBH`;
 
       const updated = logSecurityAction(
@@ -805,9 +934,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  /**
-   * Link & Unlink OAuth Providers
-   */
   const linkOAuthProvider = async (provider: 'google' | 'github') => {
     if (!currentUser) return { success: false, error: 'Not logged in' };
     const updated = logSecurityAction(
@@ -874,14 +1000,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return !!currentUser?.wishlist.includes(productId);
   };
 
-  const switchRole = (role: 'customer' | 'admin') => {
-    if (role === 'admin') {
-      setCurrentUser(DEMO_ADMIN);
-    } else {
-      setCurrentUser(DEMO_CUSTOMER);
-    }
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -891,9 +1009,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginAsGuest,
         login,
         register,
-        createAdminUser,
         loginWithOAuth,
         logout,
+        adminUser,
+        adminToken,
+        loginAdmin,
+        logoutAdmin,
+        createAdminUser,
         changePassword,
         requestPasswordReset,
         resetPasswordWithToken,
@@ -903,7 +1025,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addAddress,
         toggleWishlist,
         isInWishlist,
-        switchRole,
         isAuthModalOpen,
         authModalMode,
         openAuthModal,

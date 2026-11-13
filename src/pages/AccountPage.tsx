@@ -37,20 +37,17 @@ interface AccountPageProps {
   initialTab?: 'profile' | 'orders' | 'addresses' | 'wishlist' | 'security';
   onQuickView: (p: Product) => void;
   onSelectProduct: (p: Product) => void;
-  onNavigateAdmin: () => void;
 }
 
 export const AccountPage: React.FC<AccountPageProps> = ({
   initialTab = 'orders',
   onQuickView,
   onSelectProduct,
-  onNavigateAdmin,
 }) => {
   const {
     currentUser,
     logout,
     addAddress,
-    isAdmin,
     changePassword,
     toggleTwoFactor,
     unlinkOAuthProvider,
@@ -157,11 +154,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           <AuthModal
             embedded={true}
             defaultMode="signin"
-            onNavigate={(page) => {
-              if (page === 'admin') {
-                onNavigateAdmin();
-              }
-            }}
           />
         </div>
       </div>
@@ -223,15 +215,6 @@ export const AccountPage: React.FC<AccountPageProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            {isAdmin && (
-              <button
-                onClick={onNavigateAdmin}
-                className="px-4 py-2 bg-[var(--color-text)] hover:bg-[var(--color-primary-hover)] text-[var(--color-bg)] text-xs font-semibold uppercase tracking-wider rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <ShieldCheck className="w-4 h-4 text-[var(--color-primary)]" />
-                <span>{t.nav.admin}</span>
-              </button>
-            )}
 
             <button
               onClick={logout}

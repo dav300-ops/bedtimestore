@@ -3,20 +3,21 @@
  *
  * Requirements:
  * 1. Components never call fetch directly; all network interactions route through this layer.
- * 2. In development, logs every API call (method, URL, status, response).
+ * 2. Public storefront endpoints (/api/*) are strictly separated from protected Admin endpoints (/api/admin/*).
  * 3. Read Strategy: Stale-While-Revalidate (instant UI load from cache + background revalidation).
  * 4. Write Strategy: Write-Through (write to MariaDB first; only update cache on server confirmation).
- * 5. Throws descriptive errors with server error text ({ error, code, sqlMessage }).
  */
 
 import { browserCache } from './cache';
-import { Category, Product, Order, OrderStatus } from '../types';
+import { Category, Product, Order } from '../types';
 
 export interface ApiErrorResponse {
   error: string;
   code?: string;
   sqlMessage?: string | null;
 }
+
+const ADMIN_TOKEN_STORAGE_KEY = 'bedtime_admin_token';
 
 class ApiService {
   private isDev(): boolean {
@@ -27,35 +28,97 @@ class ApiService {
     }
   }
 
+  public getAdminToken(): string | null {
+    try {
+      return localStorage.getItem(ADMIN_TOKEN_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  public setAdminToken(token: string | null): void {
+    try {
+      if (token) {
+        localStorage.setItem(ADMIN_TOKEN_STORAGE_KEY, token);
+      } else {
+        localStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  private getAdminHeaders(): Record<string, string> {
+    const token = this.getAdminToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  private resolveUrl(url: string): string {
+    if (/^https?:\/\//i.test(url)) return url;
+    try {
+      const base = (import.meta as any).env?.VITE_API_BASE_URL || '';
+      if (base && typeof base === 'string') {
+        const cleanBase = base.replace(/\/+$/, '');
+        const cleanPath = url.startsWith('/') ? url : `/${url}`;
+        return `${cleanBase}${cleanPath}`;
+      }
+    } catch {
+      // fall through to relative same-origin path
+    }
+    return url;
+  }
+
   /**
-   * Internal request wrapper with debug logging and standard error parsing
+   * Internal request wrapper with transient GET retry, debug logging, and standard error parsing
    */
   private async request<T = any>(
     url: string,
-    options: RequestInit = {}
+    options: RequestInit & { silentNetworkError?: boolean } = {}
   ): Promise<T> {
-    const method = options.method || 'GET';
+    const { silentNetworkError, ...fetchOptions } = options;
+    const method = (fetchOptions.method || 'GET').toUpperCase();
+    const resolvedUrl = this.resolveUrl(url);
     const startTime = Date.now();
 
     if (this.isDev()) {
-      console.log(`[API CALL] ${method} ${url}`, options.body ? JSON.parse(options.body as string) : '');
+      console.log(`[API CALL] ${method} ${url}`);
     }
 
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          ...(options.headers || {}),
-        },
-        ...options,
-      });
-    } catch (networkErr: any) {
-      if (this.isDev()) {
-        console.error(`[API NETWORK FAILURE] ${method} ${url}:`, networkErr?.message);
+    const maxAttempts = method === 'GET' ? 3 : 1;
+    let response: Response | null = null;
+    let lastNetworkErr: any = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        response = await fetch(resolvedUrl, {
+          ...fetchOptions,
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...(fetchOptions.headers || {}),
+          },
+        });
+        break;
+      } catch (networkErr: any) {
+        lastNetworkErr = networkErr;
+        if (attempt < maxAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, attempt * 400));
+          continue;
+        }
       }
-      throw new Error(`Network failure connecting to API: ${networkErr?.message || 'Server unreachable'}`);
+    }
+
+    if (!response) {
+      if (this.isDev()) {
+        if (silentNetworkError) {
+          console.warn(`[API NETWORK WARNING] ${method} ${url}:`, lastNetworkErr?.message);
+        } else {
+          console.error(`[API NETWORK FAILURE] ${method} ${url}:`, lastNetworkErr?.message);
+        }
+      }
+      const err: any = new Error(`Network failure connecting to API: ${lastNetworkErr?.message || 'Server unreachable'}`);
+      err.code = 'NETWORK_ERROR';
+      throw err;
     }
 
     const duration = Date.now() - startTime;
@@ -70,7 +133,7 @@ class ApiService {
     }
 
     if (this.isDev()) {
-      console.log(`[API RES] ${method} ${url} -> status ${response.status} (${duration}ms):`, data);
+      console.log(`[API RES] ${method} ${url} -> status ${response.status} (${duration}ms)`);
     }
 
     if (!response.ok) {
@@ -89,7 +152,102 @@ class ApiService {
   }
 
   // ==========================================================================
-  // CATEGORIES (Stale-While-Revalidate Read + Write-Through)
+  // ADMIN AUTHENTICATION & MANAGEMENT (/api/admin/*)
+  // ==========================================================================
+
+  public async loginAdmin(email: string, password: string): Promise<{ success: boolean; admin: any; token: string }> {
+    return await this.request('/api/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  public async logoutAdmin(): Promise<void> {
+    try {
+      await this.request('/api/admin/logout', { method: 'POST' });
+    } catch {
+      // best effort
+    }
+  }
+
+  public async getAdminSession(token?: string): Promise<{ success: boolean; admin: any }> {
+    const authToken = token || this.getAdminToken();
+    return await this.request('/api/admin/session', {
+      headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+      silentNetworkError: true,
+    });
+  }
+
+  public async createAdminAccount(payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    password: string;
+  }): Promise<{ success: boolean; admin: any; message?: string }> {
+    return await this.request('/api/admin/create-admin', {
+      method: 'POST',
+      headers: this.getAdminHeaders(),
+      body: JSON.stringify(payload),
+    });
+  }
+
+  public async getAdministrators(): Promise<any[]> {
+    const res = await this.request<{ success: boolean; admins: any[] }>('/api/admin/administrators', {
+      headers: this.getAdminHeaders(),
+      silentNetworkError: true,
+    });
+    return res.admins || [];
+  }
+
+  public async getAdminInventoryBalances(): Promise<any> {
+    return await this.request('/api/admin/inventory/balances', {
+      headers: this.getAdminHeaders(),
+      silentNetworkError: true,
+    });
+  }
+
+  public async getAdminSalesAnalytics(): Promise<any> {
+    return await this.request('/api/admin/sales/analytics', {
+      headers: this.getAdminHeaders(),
+      silentNetworkError: true,
+    });
+  }
+
+  public async getAdminSales(limit = 100): Promise<any[]> {
+    const res = await this.request<{ success: boolean; sales: any[] }>(`/api/admin/sales?limit=${limit}`, {
+      headers: this.getAdminHeaders(),
+      silentNetworkError: true,
+    });
+    return res.sales || [];
+  }
+
+  public async getAdminCustomerPurchases(): Promise<any[]> {
+    const res = await this.request<{ success: boolean; customers: any[] }>('/api/admin/customer-purchases', {
+      headers: this.getAdminHeaders(),
+      silentNetworkError: true,
+    });
+    return res.customers || [];
+  }
+
+  public async getAdminCustomerPurchaseDetail(customerIdOrEmail: string): Promise<any[]> {
+    const res = await this.request<{ success: boolean; purchases: any[] }>(
+      `/api/admin/customer-purchases/${encodeURIComponent(customerIdOrEmail)}`,
+      { headers: this.getAdminHeaders(), silentNetworkError: true }
+    );
+    return res.purchases || [];
+  }
+
+  public async getAdminProductBuyers(productId: string): Promise<any[]> {
+    const res = await this.request<{ success: boolean; buyers: any[] }>(
+      `/api/admin/product-buyers/${encodeURIComponent(productId)}`,
+      { headers: this.getAdminHeaders(), silentNetworkError: true }
+    );
+    return res.buyers || [];
+  }
+
+  // ==========================================================================
+  // CATEGORIES (Public Read + Protected Admin Writes)
   // ==========================================================================
 
   public async getCategories(
@@ -98,10 +256,11 @@ class ApiService {
     const cacheKey = 'catalog_categories';
     const cached = browserCache.get<Category[]>(cacheKey);
 
-    // Background revalidator
     const fetchFresh = async () => {
       try {
-        const res = await this.request<{ success: boolean; categories: Category[] }>('/api/categories');
+        const res = await this.request<{ success: boolean; categories: Category[] }>('/api/categories', {
+          silentNetworkError: true,
+        });
         const categories = res.categories || [];
         browserCache.set(cacheKey, categories, true);
         if (onRevalidate) {
@@ -117,7 +276,6 @@ class ApiService {
     };
 
     if (cached.data && cached.data.length > 0) {
-      // Fire background revalidation
       fetchFresh();
       return cached.data;
     }
@@ -126,13 +284,13 @@ class ApiService {
   }
 
   public async createCategory(categoryData: Partial<Category>): Promise<Category> {
-    const res = await this.request<{ success: boolean; category: Category; id: string }>('/api/categories', {
+    const res = await this.request<{ success: boolean; category: Category; id: string }>('/api/admin/categories', {
       method: 'POST',
+      headers: this.getAdminHeaders(),
       body: JSON.stringify(categoryData),
     });
 
     const saved = res.category;
-    // Write-Through: update cache only after database confirms success
     const current = browserCache.get<Category[]>('catalog_categories');
     if (current.data) {
       browserCache.set('catalog_categories', [...current.data, saved], true);
@@ -144,13 +302,13 @@ class ApiService {
   }
 
   public async updateCategory(id: string, updates: Partial<Category>): Promise<Category> {
-    const res = await this.request<{ success: boolean; category: Category; id: string }>(`/api/categories/${id}`, {
+    const res = await this.request<{ success: boolean; category: Category; id: string }>(`/api/admin/categories/${id}`, {
       method: 'PUT',
+      headers: this.getAdminHeaders(),
       body: JSON.stringify(updates),
     });
 
     const updated = res.category;
-    // Write-Through update
     const current = browserCache.get<Category[]>('catalog_categories');
     if (current.data) {
       browserCache.set(
@@ -164,9 +322,11 @@ class ApiService {
   }
 
   public async deleteCategory(id: string): Promise<void> {
-    await this.request(`/api/categories/${id}`, { method: 'DELETE' });
+    await this.request(`/api/admin/categories/${id}`, {
+      method: 'DELETE',
+      headers: this.getAdminHeaders(),
+    });
 
-    // Write-Through invalidate
     const current = browserCache.get<Category[]>('catalog_categories');
     if (current.data) {
       browserCache.set(
@@ -178,7 +338,7 @@ class ApiService {
   }
 
   // ==========================================================================
-  // PRODUCTS (Stale-While-Revalidate Read + Write-Through)
+  // PRODUCTS (Public Read + Protected Admin Writes)
   // ==========================================================================
 
   public async getProducts(
@@ -189,7 +349,9 @@ class ApiService {
 
     const fetchFresh = async () => {
       try {
-        const res = await this.request<{ success: boolean; products: Product[] }>('/api/products');
+        const res = await this.request<{ success: boolean; products: Product[] }>('/api/products', {
+          silentNetworkError: true,
+        });
         const products = res.products || [];
         browserCache.set(cacheKey, products, true);
         if (onRevalidate) {
@@ -213,13 +375,13 @@ class ApiService {
   }
 
   public async createProduct(productData: any): Promise<Product> {
-    const res = await this.request<{ success: boolean; product: Product; id: string }>('/api/products', {
+    const res = await this.request<{ success: boolean; product: Product; id: string }>('/api/admin/products', {
       method: 'POST',
+      headers: this.getAdminHeaders(),
       body: JSON.stringify(productData),
     });
 
     const saved = res.product;
-    // Write-Through: update cache only after database confirms success
     const current = browserCache.get<Product[]>('catalog_products');
     if (current.data) {
       browserCache.set('catalog_products', [saved, ...current.data.filter((p) => p.id !== saved.id)], true);
@@ -231,8 +393,9 @@ class ApiService {
   }
 
   public async updateProduct(id: string, updates: any): Promise<Product> {
-    const res = await this.request<{ success: boolean; product: Product; id: string }>(`/api/products/${id}`, {
+    const res = await this.request<{ success: boolean; product: Product; id: string }>(`/api/admin/products/${id}`, {
       method: 'PUT',
+      headers: this.getAdminHeaders(),
       body: JSON.stringify(updates),
     });
 
@@ -250,7 +413,10 @@ class ApiService {
   }
 
   public async deleteProduct(id: string): Promise<void> {
-    await this.request(`/api/products/${id}`, { method: 'DELETE' });
+    await this.request(`/api/admin/products/${id}`, {
+      method: 'DELETE',
+      headers: this.getAdminHeaders(),
+    });
 
     const current = browserCache.get<Product[]>('catalog_products');
     if (current.data) {
@@ -262,29 +428,51 @@ class ApiService {
     }
   }
 
+  public async adjustProductStock(
+    productId: string,
+    skuOrSize: string,
+    colorHex: string,
+    delta: number,
+    absoluteNewStock?: number
+  ): Promise<Product | null> {
+    const res = await this.request<{ success: boolean; product: Product }>(`/api/admin/products/${productId}/stock`, {
+      method: 'POST',
+      headers: this.getAdminHeaders(),
+      body: JSON.stringify({ skuOrSize, colorHex, delta, absoluteNewStock }),
+    });
+    browserCache.invalidate('catalog_products');
+    return res.product || null;
+  }
+
   // ==========================================================================
-  // ORDERS (Memory/Session Cache Only - Never Stored in localStorage)
+  // ORDERS (Customer Checkout & Lookup + Protected Admin Management)
   // ==========================================================================
 
   public async getOrders(
     onRevalidate?: (fresh: Order[]) => void
   ): Promise<Order[]> {
+    if (!this.getAdminToken()) {
+      return [];
+    }
+
     const cacheKey = 'orders_session_list';
-    // Orders are kept in memory only for security
     const cached = browserCache.get<Order[]>(cacheKey);
 
     const fetchFresh = async () => {
       try {
-        const res = await this.request<{ success: boolean; orders: Order[] }>('/api/orders');
+        const res = await this.request<{ success: boolean; orders: Order[] }>('/api/admin/orders', {
+          headers: this.getAdminHeaders(),
+          silentNetworkError: true,
+        });
         const orders = res.orders || [];
-        browserCache.set(cacheKey, orders, false); // persistToLocalStorage = false
+        browserCache.set(cacheKey, orders, false);
         if (onRevalidate) {
           onRevalidate(orders);
         }
         return orders;
       } catch (err: any) {
         if (this.isDev()) {
-          console.warn('[API Background Revalidate Warning] Orders fetch failed:', err?.message);
+          console.warn('[API Background Revalidate Warning] Admin orders fetch failed:', err?.message);
         }
         return cached.data || [];
       }
@@ -298,6 +486,18 @@ class ApiService {
     return await fetchFresh();
   }
 
+  public async getCustomerOrders(userId: string, email: string): Promise<Order[]> {
+    try {
+      const res = await this.request<{ success: boolean; orders: Order[] }>(
+        `/api/orders/user/${encodeURIComponent(userId)}?email=${encodeURIComponent(email)}`,
+        { silentNetworkError: true }
+      );
+      return res.orders || [];
+    } catch {
+      return [];
+    }
+  }
+
   public async createOrder(orderData: any): Promise<Order> {
     const res = await this.request<{ success: boolean; order: Order; id: string }>('/api/orders', {
       method: 'POST',
@@ -305,10 +505,8 @@ class ApiService {
     });
 
     const saved = res.order;
-    // Invalidate product catalog cache because stock changed during order insertion
     browserCache.invalidate('catalog_products');
 
-    // Update orders in session memory
     const current = browserCache.get<Order[]>('orders_session_list');
     if (current.data) {
       browserCache.set('orders_session_list', [saved, ...current.data], false);
@@ -318,8 +516,9 @@ class ApiService {
   }
 
   public async updateOrder(id: string, updates: any): Promise<Order> {
-    const res = await this.request<{ success: boolean; order: Order; id: string }>(`/api/orders/${id}`, {
+    const res = await this.request<{ success: boolean; order: Order; id: string }>(`/api/admin/orders/${id}`, {
       method: 'PUT',
+      headers: this.getAdminHeaders(),
       body: JSON.stringify(updates),
     });
 
@@ -337,7 +536,10 @@ class ApiService {
   }
 
   public async deleteOrder(id: string): Promise<void> {
-    await this.request(`/api/orders/${id}`, { method: 'DELETE' });
+    await this.request(`/api/admin/orders/${id}`, {
+      method: 'DELETE',
+      headers: this.getAdminHeaders(),
+    });
 
     const current = browserCache.get<Order[]>('orders_session_list');
     if (current.data) {
@@ -349,14 +551,31 @@ class ApiService {
     }
   }
 
-  // ==========================================================================
-  // SYSTEM HEALTH & CACHE FLUSH
-  // ==========================================================================
-
-  public async checkHealth(): Promise<{ status: string; db: string; env: string; version: string }> {
-    return await this.request('/api/health');
+  public async confirmDeliveryPayment(orderId: string): Promise<{ success: boolean; message?: string }> {
+    return await this.request(`/api/admin/orders/${encodeURIComponent(orderId)}/confirm-payment`, {
+      method: 'POST',
+      headers: this.getAdminHeaders(),
+    });
   }
 
+  public async recordOrderSales(order: Order): Promise<any> {
+    try {
+      return await this.request('/api/sales/record-order', {
+        method: 'POST',
+        body: JSON.stringify({ order }),
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  // ==========================================================================
+  // SYSTEM HEALTH
+  // ==========================================================================
+
+  public async checkHealth(): Promise<{ status?: string; ok?: boolean; db?: string; env: string; version?: string }> {
+    return await this.request('/api/health', { silentNetworkError: true });
+  }
 }
 
 export const api = new ApiService();

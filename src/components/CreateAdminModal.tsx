@@ -31,7 +31,7 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
   onClose,
   onAdminCreated,
 }) => {
-  const { currentUser, createAdminUser } = useAuth();
+  const { adminUser, isAdmin, createAdminUser } = useAuth();
   const { language } = useLanguage();
   const isAr = language === 'ar';
   const isRu = language === 'ru';
@@ -52,7 +52,7 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
 
   // STRICT ACCESS CHECK: The Create Admin Modal should ONLY be accessible by an active administrator inside the admin dashboard
   if (!isOpen) return null;
-  if (!currentUser || currentUser.role !== 'admin') {
+  if (!isAdmin || !adminUser) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--color-text)]/60 backdrop-blur-xs">
         <div className="bg-[var(--color-card)] rounded-lg p-6 max-w-md w-full text-center space-y-4 border border-red-200">
@@ -199,7 +199,7 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({
               <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
               <span className="text-[11px] text-[var(--color-text)]">
                 {isAr ? 'المشرف المعتمد الذي يقوم بالإنشاء:' : isRu ? 'Авторизованный администратор:' : 'Authorized creating administrator:'}{' '}
-                <strong className="text-[var(--color-text)]">{currentUser.firstName} {currentUser.lastName}</strong> ({currentUser.email})
+                <strong className="text-[var(--color-text)]">{adminUser.firstName} {adminUser.lastName}</strong> ({adminUser.email})
               </span>
             </div>
             <span className="text-[10px] font-mono text-[var(--color-accent)] font-semibold bg-white px-2 py-0.5 rounded-xs border border-[var(--color-accent)]/20">
