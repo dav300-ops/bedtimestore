@@ -129,7 +129,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
       activeProduct,
       defaultVariant?.size || 'S',
       language === 'ar' ? (defaultVariant?.colorNameAr || 'وردي') : (defaultVariant?.colorNameEn || 'Blush'),
-      defaultVariant?.colorHex || 'var(--color-card)',
+      defaultVariant?.colorHex || 'var(--maroon-900)',
       1
     );
     if (res.success) {
@@ -139,25 +139,25 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-[var(--color-text)]/95 backdrop-blur-md flex flex-col">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-[var(--maroon-900)]/95 backdrop-blur-md flex flex-col">
       {/* Top Navigation & Controls Bar */}
-      <div className="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-[var(--color-accent)]/30 bg-[var(--color-text)]/90 text-[var(--color-bg)] shrink-0 z-20">
+      <div className="h-16 px-4 sm:px-6 flex items-center justify-between border-b border-[var(--gold-decor)]/30 bg-[var(--maroon-900)] text-[var(--text-on-maroon)] shrink-0 z-20">
         <div className="flex items-center gap-3">
-          <span className="font-heading text-lg font-bold tracking-wider text-white uppercase hidden sm:inline">
+          <span className="font-heading text-lg font-bold tracking-wider text-[var(--text-on-maroon)] uppercase hidden sm:inline">
             {language === 'ar' ? 'ألبوم صور المنتجات' : 'Product Image Album'}
           </span>
-          <span className="text-[11px] text-[var(--color-accent)] font-mono px-2 py-0.5 rounded-xs bg-white/10">
+          <span className="text-[11px] text-[var(--gold-soft)] font-mono px-2 py-0.5 rounded-xs bg-white/10">
             {activeProduct.sku}
           </span>
-          <span className="text-xs text-[var(--color-bg)]/70 hidden md:inline">
+          <span className="text-xs text-[var(--surface-champagne)]/75 hidden md:inline">
             {currentProductIndex + 1} / {allProducts.length} {language === 'ar' ? 'منتجات' : 'pieces'}
           </span>
         </div>
 
         {/* Center: Image Counter in Album */}
-        <div className="flex items-center gap-1.5 text-xs text-[var(--color-accent)] font-medium font-mono">
+        <div className="flex items-center gap-1.5 text-xs text-[var(--gold-soft)] font-medium font-mono">
           <span>{language === 'ar' ? 'صورة' : 'Image'}</span>
-          <span className="text-white font-bold">{currentImageIndex + 1}</span>
+          <span className="text-[var(--text-on-maroon)] font-bold">{currentImageIndex + 1}</span>
           <span>/</span>
           <span>{totalImages}</span>
         </div>
@@ -165,24 +165,24 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
         {/* Right Action Icons */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Zoom controls */}
-          <div className="hidden sm:flex items-center bg-white/10 rounded-xs border border-white/10 p-0.5">
+          <div className="hidden sm:flex items-center bg-white/10 rounded-xs border border-white/15 p-0.5">
             <button
               type="button"
               onClick={() => setZoomLevel((z) => Math.max(1, z - 0.5))}
               disabled={zoomLevel <= 1}
-              className="p-1.5 text-[var(--color-bg)] hover:text-white disabled:opacity-40 cursor-pointer"
+              className="p-1.5 text-[var(--surface-champagne)] hover:text-[var(--text-on-maroon)] disabled:opacity-40 cursor-pointer"
               title="Zoom Out"
             >
               <ZoomOut className="w-4 h-4" />
             </button>
-            <span className="text-[11px] font-mono px-2 text-[var(--color-accent)] tabular-nums">
+            <span className="text-[11px] font-mono px-2 text-[var(--gold-soft)] tabular-nums">
               {Math.round(zoomLevel * 100)}%
             </span>
             <button
               type="button"
               onClick={() => setZoomLevel((z) => Math.min(3, z + 0.5))}
               disabled={zoomLevel >= 3}
-              className="p-1.5 text-[var(--color-bg)] hover:text-white disabled:opacity-40 cursor-pointer"
+              className="p-1.5 text-[var(--surface-champagne)] hover:text-[var(--text-on-maroon)] disabled:opacity-40 cursor-pointer"
               title="Zoom In"
             >
               <ZoomIn className="w-4 h-4" />
@@ -191,7 +191,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
               <button
                 type="button"
                 onClick={() => setZoomLevel(1)}
-                className="p-1.5 text-[var(--color-accent)] hover:text-white cursor-pointer ml-1"
+                className="p-1.5 text-[var(--gold-decor)] hover:text-[var(--text-on-maroon)] cursor-pointer ml-1"
                 title="Reset Zoom"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -205,8 +205,8 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className={`p-2 rounded-xs border transition-colors cursor-pointer ${
               isSidebarOpen
-                ? 'bg-[var(--color-accent)] text-white border-[var(--color-accent)]'
-                : 'bg-white/10 text-[var(--color-bg)] border-white/20 hover:bg-white/20'
+                ? 'bg-[var(--maroon-700)] text-[var(--text-on-maroon)] border-[var(--gold-decor)]'
+                : 'bg-white/10 text-[var(--surface-champagne)] border-white/20 hover:bg-white/20'
             }`}
             title="Toggle Product Details Panel"
           >
@@ -217,7 +217,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 bg-white/10 hover:bg-red-600/80 text-white rounded-xs border border-white/20 transition-colors cursor-pointer"
+            className="p-2 bg-white/10 hover:bg-[var(--red-600)] text-[var(--text-on-maroon)] rounded-xs border border-white/20 transition-colors cursor-pointer"
             title="Close Album (Esc)"
           >
             <X className="w-5 h-5" />
@@ -234,7 +234,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
             <button
               type="button"
               onClick={isRtl ? handleNextImage : handlePrevImage}
-              className="absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-[var(--color-text)]/60 hover:bg-[var(--color-text)] text-white border border-[var(--color-accent)]/40 shadow-lg transition-transform hover:scale-110 cursor-pointer"
+              className="absolute left-4 rtl:left-auto rtl:right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-[var(--maroon-900)]/80 hover:bg-[var(--maroon-700)] text-[var(--text-on-maroon)] border border-[var(--gold-decor)]/40 shadow-lg transition-transform hover:scale-110 cursor-pointer"
               title="Previous Photo"
             >
               {isRtl ? <ChevronRight className="w-6 h-6" /> : <ChevronLeft className="w-6 h-6" />}
@@ -246,7 +246,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
             <button
               type="button"
               onClick={isRtl ? handlePrevImage : handleNextImage}
-              className="absolute right-4 rtl:right-auto rtl:left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-[var(--color-text)]/60 hover:bg-[var(--color-text)] text-white border border-[var(--color-accent)]/40 shadow-lg transition-transform hover:scale-110 cursor-pointer"
+              className="absolute right-4 rtl:right-auto rtl:left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-[var(--maroon-900)]/80 hover:bg-[var(--maroon-700)] text-[var(--text-on-maroon)] border border-[var(--gold-decor)]/40 shadow-lg transition-transform hover:scale-110 cursor-pointer"
               title="Next Photo"
             >
               {isRtl ? <ChevronLeft className="w-6 h-6" /> : <ChevronRight className="w-6 h-6" />}
@@ -270,7 +270,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
 
           {/* Bottom Thumbnail Filmstrip */}
           {totalImages > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-[var(--color-text)]/70 backdrop-blur-md px-3 py-2 rounded-xs border border-[var(--color-accent)]/40 flex items-center gap-2.5 max-w-[90vw] overflow-x-auto shadow-xl">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 bg-[var(--maroon-900)]/85 backdrop-blur-md px-3 py-2 rounded-xs border border-[var(--gold-decor)]/40 flex items-center gap-2.5 max-w-[90vw] overflow-x-auto shadow-xl">
               {images.map((img, idx) => (
                 <button
                   key={idx}
@@ -281,7 +281,7 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
                   }}
                   className={`w-12 h-14 sm:w-14 sm:h-16 rounded-xs overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
                     currentImageIndex === idx
-                      ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/50 scale-105'
+                      ? 'border-[var(--gold-decor)] ring-2 ring-[var(--gold-decor)]/50 scale-105'
                       : 'border-white/30 opacity-60 hover:opacity-100'
                   }`}
                 >
@@ -292,17 +292,17 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
           )}
 
           {/* Product Fast Switcher Pill at Top Center */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-[var(--color-text)]/70 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 flex items-center gap-3 text-xs text-[var(--color-bg)] shadow-lg">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-[var(--maroon-900)]/85 backdrop-blur-md px-4 py-1.5 rounded-[var(--radius-pill)] border border-[var(--gold-decor)]/30 flex items-center gap-3 text-xs text-[var(--text-on-maroon)] shadow-lg">
             <button
               type="button"
               onClick={handlePrevProduct}
-              className="hover:text-white flex items-center gap-1 cursor-pointer"
+              className="hover:text-[var(--gold-soft)] flex items-center gap-1 cursor-pointer"
               title="Previous Product"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{language === 'ar' ? 'السابق' : language === 'ru' ? 'Назад' : language === 'fr' ? 'Précédent' : 'Prev Piece'}</span>
             </button>
-            <span className="text-[var(--color-accent)] font-mono">·</span>
+            <span className="text-[var(--gold-decor)] font-mono">·</span>
             <span className="font-semibold truncate max-w-[160px] sm:max-w-[220px]">
               {language === 'ar' 
                 ? activeProduct.nameAr 
@@ -312,11 +312,11 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
                     ? activeProduct.nameFr 
                     : activeProduct.nameEn}
             </span>
-            <span className="text-[var(--color-accent)] font-mono">·</span>
+            <span className="text-[var(--gold-decor)] font-mono">·</span>
             <button
               type="button"
               onClick={handleNextProduct}
-              className="hover:text-white flex items-center gap-1 cursor-pointer"
+              className="hover:text-[var(--gold-soft)] flex items-center gap-1 cursor-pointer"
               title="Next Product"
             >
               <span className="hidden sm:inline">{language === 'ar' ? 'التالي' : language === 'ru' ? 'Далее' : language === 'fr' ? 'Suivant' : 'Next Piece'}</span>
@@ -327,11 +327,11 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
 
         {/* Product Details & Purchase Drawer (Collapsible Sidebar) */}
         {isSidebarOpen && (
-          <div className="w-full md:w-96 bg-[var(--color-text)] text-[var(--color-bg)] p-6 border-t md:border-t-0 md:border-l rtl:md:border-l-0 rtl:md:border-r border-[var(--color-accent)]/30 flex flex-col justify-between overflow-y-auto shrink-0 z-20 shadow-2xl">
+          <div className="w-full md:w-96 bg-[var(--maroon-900)] text-[var(--text-on-maroon)] p-6 border-t md:border-t-0 md:border-l rtl:md:border-l-0 rtl:md:border-r border-[var(--gold-decor)]/30 flex flex-col justify-between overflow-y-auto shrink-0 z-20 shadow-2xl">
             <div className="space-y-5">
               {/* Category & Status */}
               <div className="flex items-center justify-between text-xs">
-                <span className="uppercase tracking-widest text-[var(--color-accent)] font-semibold">
+                <span className="uppercase tracking-widest text-[var(--gold-soft)] font-semibold">
                   {language === 'ar' 
                     ? activeProduct.categoryNameAr 
                     : language === 'ru' && activeProduct.categoryNameRu 
@@ -341,11 +341,9 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
                         : activeProduct.categoryNameEn}
                 </span>
                 <span className={`px-2 py-0.5 rounded-xs text-[10px] font-bold uppercase tracking-wider ${
-                  isOutOfStock
-                    ? 'bg-red-900/60 text-red-200 border border-red-500/50'
-                    : isLowStock
-                    ? 'bg-amber-900/60 text-amber-200 border border-amber-500/50'
-                    : 'bg-emerald-900/60 text-emerald-200 border border-emerald-500/50'
+                  isOutOfStock || isLowStock
+                    ? 'bg-[var(--red-600)] text-[var(--text-on-maroon)] border border-[var(--surface-blush)]/40'
+                    : 'bg-[var(--status-success-bg)] text-[var(--status-success)] border border-[var(--status-success-border)]'
                 }`}>
                   {isOutOfStock
                     ? (language === 'ar' ? 'نفذت الكمية' : 'Out of Stock')
@@ -356,38 +354,38 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
               </div>
 
               {/* Product Title */}
-              <h2 className="font-heading text-xl sm:text-2xl font-bold text-white leading-tight">
+              <h2 className="font-heading text-xl sm:text-2xl font-bold text-[var(--text-on-maroon)] leading-tight">
                 {language === 'ar' ? activeProduct.nameAr : activeProduct.nameEn}
               </h2>
 
               {/* Price Block */}
-              <div className="flex items-baseline gap-3 py-2 border-y border-[var(--color-accent)]/30">
-                <span className="text-2xl font-bold text-[var(--color-bg)] tabular-nums">
+              <div className="flex items-baseline gap-3 py-2 border-y border-[var(--gold-decor)]/30">
+                <span className="text-2xl font-bold text-[var(--text-on-maroon)] tabular-nums">
                   {formatBHD(unitPrice)}
                 </span>
                 {activeProduct.salePrice && (
-                  <span className="text-sm text-[var(--color-bg)]/50 line-through tabular-nums">
+                  <span className="text-sm text-[var(--surface-champagne)]/60 line-through tabular-nums">
                     {formatBHD(activeProduct.price)}
                   </span>
                 )}
                 {activeProduct.salePrice && (
-                  <span className="text-[11px] font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/20 px-2 py-0.5 rounded-xs">
+                  <span className="text-[11px] font-bold bg-[var(--red-600)] text-[var(--text-on-maroon)] px-2 py-0.5 rounded-xs">
                     {Math.round(((activeProduct.price - activeProduct.salePrice) / activeProduct.price) * 100)}% OFF
                   </span>
                 )}
               </div>
 
               {/* Editorial Description */}
-              <p className="text-xs text-[var(--color-bg)]/85 leading-relaxed font-light">
+              <p className="text-xs text-[var(--surface-champagne)]/90 leading-relaxed font-light">
                 {language === 'ar' ? activeProduct.descriptionAr : activeProduct.descriptionEn}
               </p>
 
               {/* Material & Tailoring Note */}
-              <div className="bg-[var(--color-text)]/60 p-3.5 rounded-xs border border-[var(--color-accent)]/30 space-y-1.5 text-xs">
-                <p className="font-semibold text-[var(--color-accent)]">
+              <div className="bg-[var(--maroon-700)]/40 p-3.5 rounded-xs border border-[var(--gold-decor)]/30 space-y-1.5 text-xs">
+                <p className="font-semibold text-[var(--gold-soft)]">
                   {language === 'ar' ? 'الخامة والتفصيل:' : 'Fabric & Composition:'}
                 </p>
-                <p className="text-[11px] text-[var(--color-bg)]/90">
+                <p className="text-[11px] text-[var(--surface-champagne)]">
                   {language === 'ar' ? activeProduct.materialAr : activeProduct.materialEn}
                 </p>
               </div>
@@ -395,10 +393,10 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
               {/* Available Shades / Varieties in Stock */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--color-accent)] font-semibold uppercase tracking-wider">
+                  <span className="text-[var(--gold-soft)] font-semibold uppercase tracking-wider">
                     {language === 'ar' ? 'الألوان المتاحة بالألبوم:' : 'Available Shades:'}
                   </span>
-                  <span className="text-[11px] text-[var(--color-bg)]/60">
+                  <span className="text-[11px] text-[var(--surface-champagne)]/70">
                     {activeProduct.variants.length} {language === 'ar' ? 'موديلات' : 'varieties'}
                   </span>
                 </div>
@@ -409,10 +407,10 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
                     return (
                       <div
                         key={hex}
-                        className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--color-text)]/70 border border-[var(--color-accent)]/30 rounded-xs text-[11px]"
+                        className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--maroon-700)]/40 border border-[var(--gold-decor)]/30 rounded-xs text-[11px]"
                       >
                         <span
-                          className="w-3 h-3 rounded-full border border-white/20 shrink-0"
+                          className="w-3 h-3 rounded-full border border-white/25 shrink-0"
                           style={{ backgroundColor: hex }}
                         />
                         <span>{language === 'ar' ? variant?.colorNameAr : variant?.colorNameEn}</span>
@@ -424,14 +422,14 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-6 border-t border-[var(--color-accent)]/30 space-y-2.5">
+            <div className="pt-6 border-t border-[var(--gold-decor)]/30 space-y-2.5">
               <button
                 type="button"
                 onClick={() => {
                   onSelectProduct(activeProduct);
                   onClose();
                 }}
-                className="w-full py-3 px-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-xs uppercase tracking-wider rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                className="w-full py-3 px-4 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] border border-[var(--gold-decor)]/40 text-[var(--text-on-maroon)] font-semibold text-xs uppercase tracking-wider rounded-[var(--radius-pill)] flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 <span>{language === 'ar' ? 'تصفح المقاسات والموديلات كاملة' : 'Select Varieties & View Details'}</span>
@@ -441,12 +439,12 @@ export const ProductAlbumModal: React.FC<ProductAlbumModalProps> = ({
                 type="button"
                 onClick={handleQuickAdd}
                 disabled={isOutOfStock}
-                className={`w-full py-2.5 px-4 rounded-xs text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                className={`w-full py-2.5 px-4 rounded-[var(--radius-pill)] text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                   isOutOfStock
                     ? 'bg-white/10 text-white/40 cursor-not-allowed'
                     : isAddedFeedback
-                    ? 'bg-emerald-700 text-white'
-                    : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white shadow-sm'
+                    ? 'bg-[var(--status-success)] text-[var(--text-on-maroon)]'
+                    : 'bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] text-[var(--text-on-maroon)] shadow-sm'
                 }`}
               >
                 {isAddedFeedback ? (

@@ -322,7 +322,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
   return (
     <div 
-      className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] flex flex-col transition-colors"
+      className="min-h-screen bg-[var(--surface-page)] text-[var(--text-body)] flex flex-col transition-colors"
     >
       {/* 3. Category Chips Row (replaces old left sidebar completely) */}
       <CategoryChips
@@ -330,7 +330,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
         onSelectCategory={handleCategorySelect}
       />
 
-      {/* 4. Filter Bar (sticky just below the 68px header) */}
+      {/* 4. Filter Bar (sticky just below the header) */}
       <FilterBar
         totalCount={totalFilteredCount}
         filters={filters}
@@ -360,7 +360,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({
             <button
               type="button"
               onClick={handleLoadMore}
-              className="h-[48px] px-8 rounded-[8px] bg-[var(--color-card)] hover:bg-[var(--color-bg)] text-[var(--color-text)] hover:text-[var(--color-primary)] font-semibold text-[14px] border border-[var(--color-border)] hover:border-[var(--color-primary)] shadow-xs hover:shadow-sm transition-all duration-150 inline-flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+              className="h-[48px] px-8 rounded-[var(--radius-pill)] bg-[var(--surface-card)] hover:bg-[var(--surface-champagne)] text-[var(--maroon-700)] font-semibold text-[14px] border border-[var(--line)] hover:border-[var(--maroon-700)] shadow-xs hover:shadow-[var(--shadow-soft)] transition-all duration-150 inline-flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
             >
               <span>
                 {language === 'ar' 
@@ -371,11 +371,11 @@ export const ShopPage: React.FC<ShopPageProps> = ({
                       ? 'Charger plus de modèles'
                       : 'Load more products'}
               </span>
-              <ArrowDown className="w-4 h-4 text-[var(--color-primary)]" />
+              <ArrowDown className="w-4 h-4 text-[var(--maroon-700)]" />
             </button>
 
             <span 
-              className="text-[13px] font-medium tabular-nums text-[var(--color-text-secondary)]"
+              className="text-[13px] font-medium tabular-nums text-[var(--text-muted)]"
             >
               {language === 'ar' 
                 ? `عرض ${displayedProducts.length} من أصل ${totalFilteredCount} منتج` 

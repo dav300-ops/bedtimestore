@@ -350,15 +350,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   return (
-    <div className="bg-[var(--color-bg)] min-h-screen py-10">
+    <div className="bg-[var(--surface-page)] min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-xl mx-auto mb-10 space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[var(--color-accent)]">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[var(--gold-text)] gold-text-rtl-weight">
             {language === 'ar' ? 'البحرين · الدفع الآمن والمشفر' : 'The Deluxe Bedtime Store · Secure Checkout'}
           </span>
-          <h1 className="font-heading text-3xl font-semibold text-[var(--color-text)]">
+          <h1 className="font-heading text-3xl font-semibold text-[var(--maroon-700)]">
             {t.checkout.title}
           </h1>
         </div>
@@ -370,48 +370,48 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
             <div className="lg:col-span-7 space-y-6">
               
               {/* Step 1: Customer Information */}
-              <div className="bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
-                <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
-                  <span className="w-6 h-6 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center">1</span>
-                  <h2 className="font-heading text-lg font-semibold text-[var(--color-text)]">
+              <div className="bg-[var(--surface-card)] p-6 sm:p-8 rounded-[var(--radius-card)] border border-[var(--line)] shadow-xs space-y-4">
+                <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
+                  <span className="w-6 h-6 rounded-full bg-[var(--maroon-700)] text-[var(--text-on-maroon)] text-xs font-bold flex items-center justify-center">1</span>
+                  <h2 className="font-heading text-lg font-semibold text-[var(--maroon-700)]">
                     {t.checkout.step1Title}
                   </h2>
                 </div>
 
                 {(!currentUser || currentUser.isGuest) && (
-                  <div className="bg-[var(--color-text)] text-[var(--color-bg)] p-5 rounded-sm border border-[var(--color-accent)] shadow-md space-y-3">
+                  <div className="bg-[var(--maroon-900)] text-[var(--text-on-maroon)] p-5 rounded-[var(--radius-card)] border border-[var(--gold-decor)] shadow-md space-y-3">
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-[var(--color-accent)]/20 text-[var(--color-accent)] rounded-xs shrink-0">
+                      <div className="p-2 bg-[var(--gold-decor)]/20 text-[var(--gold-decor)] rounded-xs shrink-0">
                         <Lock className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[var(--color-accent)] text-white rounded-xs">
+                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[var(--gold-decor)] text-[var(--maroon-900)] rounded-xs">
                             {language === 'ar' ? 'مطلوب إنشاء حساب' : 'Account Required'}
                           </span>
                         </div>
-                        <h3 className="font-heading text-base font-bold text-white">
+                        <h3 className="font-heading text-base font-bold text-[var(--text-on-maroon)]">
                           {language === 'ar' ? 'إنشاء حساب قبل إتمام الطلب' : 'Create an Account to Complete Checkout'}
                         </h3>
-                        <p className="text-xs text-[var(--color-bg)]/80 leading-relaxed">
+                        <p className="text-xs text-[var(--surface-champagne)]/90 leading-relaxed">
                           {language === 'ar'
                             ? 'يسعدنا تسوقكِ معنا! كعميلة زائرة تم حفظ جميع منتجاتكِ في السلة بأمان. يرجى إنشاء حساب لتسجيل العنوان، ومتابعة شحنتكِ في البحرين، وتأكيد الدفع.'
                             : 'All items in your cart are safely saved. Guests must create an account to record your Bahrain delivery address, track orders, and complete checkout.'}
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/10">
+                    <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/15">
                       <button
                         type="button"
                         onClick={() => openAuthModal('signup')}
-                        className="px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold uppercase tracking-wider rounded-xs shadow-xs transition-colors cursor-pointer"
+                        className="px-5 py-2.5 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] text-[var(--text-on-maroon)] border border-[var(--gold-decor)] text-xs font-semibold uppercase tracking-wider rounded-[var(--radius-pill)] shadow-xs transition-colors cursor-pointer"
                       >
                         {language === 'ar' ? 'إنشاء حساب جديد الآن' : 'Create New Account'}
                       </button>
                       <button
                         type="button"
                         onClick={() => openAuthModal('signin')}
-                        className="px-4 py-2.5 bg-white/10 hover:bg-white text-white hover:text-[var(--color-text)] text-xs font-semibold rounded-xs transition-colors cursor-pointer"
+                        className="px-4 py-2.5 bg-white/10 hover:bg-[var(--surface-card)] text-[var(--text-on-maroon)] hover:text-[var(--maroon-700)] text-xs font-semibold rounded-[var(--radius-pill)] transition-colors cursor-pointer"
                       >
                         {language === 'ar' ? 'لديكِ حساب بالفعل؟ تسجيل الدخول' : 'Already have an account? Sign In'}
                       </button>
@@ -421,7 +421,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div className="space-y-1.5 sm:col-span-2">
-                    <label htmlFor="checkout-name" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-name" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.fullName} *
                     </label>
                     <input
@@ -436,19 +436,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       }}
                       aria-invalid={Boolean(fieldErrors.customerName)}
                       placeholder="e.g. Fatima Al Khalifa"
-                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                        fieldErrors.customerName ? 'border-red-600' : 'border-[var(--color-border)]'
-                      }`}
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                     {fieldErrors.customerName && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.customerName}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.customerName}</span>
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="checkout-email" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-email" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.email} *
                     </label>
                     <input
@@ -464,23 +463,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       }}
                       aria-invalid={Boolean(fieldErrors.customerEmail)}
                       placeholder="e.g. fatima@example.bh"
-                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                        fieldErrors.customerEmail ? 'border-red-600' : 'border-[var(--color-border)]'
-                      }`}
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                     {fieldErrors.customerEmail && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.customerEmail}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.customerEmail}</span>
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="checkout-phone" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-phone" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.phone} *
                     </label>
                     <div className="flex items-stretch">
-                      <span className="bg-[var(--color-border)] border border-[var(--color-border)] px-3 min-h-[44px] flex items-center text-xs font-semibold text-[var(--color-text)] rounded-s-sm">
+                      <span className="bg-[var(--surface-page)] border border-e-0 border-[var(--line)] px-3 min-h-[44px] flex items-center text-xs font-semibold text-[var(--text-body)] rounded-s-md">
                         +973
                       </span>
                       <input
@@ -496,14 +494,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                         }}
                         aria-invalid={Boolean(fieldErrors.customerPhone)}
                         placeholder="3900 1234"
-                        className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-e-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                          fieldErrors.customerPhone ? 'border-red-600' : 'border-[var(--color-border)]'
-                        }`}
+                        className="token-input w-full min-h-[44px] px-3 py-2 border rounded-e-md text-base sm:text-xs"
                       />
                     </div>
                     {fieldErrors.customerPhone && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.customerPhone}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.customerPhone}</span>
                       </p>
                     )}
                   </div>
@@ -511,17 +508,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               </div>
 
               {/* Step 2: Bahrain Delivery Address */}
-              <div className="bg-[var(--color-card)] p-5 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
-                <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
-                  <span className="w-6 h-6 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center">2</span>
-                  <h2 className="font-heading text-lg font-semibold text-[var(--color-text)]">
+              <div className="bg-[var(--surface-card)] p-5 sm:p-8 rounded-[var(--radius-card)] border border-[var(--line)] shadow-xs space-y-4">
+                <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
+                  <span className="w-6 h-6 rounded-full bg-[var(--maroon-700)] text-[var(--text-on-maroon)] text-xs font-bold flex items-center justify-center">2</span>
+                  <h2 className="font-heading text-lg font-semibold text-[var(--maroon-700)]">
                     {t.checkout.step2Title}
                   </h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                   <div className="space-y-1.5">
-                    <label htmlFor="checkout-building" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-building" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.building} *
                     </label>
                     <input
@@ -536,19 +533,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       }}
                       aria-invalid={Boolean(fieldErrors.buildingNumber)}
                       placeholder="Villa 24 / Apt 4B"
-                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                        fieldErrors.buildingNumber ? 'border-red-600' : 'border-[var(--color-border)]'
-                      }`}
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                     {fieldErrors.buildingNumber && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.buildingNumber}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.buildingNumber}</span>
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="checkout-road" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-road" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.road} *
                     </label>
                     <input
@@ -563,19 +559,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       }}
                       aria-invalid={Boolean(fieldErrors.roadNumber)}
                       placeholder="Road 3812"
-                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                        fieldErrors.roadNumber ? 'border-red-600' : 'border-[var(--color-border)]'
-                      }`}
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                     {fieldErrors.roadNumber && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.roadNumber}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.roadNumber}</span>
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="checkout-block" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-block" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.block} *
                     </label>
                     <input
@@ -590,19 +585,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       }}
                       aria-invalid={Boolean(fieldErrors.blockNumber)}
                       placeholder="Block 338"
-                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                        fieldErrors.blockNumber ? 'border-red-600' : 'border-[var(--color-border)]'
-                      }`}
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                     {fieldErrors.blockNumber && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.blockNumber}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.blockNumber}</span>
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5 sm:col-span-2">
-                    <label htmlFor="checkout-area" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-area" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.area} *
                     </label>
                     <input
@@ -617,19 +611,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       }}
                       aria-invalid={Boolean(fieldErrors.area)}
                       placeholder="e.g. Adliya, Seef, Saar, Amwaj, Riffa"
-                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                        fieldErrors.area ? 'border-red-600' : 'border-[var(--color-border)]'
-                      }`}
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                     {fieldErrors.area && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.area}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.area}</span>
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="checkout-city" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-city" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.city} *
                     </label>
                     <input
@@ -644,19 +637,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       }}
                       aria-invalid={Boolean(fieldErrors.city)}
                       placeholder="Manama"
-                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                        fieldErrors.city ? 'border-red-600' : 'border-[var(--color-border)]'
-                      }`}
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                     {fieldErrors.city && (
-                      <p role="alert" className="text-xs font-medium text-red-700">
-                        {fieldErrors.city}
+                      <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{fieldErrors.city}</span>
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-1.5 sm:col-span-3">
-                    <label htmlFor="checkout-notes" className="font-semibold text-[var(--color-text)] block">
+                    <label htmlFor="checkout-notes" className="font-semibold text-[var(--text-strong)] block">
                       {t.checkout.additionalNotes}
                     </label>
                     <input
@@ -665,23 +657,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       value={additionalInstructions}
                       onChange={(e) => setAdditionalInstructions(e.target.value)}
                       placeholder="Special gate instructions, doorbell..."
-                      className="w-full min-h-[44px] px-3 py-2 bg-white border border-[var(--color-border)] rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)]"
+                      className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md text-base sm:text-xs"
                     />
                   </div>
                 </div>
 
                 {/* Delivery Option Selector */}
-                <div className="pt-3 border-t border-[var(--color-border)]/70 space-y-2">
-                  <label className="text-xs font-semibold text-[var(--color-text)] block uppercase tracking-wider">
+                <div className="pt-3 border-t border-[var(--line)] space-y-2">
+                  <label className="text-xs font-semibold text-[var(--text-strong)] block uppercase tracking-wider">
                     {t.checkout.deliveryMethod}
                   </label>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <label
-                      className={`min-h-[48px] p-3 rounded-sm border cursor-pointer flex items-center justify-between transition-colors ${
+                      className={`min-h-[48px] p-3 rounded-lg border cursor-pointer flex items-center justify-between transition-colors ${
                         shippingOption === 'standard'
-                          ? 'bg-[var(--color-border)]/60 border-[var(--color-text)] font-semibold'
-                          : 'bg-white border-[var(--color-border)]'
+                          ? 'bg-[var(--surface-champagne)] border-[var(--maroon-700)] font-semibold text-[var(--maroon-700)]'
+                          : 'bg-[var(--surface-card)] border-[var(--line)] text-[var(--text-body)]'
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -690,7 +682,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           name="shippingOption"
                           checked={shippingOption === 'standard'}
                           onChange={() => setShippingOption('standard')}
-                          className="accent-[var(--color-primary)] w-4 h-4"
+                          className="accent-[var(--maroon-700)] w-4 h-4"
                         />
                         <span>{language === 'ar' ? 'توصيل عادي (١-٢ يوم)' : 'Standard (1-2 Days)'}</span>
                       </div>
@@ -704,10 +696,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     </label>
 
                     <label
-                      className={`min-h-[48px] p-3 rounded-sm border cursor-pointer flex items-center justify-between transition-colors ${
+                      className={`min-h-[48px] p-3 rounded-lg border cursor-pointer flex items-center justify-between transition-colors ${
                         shippingOption === 'express'
-                          ? 'bg-[var(--color-border)]/60 border-[var(--color-text)] font-semibold'
-                          : 'bg-white border-[var(--color-border)]'
+                          ? 'bg-[var(--surface-champagne)] border-[var(--maroon-700)] font-semibold text-[var(--maroon-700)]'
+                          : 'bg-[var(--surface-card)] border-[var(--line)] text-[var(--text-body)]'
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -716,7 +708,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           name="shippingOption"
                           checked={shippingOption === 'express'}
                           onChange={() => setShippingOption('express')}
-                          className="accent-[var(--color-primary)] w-4 h-4"
+                          className="accent-[var(--maroon-700)] w-4 h-4"
                         />
                         <span>{language === 'ar' ? 'توصيل فوري نفس اليوم' : 'Same-Day Express'}</span>
                       </div>
@@ -727,84 +719,77 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               </div>
 
               {/* Step 3: Bahrain Payment Gateway */}
-              <div className="bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-5">
-                <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
-                  <span className="w-6 h-6 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center">3</span>
-                  <h2 className="font-heading text-lg font-semibold text-[var(--color-text)]">
+              <div className="bg-[var(--surface-card)] p-6 sm:p-8 rounded-[var(--radius-card)] border border-[var(--line)] shadow-xs space-y-5">
+                <div className="flex items-center gap-2 border-b border-[var(--line)] pb-3">
+                  <span className="w-6 h-6 rounded-full bg-[var(--maroon-700)] text-[var(--text-on-maroon)] text-xs font-bold flex items-center justify-center">3</span>
+                  <h2 className="font-heading text-lg font-semibold text-[var(--maroon-700)]">
                     {t.checkout.step3Title}
                   </h2>
                 </div>
 
                 {/* Method Tabs */}
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                  
-              
-
-                  {/* 4. Visa / Mastercard */}
+                  {/* Visa / Mastercard */}
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('visa_mastercard')}
-                    className={`p-2.5 rounded-xs border text-center transition-all cursor-pointer ${
+                    className={`p-2.5 rounded-lg border text-center transition-all cursor-pointer ${
                       paymentMethod === 'visa_mastercard'
-                        ? 'border-[#1434CB] bg-[var(--color-bg)] ring-1 ring-[#1434CB]'
-                        : 'border-[var(--color-border)] bg-white hover:bg-[var(--color-bg)]/40'
+                        ? 'border-[var(--maroon-700)] bg-[var(--surface-champagne)] ring-1 ring-[var(--maroon-700)]'
+                        : 'border-[var(--line)] bg-[var(--surface-card)] hover:bg-[var(--surface-page)]'
                     }`}
                   >
-                    <div className="font-black italic text-xs text-[#1434CB]">VISA / MC</div>
-                    <span className="text-[10px] text-[var(--color-text)]/70 mt-1 block">
+                    <div className="font-black italic text-xs text-[var(--maroon-700)]">VISA / MC</div>
+                    <span className="text-[10px] text-[var(--text-muted)] mt-1 block">
                       {language === 'ar' ? 'بطاقة الائتمان' : 'Card'}
                     </span>
                   </button>
 
-                  {/* 5. Pay on Delivery */}
+                  {/* Pay on Delivery */}
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('pay_on_delivery')}
-                    className={`p-2.5 rounded-xs border text-center transition-all cursor-pointer ${
+                    className={`p-2.5 rounded-lg border text-center transition-all cursor-pointer ${
                       paymentMethod === 'pay_on_delivery'
-                        ? 'border-[var(--color-accent)] bg-[var(--color-bg)] ring-1 ring-[var(--color-accent)]'
-                        : 'border-[var(--color-border)] bg-white hover:bg-[var(--color-bg)]/40'
+                        ? 'border-[var(--maroon-700)] bg-[var(--surface-champagne)] ring-1 ring-[var(--maroon-700)]'
+                        : 'border-[var(--line)] bg-[var(--surface-card)] hover:bg-[var(--surface-page)]'
                     }`}
                   >
-                    <div className="font-bold text-xs text-[var(--color-accent)] flex items-center justify-center gap-1">
+                    <div className="font-bold text-xs text-[var(--maroon-700)] flex items-center justify-center gap-1">
                       <Truck className="w-3.5 h-3.5" />
                       <span>POD</span>
                     </div>
-                    <span className="text-[10px] text-[var(--color-text)]/70 mt-1 block">
+                    <span className="text-[10px] text-[var(--text-muted)] mt-1 block">
                       {language === 'ar' ? 'عند الاستلام' : 'On Delivery'}
                     </span>
                   </button>
                 </div>
 
                 {/* Payment Provider Details Box */}
-                <div className="p-4 bg-[var(--color-bg)]/30 rounded-xs border border-[var(--color-border)]">
-                  
-                  
-
-                    
+                <div className="p-4 bg-[var(--surface-page)] rounded-lg border border-[var(--line)]">
                   {/* Pay on Delivery Interface */}
                   {paymentMethod === 'pay_on_delivery' && (
                     <div className="space-y-3">
                       <div className="flex items-start gap-3">
-                        <div className="p-2.5 bg-[var(--color-card)] rounded-xs border border-[var(--color-border)] shadow-xs text-[var(--color-accent)]">
-                          <Truck className="w-8 h-8 text-[var(--color-accent)]" />
+                        <div className="p-2.5 bg-[var(--surface-card)] rounded-lg border border-[var(--line)] shadow-xs text-[var(--maroon-700)]">
+                          <Truck className="w-8 h-8 text-[var(--maroon-700)]" />
                         </div>
                         <div className="space-y-1">
-                          <p className="text-xs font-semibold text-[var(--color-text)]">
+                          <p className="text-xs font-semibold text-[var(--text-strong)]">
                             {t.checkout.payOnDelivery}
                           </p>
-                          <p className="text-[11px] text-[var(--color-text)]/70 leading-relaxed">
+                          <p className="text-[11px] text-[var(--text-body)] leading-relaxed">
                             {t.checkout.payOnDeliveryDesc}
                           </p>
                         </div>
                       </div>
 
-                      <div className="p-3 bg-white rounded-xs border border-[var(--color-accent)]/40 space-y-2 text-xs">
-                        <div className="flex items-center gap-2 text-[var(--color-accent)] font-semibold">
+                      <div className="p-3 bg-[var(--surface-card)] rounded-lg border border-[var(--gold-decor)]/60 space-y-2 text-xs">
+                        <div className="flex items-center gap-2 text-[var(--gold-text)] gold-text-rtl-weight font-semibold">
                           <ShieldCheck className="w-4 h-4" />
                           <span>{language === 'ar' ? 'آلية التحقق برمز السداد ورمز QR:' : '6-Digit Code & QR Verification Protocol:'}</span>
                         </div>
-                        <ul className="list-disc pl-4 rtl:pl-0 rtl:pr-4 text-[11px] text-[var(--color-text)]/80 space-y-1">
+                        <ul className="list-disc pl-4 rtl:pl-0 rtl:pr-4 text-[11px] text-[var(--text-body)] space-y-1">
                           <li>{language === 'ar' ? 'سيتم إصدار كود تحقق تلقائي مكون من ٦ أرقام مع تأكيد الطلب.' : 'An autogenerated 6-digit confirmation PIN will be created upon ordering.'}</li>
                           <li>{language === 'ar' ? 'سيتوفر رمز QR مخصص يمكن للمندوب أو الإدارة مسحه فور وصول الطلب لتأكيد الدفع.' : 'A live QR code is provided for courier/admin instant scan verification.'}</li>
                           <li>{language === 'ar' ? 'يمكنكِ الدفع نقدًا بالدينار البحريني أو عبر جهاز بنفت بي المتنقل عند الباب.' : 'Pay by cash in BHD or with portable BenefitPay / card terminal at your doorstep.'}</li>
@@ -812,13 +797,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </div>
                     </div>
                   )}
-                  
-                  
+
                   {/* Card Payment Interface */}
                   {paymentMethod === 'visa_mastercard' && (
                     <div className="space-y-3 text-xs">
                       <div className="space-y-1.5">
-                        <label htmlFor="checkout-cc-holder" className="font-semibold text-[var(--color-text)] block">
+                        <label htmlFor="checkout-cc-holder" className="font-semibold text-[var(--text-strong)] block">
                           {t.checkout.cardHolder}
                         </label>
                         <input
@@ -831,18 +815,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                             clearFieldError('cardHolder');
                           }}
                           aria-invalid={Boolean(fieldErrors.cardHolder)}
-                          className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono uppercase text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                            fieldErrors.cardHolder ? 'border-red-600' : 'border-[var(--color-border)]'
-                          }`}
+                          className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md font-mono uppercase text-base sm:text-xs"
                         />
                         {fieldErrors.cardHolder && (
-                          <p role="alert" className="text-xs font-medium text-red-700">
-                            {fieldErrors.cardHolder}
+                          <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>{fieldErrors.cardHolder}</span>
                           </p>
                         )}
                       </div>
                       <div className="space-y-1.5">
-                        <label htmlFor="checkout-cc-number" className="font-semibold text-[var(--color-text)] block">
+                        <label htmlFor="checkout-cc-number" className="font-semibold text-[var(--text-strong)] block">
                           {t.checkout.cardNumber}
                         </label>
                         <input
@@ -856,19 +839,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                             clearFieldError('cardNumber');
                           }}
                           aria-invalid={Boolean(fieldErrors.cardNumber)}
-                          className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                            fieldErrors.cardNumber ? 'border-red-600' : 'border-[var(--color-border)]'
-                          }`}
+                          className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md font-mono text-base sm:text-xs"
                         />
                         {fieldErrors.cardNumber && (
-                          <p role="alert" className="text-xs font-medium text-red-700">
-                            {fieldErrors.cardNumber}
+                          <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>{fieldErrors.cardNumber}</span>
                           </p>
                         )}
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <label htmlFor="checkout-cc-exp" className="font-semibold text-[var(--color-text)] block">
+                          <label htmlFor="checkout-cc-exp" className="font-semibold text-[var(--text-strong)] block">
                             {t.checkout.expiry}
                           </label>
                           <input
@@ -882,18 +864,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                               clearFieldError('cardExpiry');
                             }}
                             aria-invalid={Boolean(fieldErrors.cardExpiry)}
-                            className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                              fieldErrors.cardExpiry ? 'border-red-600' : 'border-[var(--color-border)]'
-                            }`}
+                            className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md font-mono text-base sm:text-xs"
                           />
                           {fieldErrors.cardExpiry && (
-                            <p role="alert" className="text-xs font-medium text-red-700">
-                              {fieldErrors.cardExpiry}
+                            <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span>{fieldErrors.cardExpiry}</span>
                             </p>
                           )}
                         </div>
                         <div className="space-y-1.5">
-                          <label htmlFor="checkout-cc-cvv" className="font-semibold text-[var(--color-text)] block">
+                          <label htmlFor="checkout-cc-cvv" className="font-semibold text-[var(--text-strong)] block">
                             {t.checkout.cvv}
                           </label>
                           <input
@@ -908,13 +889,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                               clearFieldError('cardCvv');
                             }}
                             aria-invalid={Boolean(fieldErrors.cardCvv)}
-                            className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
-                              fieldErrors.cardCvv ? 'border-red-600' : 'border-[var(--color-border)]'
-                            }`}
+                            className="token-input w-full min-h-[44px] px-3 py-2 border rounded-md font-mono text-base sm:text-xs"
                           />
                           {fieldErrors.cardCvv && (
-                            <p role="alert" className="text-xs font-medium text-red-700">
-                              {fieldErrors.cardCvv}
+                            <p role="alert" className="text-xs font-medium text-[var(--red-600)] flex items-center gap-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span>{fieldErrors.cardCvv}</span>
                             </p>
                           )}
                         </div>
@@ -926,7 +906,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
                 {/* Error Alert */}
                 {paymentError && (
-                  <div className="p-3 bg-red-50 border border-[var(--color-primary)]/30 rounded-xs flex items-center gap-2 text-xs text-[var(--color-primary)]">
+                  <div role="alert" className="p-3 bg-[var(--surface-blush)] border border-[var(--red-600)] rounded-lg flex items-center gap-2 text-xs text-[var(--red-600)] font-medium">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{paymentError}</span>
                   </div>
@@ -938,32 +918,32 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
             {/* Right Column: Order Summary & Pay CTA */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-6 sticky top-28">
+              <div className="bg-[var(--surface-card)] p-6 sm:p-8 rounded-[var(--radius-card)] border border-[var(--line)] shadow-xs space-y-6 sticky top-28">
                 
-                <h2 className="font-heading text-xl font-semibold text-[var(--color-text)] border-b border-[var(--color-border)] pb-3">
+                <h2 className="font-heading text-xl font-semibold text-[var(--maroon-700)] border-b border-[var(--line)] pb-3">
                   {t.orderConfirmation.orderSummary} ({cart.length})
                 </h2>
 
                 {/* Items Preview */}
-                <div className="max-h-60 overflow-y-auto space-y-3 divide-y divide-[var(--color-border)]/50 pr-1">
+                <div className="max-h-60 overflow-y-auto space-y-3 divide-y divide-[var(--line)] pe-1">
                   {cart.map((item) => (
                     <div key={item.id} className="pt-3 first:pt-0 flex items-center justify-between gap-3 text-xs">
                       <div className="flex items-center gap-3">
                         <img
                           src={(item.product.images?.[0] && item.product.images[0].trim() !== '') ? item.product.images[0] : '/images/hero_pic.jpeg'}
                           alt=""
-                          className="w-12 h-14 object-cover rounded-xs border border-[var(--color-border)]"
+                          className="w-12 h-14 object-cover rounded-xs border border-[var(--line)]"
                         />
                         <div>
-                          <p className="font-semibold text-[var(--color-text)] line-clamp-1">
+                          <p className="font-semibold text-[var(--text-strong)] line-clamp-1">
                             {language === 'ar' ? item.product.nameAr : item.product.nameEn}
                           </p>
-                          <p className="text-[11px] text-[var(--color-text)]/60">
+                          <p className="text-[11px] text-[var(--text-muted)]">
                             {item.size} · {item.color} · Qty {item.quantity}
                           </p>
                         </div>
                       </div>
-                      <span className="font-semibold text-[var(--color-text)] tabular-nums shrink-0">
+                      <span className="font-semibold text-[var(--text-strong)] tabular-nums shrink-0">
                         {formatBHD(item.unitPrice * item.quantity)}
                       </span>
                     </div>
@@ -971,14 +951,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 </div>
 
                 {/* Financial Summary */}
-                <div className="space-y-2 border-t border-[var(--color-border)] pt-4 text-xs text-[var(--color-text)]/80">
+                <div className="space-y-2 border-t border-[var(--line)] pt-4 text-xs text-[var(--text-body)]">
                   <div className="flex justify-between">
                     <span>{t.cart.subtotal}</span>
-                    <span className="font-semibold text-[var(--color-text)] tabular-nums">{formatBHD(subtotal)}</span>
+                    <span className="font-semibold text-[var(--text-strong)] tabular-nums">{formatBHD(subtotal)}</span>
                   </div>
 
                   {discount > 0 && (
-                    <div className="flex justify-between text-[var(--color-primary)]">
+                    <div className="flex justify-between text-[var(--maroon-700)]">
                       <span>{t.cart.discount} ({appliedCoupon?.code})</span>
                       <span className="font-bold tabular-nums">-{formatBHD(discount)}</span>
                     </div>
@@ -986,9 +966,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
                   <div className="flex justify-between">
                     <span>{t.cart.shipping}</span>
-                    <span className="font-semibold text-[var(--color-text)] tabular-nums">
+                    <span className="font-semibold text-[var(--text-strong)] tabular-nums">
                       {shippingFee === 0 ? (
-                        <span className="text-[var(--color-accent)] font-bold">
+                        <span className="text-[var(--gold-text)] gold-text-rtl-weight font-bold">
                           {language === 'ar' ? 'مجاني' : 'FREE'}
                         </span>
                       ) : (
@@ -997,26 +977,26 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     </span>
                   </div>
 
-                  <div className="pt-3 border-t border-[var(--color-border)] flex justify-between text-base font-bold text-[var(--color-text)]">
+                  <div className="pt-3 border-t border-[var(--line)] flex justify-between text-base font-bold text-[var(--text-strong)]">
                     <span>{t.cart.total}</span>
-                    <span className="text-xl text-[var(--color-text)] tabular-nums">{formatBHD(total)}</span>
+                    <span className="text-xl text-[var(--maroon-700)] tabular-nums">{formatBHD(total)}</span>
                   </div>
                 </div>
 
                 {/* Option to send customer receipt */}
-                <div className="p-3 bg-[var(--color-bg)]/40 border border-[var(--color-accent)]/30 rounded-xs space-y-1">
+                <div className="p-3 bg-[var(--surface-champagne)]/70 border border-[var(--gold-decor)]/50 rounded-lg space-y-1">
                   <label className="flex items-start gap-2.5 cursor-pointer text-xs">
                     <input
                       type="checkbox"
                       checked={sendReceiptViaEmail}
                       onChange={(e) => setSendReceiptViaEmail(e.target.checked)}
-                      className="mt-0.5 rounded-xs text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                      className="mt-0.5 rounded-xs accent-[var(--maroon-700)]"
                     />
                     <div>
-                      <span className="font-semibold text-[var(--color-text)] block">
+                      <span className="font-semibold text-[var(--text-strong)] block">
                         {t.checkout.sendReceiptOption}
                       </span>
-                      <span className="text-[10px] text-[var(--color-text)]/70 block leading-tight mt-0.5">
+                      <span className="text-[10px] text-[var(--text-body)] block leading-tight mt-0.5">
                         {language === 'ar'
                           ? `سيتم إرسال إيصال الشراء المعتمد والفاتورة التفصيلية إلى ${customerEmail || 'بريدكِ الإلكتروني'} فور اكتمال الدفع.`
                           : `An official itemized purchase receipt will be automatically dispatched to ${customerEmail || 'your email'} upon purchase.`}
@@ -1030,9 +1010,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   <button
                     type="button"
                     onClick={() => openAuthModal('signup')}
-                    className="w-full py-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-xs uppercase tracking-wider rounded-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border border-[var(--color-gold)]/40 group"
+                    className="w-full py-4 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] text-[var(--text-on-maroon)] font-semibold text-xs uppercase tracking-wider rounded-[var(--radius-pill)] shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border border-[var(--gold-decor)]/50 group"
                   >
-                    <Lock className="w-4 h-4 text-[var(--color-gold-light)] group-hover:scale-110 transition-transform" />
+                    <Lock className="w-4 h-4 text-[var(--surface-champagne)] group-hover:scale-110 transition-transform" />
                     <span>
                       {language === 'ar'
                         ? `إنشاء حساب لإتمام الدفع (${formatBHD(total)})`
@@ -1043,7 +1023,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   <button
                     type="submit"
                     disabled={isProcessing || cart.length === 0}
-                    className="w-full py-4 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-xs uppercase tracking-wider rounded-xs shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                    className="w-full py-4 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] text-[var(--text-on-maroon)] font-semibold text-xs uppercase tracking-wider rounded-[var(--radius-pill)] shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                   >
                     {isProcessing ? (
                       <span>{t.checkout.processingPayment}</span>
@@ -1054,7 +1034,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </>
                     ) : paymentMethod === 'myfatoorah' ? (
                       <>
-                        <ShieldCheck className="w-4 h-4 text-[var(--color-bg)]" />
+                        <ShieldCheck className="w-4 h-4 text-[var(--surface-champagne)]" />
                         <span>{t.checkout.payWithMyFatoorah.replace('{amount}', formatBHD(total))}</span>
                       </>
                     ) : (
@@ -1070,14 +1050,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 <button
                   type="button"
                   onClick={onBackToCart}
-                  className="w-full text-center text-xs text-[var(--color-text)]/70 hover:text-[var(--color-text)] underline"
+                  className="w-full text-center text-xs text-[var(--text-muted)] hover:text-[var(--maroon-700)] underline cursor-pointer"
                 >
                   {t.cart.continueShopping}
                 </button>
 
                 {/* Trust Seal */}
-                <div className="pt-3 border-t border-[var(--color-border)]/50 text-[11px] text-[var(--color-text)]/60 text-center leading-relaxed">
-                  <ShieldCheck className="w-4 h-4 mx-auto text-[var(--color-accent)] mb-1" />
+                <div className="pt-3 border-t border-[var(--line)] text-[11px] text-[var(--text-muted)] text-center leading-relaxed">
+                  <ShieldCheck className="w-4 h-4 mx-auto text-[var(--gold-text)] mb-1" />
                   <p>{t.checkout.termsNotice}</p>
                 </div>
 

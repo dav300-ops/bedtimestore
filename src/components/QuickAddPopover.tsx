@@ -63,10 +63,10 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
         e.preventDefault();
         e.stopPropagation();
       }}
-      className="absolute inset-x-3 bottom-3 z-30 bg-[var(--color-card)] rounded-[8px] p-3 shadow-xl border border-[var(--color-border)] animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md"
+      className="absolute inset-x-3 bottom-3 z-30 bg-[var(--surface-card)] rounded-[var(--radius-card)] p-3 shadow-[var(--shadow-soft)] border border-[var(--line)] animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md"
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[12px] font-semibold text-[var(--color-text)] uppercase tracking-wider">
+        <span className="text-[12px] font-semibold text-[var(--text-strong)] uppercase tracking-wider">
           {language === 'ar' ? 'اختاري المقاس:' : language === 'ru' ? 'Выберите размер:' : language === 'fr' ? 'Choisissez la taille :' : 'Select Size:'}
         </span>
         <button
@@ -76,7 +76,7 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
             e.stopPropagation();
             onClose();
           }}
-          className="text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] p-1 rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent)]"
+          className="text-[var(--text-muted)] hover:text-[var(--maroon-700)] p-1 rounded-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--gold-decor)]"
           aria-label="Close size picker"
         >
           <X className="w-3.5 h-3.5" />
@@ -100,15 +100,15 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
                   onSelectSize(size);
                 }
               }}
-              className={`h-9 px-3 rounded-md text-[13px] font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
+              className={`h-9 px-3 rounded-md text-[13px] font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)] ${
                 isJustAdded
-                  ? 'bg-[var(--color-primary-hover)] text-white shadow-xs'
+                  ? 'bg-[var(--maroon-700)] text-[var(--text-on-maroon)] shadow-xs'
                   : isOutOfStock
-                    ? 'opacity-40 line-through cursor-not-allowed border border-[var(--color-border)] text-[var(--color-text-secondary)]'
-                    : 'bg-[var(--color-bg)] hover:bg-[var(--color-card)] text-[var(--color-text)] border border-[var(--color-border)] hover:border-[var(--color-primary)]'
+                    ? 'opacity-45 line-through cursor-not-allowed border border-[var(--line)] bg-[var(--surface-page)] text-[var(--text-muted)]'
+                    : 'bg-[var(--surface-page)] hover:bg-[var(--surface-champagne)] text-[var(--text-strong)] border border-[var(--line)] hover:border-[var(--maroon-700)]'
               }`}
             >
-              {isJustAdded && <Check className="w-3 h-3 text-white" />}
+              {isJustAdded && <Check className="w-3 h-3 text-[var(--text-on-maroon)]" />}
               <span>{size}</span>
             </button>
           );
@@ -116,7 +116,7 @@ export const QuickAddPopover: React.FC<QuickAddPopoverProps> = ({
       </div>
 
       {justAddedSize && (
-        <p className="mt-2 text-[11px] font-bold text-center text-[var(--color-primary)] animate-in fade-in">
+        <p className="mt-2 text-[11px] font-bold text-center text-[var(--maroon-700)] animate-in fade-in">
           {language === 'ar' ? 'تمت الإضافة إلى الحقيبة ✓' : language === 'ru' ? 'Добавлено в корзину ✓' : language === 'fr' ? 'Ajouté au panier ✓' : 'Added to bag ✓'}
         </p>
       )}

@@ -34,7 +34,7 @@ export const CategoryChips: React.FC<CategoryChipsProps> = ({
   return (
     <nav 
       aria-label="Category filter"
-      className="w-full bg-[var(--color-bg)] py-4 px-4 sm:px-6 md:px-12 transition-colors border-b border-[var(--color-border)]"
+      className="w-full bg-[var(--surface-lavender)] py-4 px-4 sm:px-6 md:px-12 transition-colors border-b border-[var(--line)]"
     >
       <div className="flex items-center gap-[10px] overflow-x-auto pb-1 scrollbar-none select-none scroll-smooth">
         {STORE_CATEGORIES.map((cat) => {
@@ -47,10 +47,10 @@ export const CategoryChips: React.FC<CategoryChipsProps> = ({
               type="button"
               onClick={() => onSelectCategory(cat.id)}
               aria-pressed={isActive}
-              className={`h-[44px] rounded-[22px] px-[18px] text-[14px] whitespace-nowrap shrink-0 transition-all duration-150 flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 ${
+              className={`h-[44px] rounded-[var(--radius-pill)] px-[18px] text-[14px] whitespace-nowrap shrink-0 transition-all duration-150 flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)] focus-visible:ring-offset-2 ${
                 isActive
-                  ? 'bg-[var(--color-primary)] text-white font-semibold shadow-xs border border-[var(--color-primary)]'
-                  : 'bg-[var(--color-card)] text-[var(--color-text)] font-normal hover:bg-[var(--color-bg)] hover:border-[var(--color-primary)] border border-[var(--color-border)]'
+                  ? 'bg-[var(--maroon-700)] text-[var(--text-on-maroon)] font-semibold shadow-xs border border-[var(--maroon-700)]'
+                  : 'bg-[var(--surface-card)] text-[var(--maroon-700)] font-normal hover:bg-[var(--surface-page)] hover:border-[var(--maroon-700)] border border-[var(--line)]'
               }`}
             >
               {label}

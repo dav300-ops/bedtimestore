@@ -148,7 +148,7 @@ export function AppContent() {
 
   // Public Storefront Routes
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-text)]">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-page)] text-[var(--text-body)]">
       {/* Main Boutique Header */}
       <Header onNavigate={navigateTo} currentPage={currentPage} currentParams={pageParams} />
 

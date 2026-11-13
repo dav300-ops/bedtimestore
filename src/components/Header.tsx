@@ -199,7 +199,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
       {/* 2. Sticky Header (56px mobile, 64px >= md) */}
       <header
         ref={headerRef}
-        className="sticky top-0 z-40 h-[var(--header-h)] bg-[var(--color-maroon)] border-b border-[var(--color-gold)]/40 shadow-md transition-colors"
+        className="sticky top-0 z-40 h-[var(--header-h)] bg-[var(--maroon-700)] border-b border-[var(--gold-decor)]/40 shadow-md transition-colors"
       >
         <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full w-full gap-1">
@@ -218,7 +218,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-nav-drawer"
                 aria-label={isMobileMenuOpen ? t.mobileMenu.closeMenu : t.mobileMenu.openMenu}
-                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-[#E3C878] hover:text-white active:bg-white/10 transition-colors rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--text-on-maroon)] hover:bg-[var(--maroon-600)] active:bg-white/10 transition-colors rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -227,9 +227,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 type="button"
                 onClick={() => onNavigate('home')}
                 aria-label="Deluxe Bedtime Store"
-                className="min-h-[44px] px-1 text-start group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] rounded-md flex items-center gap-2 shrink-0"
+                className="min-h-[44px] px-1 text-start group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)] rounded-md flex items-center gap-2 shrink-0"
               >
-                <div className="w-8 h-8 rounded-full border border-[var(--color-gold)] bg-[#4A0A15] overflow-hidden flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full border border-[var(--gold-decor)] bg-[var(--maroon-900)] overflow-hidden flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
                   <img
                     src={boutiqueLogo}
                     alt="Deluxe Bedtime Store"
@@ -239,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
 
                 {/* Hidden below 480px so it never crowds mobile icon controls */}
                 <span
-                  className="hidden min-[480px]:inline-block font-serif text-xs min-[480px]:text-sm lg:text-base font-semibold tracking-[0.12em] lg:tracking-[0.22em] uppercase text-[#E3C878] group-hover:text-white transition-colors select-none leading-none pt-0.5 whitespace-nowrap"
+                  className="hidden min-[480px]:inline-block font-serif text-xs min-[480px]:text-sm lg:text-base font-semibold tracking-[0.12em] lg:tracking-[0.22em] uppercase text-[var(--text-on-maroon)] group-hover:text-[var(--surface-champagne)] transition-colors select-none leading-none pt-0.5 whitespace-nowrap"
                   style={{ fontFamily: 'var(--font-heading)' }}
                 >
                   DELUXE BEDTIME STORE
@@ -252,10 +252,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               <button
                 type="button"
                 onClick={() => onNavigate('home')}
-                className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A04A] rounded-xs ${
+                className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--gold-decor)] rounded-xs ${
                   currentPage === 'home'
-                    ? 'text-[#E3C878] after:content-[""] after:absolute after:-bottom-[2px] after:inset-x-0 after:h-[1.5px] after:bg-[#C9A04A]'
-                    : 'text-[#FBF4E4]/90 hover:text-[#E3C878]'
+                    ? 'text-[var(--text-on-maroon)] after:content-[""] after:absolute after:-bottom-[2px] after:inset-x-0 after:h-[2px] after:bg-[var(--gold-decor)]'
+                    : 'text-[var(--text-on-maroon)]/85 hover:text-[var(--surface-champagne)]'
                 }`}
               >
                 {t.nav.home}
@@ -264,10 +264,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               <button
                 type="button"
                 onClick={() => onNavigate('shop')}
-                className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A04A] rounded-xs ${
+                className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--gold-decor)] rounded-xs ${
                   currentPage === 'shop'
-                    ? 'text-[#E3C878] after:content-[""] after:absolute after:-bottom-[2px] after:inset-x-0 after:h-[1.5px] after:bg-[#C9A04A]'
-                    : 'text-[#FBF4E4]/90 hover:text-[#E3C878]'
+                    ? 'text-[var(--text-on-maroon)] after:content-[""] after:absolute after:-bottom-[2px] after:inset-x-0 after:h-[2px] after:bg-[var(--gold-decor)]'
+                    : 'text-[var(--text-on-maroon)]/85 hover:text-[var(--surface-champagne)]'
                 }`}
               >
                 {t.nav.shop}
@@ -280,27 +280,27 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   onClick={() => setIsExploreOpen(!isExploreOpen)}
                   aria-expanded={isExploreOpen}
                   aria-haspopup="true"
-                  className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A04A] rounded-xs ${
+                  className={`text-[12px] font-semibold tracking-[0.16em] uppercase py-1 cursor-pointer transition-colors inline-flex items-center gap-1 relative focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--gold-decor)] rounded-xs ${
                     isExploreOpen || isExploreActive
-                      ? 'text-[#E3C878]'
-                      : 'text-[#FBF4E4]/90 hover:text-[#E3C878]'
+                      ? 'text-[var(--text-on-maroon)] after:content-[""] after:absolute after:-bottom-[2px] after:inset-x-0 after:h-[2px] after:bg-[var(--gold-decor)]'
+                      : 'text-[var(--text-on-maroon)]/85 hover:text-[var(--surface-champagne)]'
                   }`}
                 >
                   <span>{language === 'ar' ? 'استكشف' : 'EXPLORE'}</span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-[#E3C878] transition-transform duration-200 ${
+                    className={`w-3.5 h-3.5 text-[var(--gold-decor)] transition-transform duration-200 ${
                       isExploreOpen ? 'rotate-180' : ''
                     }`}
                   />
                 </button>
 
                 {isExploreOpen && (
-                  <div className="absolute top-full end-0 mt-3 z-50 w-80 bg-[var(--color-card)] rounded-[10px] border border-[var(--color-border)] shadow-xl p-3 text-start">
-                    <div className="px-3 py-1.5 border-b border-[var(--color-border)] mb-2 flex items-center justify-between">
-                      <span className="text-[11px] uppercase font-bold tracking-wider text-[var(--color-text-secondary)]">
+                  <div className="absolute top-full end-0 mt-3 z-50 w-80 bg-[var(--surface-card)] rounded-[var(--radius-card)] border border-[var(--line)] shadow-[var(--shadow-soft)] p-3 text-start">
+                    <div className="px-3 py-1.5 border-b border-[var(--line)] mb-2 flex items-center justify-between">
+                      <span className="text-[11px] uppercase font-bold tracking-wider text-[var(--text-muted)]">
                         {language === 'ar' ? 'مختارات المتجر' : 'Curated Highlights'}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary)] text-white font-semibold">
+                      <span className="text-[10px] px-2 py-0.5 rounded-[var(--radius-pill)] bg-[var(--maroon-700)] text-[var(--text-on-maroon)] font-semibold">
                         3 {language === 'ar' ? 'أقسام' : 'Collections'}
                       </span>
                     </div>
@@ -318,11 +318,11 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                             }}
                             className={`w-full p-2.5 rounded-lg transition-all text-start flex items-start gap-3 cursor-pointer ${
                               item.isActive
-                                ? 'bg-[var(--color-bg)] border border-[var(--color-accent)] text-[var(--color-primary)]'
-                                : 'hover:bg-[var(--color-bg)] text-[var(--color-text)] hover:text-[var(--color-primary)]'
+                                ? 'bg-[var(--surface-champagne)] border border-[var(--gold-decor)] text-[var(--maroon-700)]'
+                                : 'hover:bg-[var(--surface-page)] text-[var(--text-strong)] hover:text-[var(--maroon-700)]'
                             }`}
                           >
-                            <div className="p-2 rounded-md bg-[var(--color-bg)] text-[var(--color-primary)] shrink-0 mt-0.5">
+                            <div className="p-2 rounded-md bg-[var(--surface-page)] text-[var(--maroon-700)] shrink-0 mt-0.5 border border-[var(--line)]">
                               <IconComponent className="w-4 h-4 stroke-[2]" />
                             </div>
 
@@ -331,11 +331,11 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                                 <span className="text-xs font-bold uppercase tracking-wider">
                                   {item.label}
                                 </span>
-                                <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-xs bg-[var(--color-accent)] text-[var(--color-text)]">
+                                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-xs bg-[var(--surface-champagne)] text-[var(--maroon-700)] border border-[var(--gold-decor)]/60">
                                   {item.badge}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-[var(--color-text-secondary)] leading-tight mt-0.5 truncate">
+                              <p className="text-[11px] text-[var(--text-body)] leading-tight mt-0.5 truncate">
                                 {item.subtitle}
                               </p>
                             </div>
@@ -344,9 +344,9 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                       })}
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-[var(--color-border)] px-2 flex items-center justify-between text-[11px] text-[var(--color-text-secondary)]">
-                      <span className="flex items-center gap-1 text-[var(--color-primary)]">
-                        <Sparkles className="w-3 h-3 text-[var(--color-accent)]" />
+                    <div className="mt-2 pt-2 border-t border-[var(--line)] px-2 flex items-center justify-between text-[11px] text-[var(--text-muted)]">
+                      <span className="flex items-center gap-1 text-[var(--maroon-700)]">
+                        <Sparkles className="w-3 h-3 text-[var(--gold-text)]" />
                         <span>
                           {language === 'ar'
                             ? 'توصيل مجاني فوق ٢٥ د.ب'
@@ -355,7 +355,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                               : 'Free delivery over 25 BHD'}
                         </span>
                       </span>
-                      <span className="font-serif italic text-[var(--color-primary)]">
+                      <span className="font-serif italic text-[var(--maroon-700)]">
                         Deluxe Bedtime Store
                       </span>
                     </div>
@@ -379,12 +379,12 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={t.mobileMenu.searchPlaceholder}
-                      className="w-48 px-3 py-1.5 text-xs bg-white text-[#2E1F1B] border border-[#C9A04A] rounded-full focus:outline-none focus:ring-2 focus:ring-[#C9A04A]"
+                      className="token-input w-48 px-3 py-1.5 text-xs border rounded-[var(--radius-pill)]"
                     />
                     <button
                       type="button"
                       onClick={() => setIsSearchOpen(false)}
-                      className="min-w-[36px] min-h-[36px] flex items-center justify-center text-[#E3C878] hover:text-white"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center text-[var(--text-on-maroon)] hover:text-[var(--surface-champagne)] cursor-pointer"
                       aria-label={t.mobileMenu.closeSearch}
                     >
                       <X className="w-4 h-4" />
@@ -392,19 +392,17 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   </form>
                 )}
 
-                {(!isSearchOpen || true) && (
-                  <button
-                    type="button"
-                    onClick={() => setIsSearchOpen((prev) => !prev)}
-                    aria-expanded={isSearchOpen}
-                    aria-label={isSearchOpen ? t.mobileMenu.closeSearch : t.mobileMenu.openSearch}
-                    className={`${
-                      isSearchOpen ? 'lg:hidden' : ''
-                    } min-w-[44px] min-h-[44px] flex items-center justify-center text-[#E3C878] hover:text-white active:bg-white/10 transition-colors rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]`}
-                  >
-                    <Search className="w-5 h-5 lg:w-4 lg:h-4 stroke-[2]" />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen((prev) => !prev)}
+                  aria-expanded={isSearchOpen}
+                  aria-label={isSearchOpen ? t.mobileMenu.closeSearch : t.mobileMenu.openSearch}
+                  className={`${
+                    isSearchOpen ? 'lg:hidden' : ''
+                  } min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--text-on-maroon)] hover:bg-[var(--maroon-600)] active:bg-white/10 transition-colors rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]`}
+                >
+                  <Search className="w-5 h-5 lg:w-4 lg:h-4 stroke-[2]" />
+                </button>
               </div>
 
               {/* 2. Mobile Avatar Icon (opens Account section in mobile drawer) */}
@@ -413,7 +411,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 type="button"
                 onClick={() => openDrawer('account')}
                 aria-label={t.mobileMenu.openAccount}
-                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-[#E3C878] hover:text-white active:bg-white/10 transition-colors rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--text-on-maroon)] hover:bg-[var(--maroon-600)] active:bg-white/10 transition-colors rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
               >
                 <User className="w-5 h-5 stroke-[2]" />
               </button>
@@ -424,10 +422,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 onClick={() =>
                   currentUser && !currentUser.isGuest ? onNavigate('account') : openAuthModal('signin')
                 }
-                className="hidden lg:flex items-center gap-1.5 py-1.5 px-3 rounded-full border border-[#C9A04A] hover:border-[#E3C878] bg-[#4A0A15]/40 hover:bg-[#4A0A15]/80 transition-all text-xs text-[#FBF4E4] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A04A]"
+                className="hidden lg:flex items-center gap-1.5 py-1.5 px-3 rounded-[var(--radius-pill)] border border-[var(--gold-decor)] bg-[var(--maroon-900)]/55 hover:bg-[var(--maroon-600)] transition-all text-xs text-[var(--text-on-maroon)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
                 title={currentUser?.firstName ? `${currentUser.firstName} (${t.nav.account})` : t.nav.account}
               >
-                <div className="w-4 h-4 rounded-full bg-[#C9A04A] text-[#4A0A15] flex items-center justify-center font-bold text-[9px] shrink-0">
+                <div className="w-4 h-4 rounded-full bg-[var(--gold-decor)] text-[var(--maroon-900)] flex items-center justify-center font-bold text-[9px] shrink-0">
                   <User className="w-2.5 h-2.5 stroke-[2.5]" />
                 </div>
                 <span className="font-medium text-[11px] tracking-wide">
@@ -435,31 +433,31 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 </span>
               </button>
 
-              {/* 3. Wishlist Icon Button (44x44px hit area, logical end badge) */}
+              {/* 3. Wishlist Icon Button (44x44px hit area, logical end gold badge) */}
               <button
                 type="button"
                 onClick={() => onNavigate('account', { tab: 'wishlist' })}
                 aria-label={t.mobileMenu.openWishlist}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#E3C878] hover:text-white active:bg-white/10 transition-colors relative rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--text-on-maroon)] hover:bg-[var(--maroon-600)] active:bg-white/10 transition-colors relative rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
               >
                 <Heart className="w-5 h-5 lg:w-4 lg:h-4 stroke-[2]" />
                 {wishlistCount > 0 && (
-                  <span className="absolute top-1 end-1 min-w-[18px] h-[18px] px-1 text-[10px] leading-none flex items-center justify-center bg-[#C9A04A] text-[#4A0A15] font-bold rounded-full tabular-nums shadow-xs">
+                  <span className="absolute top-1 end-1 min-w-[18px] h-[18px] px-1 text-[10px] leading-none flex items-center justify-center bg-[var(--gold-decor)] text-[var(--maroon-900)] font-bold rounded-full tabular-nums shadow-xs">
                     {wishlistCount}
                   </span>
                 )}
               </button>
 
-              {/* 4. Mobile Bag Icon Button (icon-only, 44x44px hit area, logical end badge) */}
+              {/* 4. Mobile Bag Icon Button (icon-only, 44x44px hit area, logical end gold badge) */}
               <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
                 aria-label={`${t.mobileMenu.openBag} (${cartCount})`}
-                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-[#E3C878] hover:text-white active:bg-white/10 transition-colors relative rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--text-on-maroon)] hover:bg-[var(--maroon-600)] active:bg-white/10 transition-colors relative rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
               >
                 <ShoppingBag className="w-5 h-5 stroke-[2]" />
                 {cartCount > 0 && (
-                  <span className="absolute top-1 end-1 min-w-[18px] h-[18px] px-1 text-[10px] leading-none flex items-center justify-center bg-[#E3C878] text-[#4A0A15] font-bold rounded-full tabular-nums shadow-xs">
+                  <span className="absolute top-1 end-1 min-w-[18px] h-[18px] px-1 text-[10px] leading-none flex items-center justify-center bg-[var(--gold-decor)] text-[var(--maroon-900)] font-bold rounded-full tabular-nums shadow-xs">
                     {cartCount}
                   </span>
                 )}
@@ -469,13 +467,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
               <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
-                className="hidden lg:flex items-center gap-1.5 py-1.5 px-3 border border-[#C9A04A] hover:border-[#E3C878] bg-[#4A0A15]/40 hover:bg-[#4A0A15]/80 text-[#FBF4E4] rounded-lg transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A04A]"
+                className="hidden lg:flex items-center gap-1.5 py-1.5 px-3 border border-[var(--gold-decor)] bg-[var(--maroon-900)]/55 hover:bg-[var(--maroon-600)] text-[var(--text-on-maroon)] rounded-lg transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
                 aria-label={`${t.mobileMenu.openBag} (${cartCount})`}
               >
                 <div className="relative">
-                  <ShoppingBag className="w-3.5 h-3.5 text-[#E3C878] stroke-[2]" />
+                  <ShoppingBag className="w-3.5 h-3.5 text-[var(--text-on-maroon)] stroke-[2]" />
                   {cartCount > 0 && (
-                    <span className="absolute -top-2 -end-2.5 min-w-[18px] h-[18px] px-1 bg-[#E3C878] text-[#4A0A15] text-[10px] font-bold rounded-full flex items-center justify-center tabular-nums">
+                    <span className="absolute -top-2 -end-2.5 min-w-[18px] h-[18px] px-1 bg-[var(--gold-decor)] text-[var(--maroon-900)] text-[10px] font-bold rounded-full flex items-center justify-center tabular-nums">
                       {cartCount}
                     </span>
                   )}
@@ -485,17 +483,18 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 </span>
               </button>
 
-              {/* 5. Desktop Language Pill Switcher */}
-              <div className="hidden lg:flex items-center border border-[#C9A04A] rounded-full p-0.5 bg-[#4A0A15]/50 shadow-xs">
+              {/* 5. Desktop Language Pill Switcher (inactive white/line/maroon-700, active maroon-700/white) */}
+              <div className="hidden lg:flex items-center gap-0.5 border border-[var(--gold-decor)] rounded-[var(--radius-pill)] p-0.5 bg-[var(--surface-champagne)] shadow-xs">
                 {(['en', 'ar', 'ru', 'fr'] as const).map((code) => (
                   <button
                     key={code}
                     type="button"
                     onClick={() => setLanguage(code)}
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer ${
+                    aria-pressed={language === code}
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-[var(--radius-pill)] transition-all cursor-pointer ${
                       language === code
-                        ? 'bg-[#C9A04A] text-[#4A0A15] shadow-xs font-black'
-                        : 'text-[#FBF4E4]/80 hover:text-[#E3C878]'
+                        ? 'bg-[var(--maroon-700)] text-[var(--text-on-maroon)] shadow-xs'
+                        : 'bg-[var(--surface-card)] text-[var(--maroon-700)] border border-[var(--line)] hover:border-[var(--maroon-700)]'
                     }`}
                   >
                     {code === 'ar' ? 'العربية' : code.toUpperCase()}
@@ -508,10 +507,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
 
         {/* Mobile/Tablet Expandable Search Strip directly below sticky header */}
         {isSearchOpen && (
-          <div className="lg:hidden bg-[var(--color-maroon-dark)] border-b border-[var(--color-gold)]/40 px-3 py-2 shadow-lg">
+          <div className="lg:hidden bg-[var(--maroon-900)] border-b border-[var(--gold-decor)]/40 px-3 py-2 shadow-lg">
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 max-w-xl mx-auto">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-[var(--color-text-secondary)] absolute top-1/2 -translate-y-1/2 start-3.5 pointer-events-none" />
+                <Search className="w-4 h-4 text-[var(--text-muted)] absolute top-1/2 -translate-y-1/2 start-3.5 pointer-events-none" />
                 <input
                   ref={mobileSearchInputRef}
                   type="search"
@@ -519,14 +518,14 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t.mobileMenu.searchPlaceholder}
-                  className="w-full min-h-[44px] ps-10 pe-4 bg-white text-[var(--color-text)] text-base rounded-full border border-[var(--color-gold)] focus:outline-none focus:ring-2 focus:ring-[var(--color-gold)]"
+                  className="token-input w-full min-h-[44px] ps-10 pe-4 text-base rounded-[var(--radius-pill)] border"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(false)}
                 aria-label={t.mobileMenu.closeSearch}
-                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#E3C878] hover:text-white active:bg-white/10"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[var(--text-on-maroon)] hover:bg-[var(--maroon-600)] active:bg-white/10"
               >
                 <X className="w-5 h-5" />
               </button>

@@ -3084,7 +3084,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                             <button
                               type="button"
                               onClick={() => setSelectedAdminReceiptOrder(o)}
-                              className="p-1.5 rounded-xs border border-[#0083C9]/40 hover:bg-[#EAF5FC] text-[#0083C9] transition-colors cursor-pointer"
+                              className="p-1.5 rounded-xs border border-[var(--line)] hover:bg-[var(--surface-champagne)] text-[var(--maroon-700)] transition-colors cursor-pointer"
                               title="View & Dispatch Official MyFatoorah Receipt"
                             >
                               <FileText className="w-4 h-4" />

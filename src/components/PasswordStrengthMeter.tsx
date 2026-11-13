@@ -22,11 +22,10 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
 
   // Segment colors based on score
   const getSegmentColor = (threshold: number) => {
-    if (analysis.score < threshold) return 'bg-gray-200';
-    if (analysis.score < 30) return 'bg-red-500';
-    if (analysis.score < 50) return 'bg-orange-400';
-    if (analysis.score < 75) return 'bg-amber-400';
-    return 'bg-emerald-500';
+    if (analysis.score < threshold) return 'bg-[var(--line)]';
+    if (analysis.score < 30) return 'bg-[var(--red-600)]';
+    if (analysis.score < 75) return 'bg-[var(--gold-decor)]';
+    return 'bg-[var(--status-success)]';
   };
 
   const checklistItems = [
@@ -69,22 +68,20 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
   ];
 
   return (
-    <div className="space-y-2 mt-1.5 p-3 bg-[var(--color-bg)]/30 rounded-xs border border-[var(--color-border)]/70">
+    <div className="space-y-2 mt-1.5 p-3 bg-[var(--surface-page)] rounded-xs border border-[var(--line)]">
       {/* Top Header: Score & Badge */}
       <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-1.5 font-medium text-[var(--color-text)]">
-          <Shield className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+        <div className="flex items-center gap-1.5 font-medium text-[var(--text-strong)]">
+          <Shield className="w-3.5 h-3.5 text-[var(--gold-text)]" />
           <span>{isAr ? 'قوة كلمة المرور:' : 'Password Security:'}</span>
         </div>
         <span
-          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-            analysis.level === 'very-strong'
-              ? 'bg-emerald-100 text-emerald-800'
-              : analysis.level === 'strong'
-              ? 'bg-emerald-50 text-emerald-700'
+          className={`px-2 py-0.5 rounded-[var(--radius-pill)] text-[10px] font-bold border ${
+            analysis.level === 'very-strong' || analysis.level === 'strong'
+              ? 'bg-[var(--status-success-bg)] text-[var(--status-success)] border-[var(--status-success-border)]'
               : analysis.level === 'fair'
-              ? 'bg-amber-100 text-amber-800'
-              : 'bg-red-100 text-red-700'
+              ? 'bg-[var(--surface-champagne)] text-[var(--gold-text)] border-[var(--gold-decor)]/60'
+              : 'bg-[var(--surface-blush)] text-[var(--red-600)] border-[var(--red-600)]/40'
           }`}
         >
           {isAr ? analysis.labelAr : analysis.labelEn} ({analysis.score}%)
@@ -101,18 +98,18 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
 
       {/* Checklist */}
       {showChecklist && (
-        <div className="pt-1.5 border-t border-[var(--color-border)]/60 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
+        <div className="pt-1.5 border-t border-[var(--line)] grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
           {checklistItems.map((item) => (
             <div
               key={item.key}
               className={`flex items-center gap-1.5 transition-colors ${
-                item.passed ? 'text-emerald-700 font-medium' : 'text-gray-500'
+                item.passed ? 'text-[var(--status-success)] font-medium' : 'text-[var(--text-muted)]'
               }`}
             >
               {item.passed ? (
-                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <Check className="w-3.5 h-3.5 text-[var(--status-success)] shrink-0" />
               ) : (
-                <X className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <X className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0" />
               )}
               <span>{isAr ? item.textAr : item.textEn}</span>
             </div>
@@ -122,7 +119,7 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
 
       {/* Warning if common */}
       {!analysis.checks.notCommon && (
-        <div className="flex items-center gap-1.5 text-[11px] text-[var(--color-primary)] bg-red-50 p-1.5 rounded-xs">
+        <div role="alert" className="flex items-center gap-1.5 text-[11px] text-[var(--red-600)] bg-[var(--surface-blush)] border border-[var(--red-600)]/30 p-1.5 rounded-xs">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           <span>
             {isAr

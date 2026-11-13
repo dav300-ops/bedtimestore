@@ -1,0 +1,67 @@
+:root {
+  /* Surfaces */
+  --surface-page:      #FBF7EF; /* ivory: main background */
+  --surface-lavender:  #F1E9F6; /* soft lavender: menu, filter bar, alt panels */
+  --surface-champagne: #F7F0E1; /* gold tint: highlight bands, announcement bar */
+  --surface-card:      #FFFFFF; /* elevated product & content cards */
+  --surface-blush:     #FBE9EA; /* red tint: sale/error/low-stock backgrounds */
+
+  /* Brand maroon */
+  --maroon-900: #4A0A15; /* footer, lookbook band, badge text on gold */
+  --maroon-700: #6B0F1F; /* primary: header, buttons, headings, selected pills */
+  --maroon-600: #85182B; /* hover/pressed maroon */
+
+  /* Gold (two roles; never mix them up) */
+  --gold-decor: #C9A04A; /* lines, dividers, icons on dark maroon, badge fills with --maroon-900 text */
+  --gold-text:  #7F601A; /* WCAG AA-adjusted from #8A6A1F for >= 4.5:1 on champagne (#F7F0E1) & lavender (#F1E9F6) */
+  --gold-soft:  #E9D7A8; /* subtle fills, progress bar track, soft dividers */
+
+  /* Red accent: urgency and feedback only */
+  --red-600: #C8202F; /* sale price, sale badge, error text, remove actions, low stock */
+  --red-700: #A51926; /* red hover/pressed */
+
+  /* Text and lines */
+  --text-strong:    #2A1216; /* headings & primary figures on light */
+  --text-body:      #4A3A3D; /* body copy on light */
+  --text-muted:     #726265; /* WCAG AA-adjusted from #7A6A6D for >= 4.5:1 on lavender (#F1E9F6) & blush (#FBE9EA) */
+  --text-on-maroon: #FFFFFF; /* crisp text & icons on maroon/red surfaces */
+  --line:           #E6DAD0; /* subtle borders & dividers */
+
+  /* Non-urgency semantic confirmation tokens (order delivered, password match, 2FA active) */
+  --status-success:        #166534;
+  --status-success-bg:     #ECFDF5;
+  --status-success-border: #A7F3D0;
+
+  /* Effects & Radii */
+  --shadow-soft:   0 6px 24px rgba(74, 10, 21, 0.10);
+  --shadow-drawer: 0 -4px 20px rgba(74, 10, 21, 0.10);
+  --scrim-dark:    rgba(42, 18, 22, 0.50);
+  --radius-pill:   999px;
+  --radius-card:   14px;
+}
+
+/* Global accessible form focus ring: 2px gold-decor + 1px maroon-700 outline */
+.token-input {
+  background-color: var(--surface-card);
+  color: var(--text-strong);
+  border-color: var(--line);
+}
+
+.token-input:focus,
+.token-input:focus-visible {
+  outline: 1px solid var(--maroon-700);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--gold-decor);
+  border-color: var(--maroon-700);
+}
+
+.token-input[aria-invalid="true"] {
+  background-color: var(--surface-blush);
+  border-color: var(--red-600);
+  color: var(--text-strong);
+}
+
+/* Arabic RTL contrast reinforcement for gold accent labels */
+[dir="rtl"] .gold-text-rtl-weight {
+  font-weight: 600;
+}

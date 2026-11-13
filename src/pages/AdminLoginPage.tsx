@@ -75,13 +75,13 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-[#2B060D] via-[#4A0A15] to-[#1D0409] text-[#FBF4E4] px-4 py-8">
+    <div className="min-h-screen flex flex-col justify-between bg-[var(--surface-page)] text-[var(--text-body)] px-4 py-8">
       {/* Top Bar */}
-      <div className="max-w-5xl w-full mx-auto flex items-center justify-between">
+      <div className="max-w-5xl w-full mx-auto flex items-center justify-between gap-4">
         <button
           type="button"
           onClick={onReturnToStore}
-          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] font-semibold text-[#E3C878] hover:text-white transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] font-semibold text-[var(--maroon-700)] hover:text-[var(--maroon-600)] transition-colors cursor-pointer"
         >
           {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>
@@ -96,16 +96,16 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
         </button>
 
         {/* Language Switcher */}
-        <div className="flex items-center border border-[#C9A24B]/60 rounded-full p-0.5 bg-black/25">
+        <div className="flex items-center gap-1 rounded-[var(--radius-pill)] p-1 bg-[var(--surface-champagne)] border border-[var(--line)]">
           {(['en', 'ar', 'ru', 'fr'] as const).map((lang) => (
             <button
               key={lang}
               type="button"
               onClick={() => setLanguage(lang)}
-              className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition-all cursor-pointer uppercase ${
+              className={`text-[10px] font-bold px-2.5 py-1 rounded-[var(--radius-pill)] transition-all cursor-pointer uppercase border ${
                 language === lang
-                  ? 'bg-[#C9A24B] text-[#4A0A15]'
-                  : 'text-[#FBF4E4]/80 hover:text-[#E3C878]'
+                  ? 'bg-[var(--maroon-700)] text-[var(--text-on-maroon)] border-[var(--maroon-700)]'
+                  : 'bg-[var(--surface-card)] text-[var(--maroon-700)] border-[var(--line)] hover:bg-[var(--surface-champagne)]'
               }`}
             >
               {lang === 'ar' ? 'العربية' : lang.toUpperCase()}
@@ -116,15 +116,15 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
 
       {/* Centered Admin Login Card */}
       <div className="max-w-md w-full mx-auto my-8">
-        <div className="bg-[#FFFDF9] text-[#3B2A24] rounded-md border border-[#C9A24B]/60 shadow-2xl overflow-hidden">
+        <div className="bg-[var(--surface-card)] text-[var(--text-body)] rounded-[var(--radius-card)] border border-[var(--line)] shadow-[var(--shadow-soft)] overflow-hidden">
           {/* Header Banner */}
-          <div className="bg-[#6B0F1F] text-[#FBF4E4] px-6 py-7 text-center border-b border-[#C9A24B]/50 space-y-3">
-            <div className="w-14 h-14 mx-auto rounded-full border-2 border-[#C9A24B] bg-[#4A0A15] flex items-center justify-center overflow-hidden shadow-md">
+          <div className="bg-[var(--maroon-700)] text-[var(--text-on-maroon)] px-6 py-7 text-center border-b border-[var(--gold-decor)] space-y-3">
+            <div className="w-14 h-14 mx-auto rounded-full border-2 border-[var(--gold-decor)] bg-[var(--maroon-900)] flex items-center justify-center overflow-hidden shadow-md">
               <img src={boutiqueLogo} alt="Deluxe Bedtime Store" className="w-full h-full object-cover" />
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#4A0A15] border border-[#C9A24B]/50 text-[10px] font-bold uppercase tracking-[0.2em] text-[#E3C878]">
-              <ShieldCheck className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[var(--radius-pill)] bg-[var(--maroon-900)] border border-[var(--gold-decor)] text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--surface-champagne)]">
+              <ShieldCheck className="w-3.5 h-3.5 text-[var(--gold-decor)]" />
               <span>
                 {isAr
                   ? 'بوابة الإدارة المقيدة'
@@ -136,7 +136,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               </span>
             </div>
 
-            <h1 className="font-heading text-2xl sm:text-3xl font-semibold text-white tracking-wide">
+            <h1 className="font-heading text-2xl sm:text-3xl font-semibold text-[var(--text-on-maroon)] tracking-wide">
               {isAr
                 ? 'تسجيل دخول المشرفين'
                 : isRu
@@ -146,7 +146,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                 : 'Administrator Sign In'}
             </h1>
 
-            <p className="text-xs text-[#FBF4E4]/80 max-w-xs mx-auto leading-relaxed">
+            <p className="text-xs text-[var(--surface-champagne)] max-w-xs mx-auto leading-relaxed">
               {isAr
                 ? 'مخصص لمسؤولي متجر ديلوكس بدتايم ستور في مملكة البحرين فقط.'
                 : isRu
@@ -160,8 +160,8 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
           {/* Login Form */}
           <div className="p-6 sm:p-8 space-y-5">
             {lockoutSeconds > 0 && (
-              <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-xs flex items-start gap-2.5 text-xs text-amber-900">
-                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div role="alert" className="p-3.5 bg-[var(--surface-blush)] border border-[var(--red-600)] rounded-xs flex items-start gap-2.5 text-xs text-[var(--red-600)]">
+                <Clock className="w-4 h-4 text-[var(--red-600)] shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold">
                     {isAr ? 'تم تفعيل القفل الأمني المؤقت' : 'Admin Portal Security Lockout'}
@@ -176,16 +176,16 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
             )}
 
             {errorMsg && (
-              <div className="p-3.5 bg-red-50 border border-red-300 rounded-xs flex items-start gap-2.5 text-xs text-red-800">
-                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <div role="alert" className="p-3.5 bg-[var(--surface-blush)] border border-[var(--red-600)] rounded-xs flex items-start gap-2.5 text-xs text-[var(--red-600)] font-medium">
+                <AlertCircle className="w-4 h-4 text-[var(--red-600)] shrink-0 mt-0.5" />
                 <div className="leading-relaxed">{errorMsg}</div>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div className="space-y-1.5">
-                <label className="font-semibold text-[#3B2A24] flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-[#8A5A1E]" />
+                <label className="font-semibold text-[var(--text-strong)] flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-[var(--gold-text)]" />
                   <span>
                     {isAr
                       ? 'البريد الإلكتروني الرسمي للمشرف'
@@ -202,14 +202,15 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                   autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  aria-invalid={Boolean(errorMsg)}
                   placeholder="admin@thebedtimestore.bh"
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#C9A24B]/50 rounded-xs text-[#3B2A24] focus:outline-none focus:ring-1 focus:ring-[#6B0F1F] text-xs"
+                  className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="font-semibold text-[#3B2A24] flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-[#8A5A1E]" />
+                <label className="font-semibold text-[var(--text-strong)] flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-[var(--gold-text)]" />
                   <span>
                     {isAr
                       ? 'كلمة المرور الإدارية'
@@ -227,14 +228,15 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    aria-invalid={Boolean(errorMsg)}
                     placeholder="••••••••••••"
-                    className="w-full px-3.5 py-2.5 bg-white border border-[#C9A24B]/50 rounded-xs text-[#3B2A24] focus:outline-none focus:ring-1 focus:ring-[#6B0F1F] text-xs pr-10 rtl:pr-3.5 rtl:pl-10"
+                    className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs pr-10 rtl:pr-3.5 rtl:pl-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center text-gray-400 hover:text-[#6B0F1F] cursor-pointer"
+                    className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center text-[var(--text-muted)] hover:text-[var(--maroon-700)] cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -244,9 +246,9 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting || lockoutSeconds > 0}
-                className="w-full py-3 bg-[#6B0F1F] hover:bg-[#4A0A15] disabled:opacity-50 text-[#FBF4E4] border border-[#C9A24B] font-semibold uppercase tracking-[0.18em] rounded-xs transition-colors shadow-md cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] disabled:opacity-50 text-[var(--text-on-maroon)] border border-[var(--gold-decor)] font-semibold uppercase tracking-[0.18em] rounded-[var(--radius-pill)] transition-colors shadow-[var(--shadow-soft)] cursor-pointer flex items-center justify-center gap-2"
               >
-                <KeyRound className="w-4 h-4 text-[#E3C878]" />
+                <KeyRound className="w-4 h-4 text-[var(--gold-decor)]" />
                 <span>
                   {isSubmitting
                     ? isAr
@@ -262,14 +264,12 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                 </span>
               </button>
             </form>
-
-           
           </div>
         </div>
       </div>
 
       {/* Footer Note */}
-      <div className="text-center text-[11px] text-[#E3C878]/70 tracking-wider uppercase">
+      <div className="text-center text-[11px] text-[var(--text-muted)] tracking-wider uppercase">
         Deluxe Bedtime Store · Kingdom of Bahrain
       </div>
     </div>

@@ -50,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
     if (!product.variants || !Array.isArray(product.variants)) return [];
     const colorMap = new Map<string, { hex: string; nameEn: string; nameAr: string }>();
     product.variants.forEach((v) => {
-      const hex = v.colorHex || (v as any).color_hex || '#4A0A15';
+      const hex = v.colorHex || (v as any).color_hex || 'var(--maroon-900)';
       const nameEn = v.colorNameEn || (v as any).color || 'Standard';
       const nameAr = v.colorNameAr || (v as any).color || 'الأساسي';
       if (!colorMap.has(hex)) {
@@ -62,7 +62,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
 
   const activeColor = uniqueColors[selectedColorIndex] ||
     uniqueColors[0] || {
-      hex: '#4A0A15',
+      hex: 'var(--maroon-900)',
       nameEn: 'Standard',
       nameAr: 'الأساسي',
     };
@@ -99,6 +99,15 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
   const primarySrcSet = product.imageSrcSets?.[0];
   const secondarySrcSet = product.imageSrcSets?.[1];
   const responsiveSizes = '(max-width: 767px) 46vw, (max-width: 1023px) 45vw, 280px';
+
+  const saleBadgeLabel =
+    language === 'ar'
+      ? `تخفيض -${discountPercent}%`
+      : language === 'ru'
+        ? `СКИДКА -${discountPercent}%`
+        : language === 'fr'
+          ? `PROMO -${discountPercent}%`
+          : `SALE -${discountPercent}%`;
 
   const handleDirectQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -148,7 +157,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
         setIsHovered(false);
         setIsQuickAddOpen(false);
       }}
-      className="group bg-[var(--color-card)] rounded-[10px] overflow-hidden border border-[var(--color-border)] shadow-xs hover:shadow-md hover:border-[var(--color-gold)] transition-all duration-200 flex flex-col relative select-none"
+      className="group bg-[var(--surface-card)] rounded-[var(--radius-card)] overflow-hidden border border-[var(--line)] hover:shadow-[var(--shadow-soft)] hover:border-[var(--gold-decor)] transition-all duration-200 flex flex-col relative select-none"
     >
       <a
         href={`#product-${product.id}`}
@@ -157,11 +166,11 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
           onSelectProduct(product);
         }}
         aria-label={`${displayName} - ${formatBHD(product.salePrice || product.price)}`}
-        className="block relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] rounded-[10px]"
+        className="block relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)] rounded-[var(--radius-card)]"
       >
         {/* Image Container: 4:5 aspect ratio, object-cover */}
         <div
-          className="relative aspect-[4/5] w-full bg-white overflow-hidden"
+          className="relative aspect-[4/5] w-full bg-[var(--surface-card)] overflow-hidden"
           style={{ aspectRatio: '4/5' }}
         >
           <img
@@ -197,13 +206,13 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
           )}
 
           {/* Top-Start Sale / New Marker */}
-          <div className="absolute top-2 start-2 z-10 flex flex-col gap-1 pointer-events-none">
+          <div className="absolute top-2.5 start-2.5 z-10 flex flex-col gap-1 pointer-events-none">
             {hasDiscount ? (
-              <span className="bg-[var(--color-maroon)] text-white text-[11px] font-semibold px-2 py-0.5 rounded-[4px] shadow-xs uppercase tracking-wider border border-[var(--color-gold)]/40">
-                -{discountPercent}%
+              <span className="bg-[var(--red-600)] text-[var(--text-on-maroon)] text-[11px] font-bold px-2.5 py-0.5 rounded-[var(--radius-pill)] shadow-xs uppercase tracking-wider">
+                {saleBadgeLabel}
               </span>
             ) : product.newArrival ? (
-              <span className="hidden sm:inline-block bg-[var(--color-maroon)] text-white text-[11px] font-semibold px-2 py-0.5 rounded-[4px] shadow-xs uppercase tracking-wider border border-[var(--color-gold)]/40">
+              <span className="hidden sm:inline-block bg-[var(--surface-champagne)] text-[var(--maroon-700)] text-[11px] font-semibold px-2.5 py-0.5 rounded-[var(--radius-pill)] shadow-xs uppercase tracking-wider border border-[var(--gold-decor)]">
                 {language === 'ar' ? 'جديد' : language === 'ru' ? 'Новинка' : language === 'fr' ? 'Nouveau' : 'New'}
               </span>
             ) : null}
@@ -235,20 +244,20 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                       : 'Add to wishlist'
             }
             aria-pressed={isWishlisted}
-            className="absolute top-1.5 end-1.5 z-20 w-[44px] h-[44px] rounded-full bg-[var(--color-card)]/90 backdrop-blur-xs border border-[var(--color-gold)]/40 hover:border-[var(--color-gold)] shadow-sm flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+            className="absolute top-1.5 end-1.5 z-20 w-[44px] h-[44px] rounded-full bg-[var(--surface-card)]/90 backdrop-blur-xs border border-[var(--line)] hover:border-[var(--gold-decor)] shadow-sm flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)]"
           >
             <Heart
               className={`w-5 h-5 transition-colors ${
                 isWishlisted
-                  ? 'fill-[var(--color-maroon)] text-[var(--color-maroon)]'
-                  : 'text-[var(--color-maroon)] hover:text-[var(--color-maroon-dark)]'
+                  ? 'fill-[var(--maroon-700)] text-[var(--maroon-700)]'
+                  : 'text-[var(--maroon-700)] hover:text-[var(--maroon-600)]'
               }`}
             />
           </button>
 
           {/* Desktop/Tablet (+sm) Quick Add / Sold Out Bar */}
           {isOutOfStock ? (
-            <div className="hidden sm:flex absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-full bg-[var(--color-card)]/95 text-[var(--color-text-secondary)] text-[13px] font-semibold items-center justify-center select-none cursor-not-allowed border border-[var(--color-border)]">
+            <div className="hidden sm:flex absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[var(--radius-pill)] bg-[var(--surface-card)]/95 text-[var(--text-muted)] text-[13px] font-semibold items-center justify-center select-none cursor-not-allowed border border-[var(--line)]">
               {language === 'ar' ? 'نفدت الكمية' : language === 'ru' ? 'Распродано' : language === 'fr' ? 'Épuisé' : 'Sold out'}
             </div>
           ) : (
@@ -256,15 +265,15 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
               <button
                 type="button"
                 onClick={handleDirectQuickAdd}
-                className={`absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-full px-4 text-[13px] font-semibold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] ${
+                className={`absolute inset-x-3 bottom-3 z-20 h-[44px] rounded-[var(--radius-pill)] px-4 text-[13px] font-semibold transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-decor)] ${
                   isSingleAddedFeedback
-                    ? 'bg-[var(--color-maroon-dark)] text-white'
-                    : 'bg-[var(--color-maroon)] hover:bg-[var(--color-maroon-dark)] text-white'
+                    ? 'bg-[var(--maroon-900)] text-[var(--text-on-maroon)]'
+                    : 'bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] text-[var(--text-on-maroon)]'
                 }`}
               >
                 {isSingleAddedFeedback ? (
                   <>
-                    <Check className="w-4 h-4 text-white" />
+                    <Check className="w-4 h-4 text-[var(--text-on-maroon)]" />
                     <span>
                       {language === 'ar'
                         ? 'تمت الإضافة ✓'
@@ -305,15 +314,15 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
         </div>
 
         {/* Card Body: Clean 2-line name clamp + BHD price on mobile; swatches/category/rating on sm+ */}
-        <div className="p-3 sm:p-4 flex flex-col gap-1.5 bg-[var(--color-card)] text-start">
+        <div className="p-3 sm:p-4 flex flex-col gap-1.5 bg-[var(--surface-card)] text-start">
           {/* Category Label (sm+) */}
-          <span className="hidden sm:block text-[11px] uppercase tracking-[0.08em] font-medium truncate text-[var(--color-text-secondary)]">
+          <span className="hidden sm:block text-[11px] uppercase tracking-[0.08em] font-medium truncate text-[var(--text-muted)]">
             {displayCategory}
           </span>
 
           {/* Product Name (2-line clamp) */}
           <h3
-            className="font-serif text-[15px] sm:text-[17px] font-semibold leading-snug line-clamp-2 min-h-[2.6em] text-[var(--color-text)] group-hover:text-[var(--color-maroon)] transition-colors"
+            className="font-serif text-[15px] sm:text-[17px] font-semibold leading-snug line-clamp-2 min-h-[2.6em] text-[var(--text-strong)] group-hover:text-[var(--maroon-700)] transition-colors"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
             {displayName}
@@ -339,45 +348,45 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 aria-label={language === 'ar' ? color.nameAr : color.nameEn}
                 className={`w-[16px] h-[16px] rounded-full border transition-all cursor-pointer ${
                   selectedColorIndex === idx
-                    ? 'border-[var(--color-maroon)] ring-1 ring-[var(--color-maroon)] scale-110'
-                    : 'border-[var(--color-border)] hover:scale-105'
+                    ? 'border-[var(--maroon-700)] ring-1 ring-[var(--maroon-700)] scale-110'
+                    : 'border-[var(--line)] hover:scale-105'
                 }`}
                 style={{ backgroundColor: color.hex }}
               />
             ))}
 
             {uniqueColors.length > 0 && (
-              <span className="text-[12px] font-normal ms-1 text-[var(--color-text-secondary)]">
+              <span className="text-[12px] font-normal ms-1 text-[var(--text-muted)]">
                 {uniqueColors.length}{' '}
                 {language === 'ar' ? 'ألوان' : language === 'ru' ? 'оттенка' : language === 'fr' ? 'nuances' : 'shades'}
               </span>
             )}
           </div>
 
-          <div className="hidden sm:block h-[1px] w-full my-0.5 bg-[var(--color-border)]" />
+          <div className="hidden sm:block h-[1px] w-full my-0.5 bg-[var(--line)]" />
 
           {/* Price in BHD (+ Rating on sm+) */}
           <div className="flex items-baseline justify-between gap-2 pt-0.5">
             <div className="flex items-baseline gap-1.5 flex-wrap">
               {hasDiscount ? (
                 <>
-                  <span className="text-[15px] sm:text-[17px] font-bold tabular-nums text-[var(--color-maroon)]">
+                  <span className="text-[15px] sm:text-[17px] font-bold tabular-nums text-[var(--red-600)]">
                     {formatBHD(product.salePrice!)}
                   </span>
-                  <span className="text-[12px] sm:text-[13px] line-through tabular-nums text-[var(--color-text-secondary)]">
+                  <span className="text-[12px] sm:text-[13px] line-through tabular-nums text-[var(--text-muted)]">
                     {formatBHD(product.price)}
                   </span>
                 </>
               ) : (
-                <span className="text-[15px] sm:text-[17px] font-bold tabular-nums text-[var(--color-text)]">
+                <span className="text-[15px] sm:text-[17px] font-bold tabular-nums text-[var(--text-strong)]">
                   {formatBHD(product.price)}
                 </span>
               )}
             </div>
 
             {typeof product.rating === 'number' && typeof product.reviewCount === 'number' && product.reviewCount > 0 && (
-              <div className="hidden sm:flex text-[13px] font-normal tabular-nums items-center gap-1 shrink-0 text-[var(--color-text-secondary)]">
-                <span className="text-[var(--color-gold-text)]">★</span>
+              <div className="hidden sm:flex text-[13px] font-normal tabular-nums items-center gap-1 shrink-0 text-[var(--text-muted)]">
+                <span className="text-[var(--gold-text)]">★</span>
                 <span>{product.rating.toFixed(1)}</span>
                 <span>({product.reviewCount})</span>
               </div>
