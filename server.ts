@@ -4,6 +4,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import cors from 'cors';
+import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 
 import { config, validateEnvironment } from './server/config';
@@ -25,6 +26,12 @@ async function startServer() {
 
   const app = express();
   const PORT = config.port;
+
+  // Trust reverse proxy headers (e.g. Nginx, Caddy, Cloudflare, Cloud Run)
+  app.set('trust proxy', 1);
+
+  // Gzip/Deflate compression for API JSON & static assets directly in Express
+  app.use(compression({ threshold: 1024 }));
 
   // 2. Security Headers via Helmet (configured for AI Studio preview iframe compatibility)
   app.use(
@@ -132,7 +139,13 @@ async function startServer() {
   for (const dir of imageDirs) {
     if (fs.existsSync(dir)) {
       console.log(`[Server] Serving /images from: ${dir}`);
-      app.use('/images', express.static(dir));
+      app.use(
+        '/images',
+        express.static(dir, {
+          maxAge: config.isProd ? '7d' : 0,
+          etag: true,
+        })
+      );
     }
   }
   // A missing image should be a plain 404, not index.html
@@ -164,11 +177,34 @@ async function startServer() {
 
   const serveBuiltFrontend = () => {
     console.log(`[Server] Serving production static bundle from: ${distPath}`);
-    app.use(express.static(distPath));
+    const assetsPath = path.join(distPath, 'assets');
+    if (fs.existsSync(assetsPath)) {
+      app.use(
+        '/assets',
+        express.static(assetsPath, {
+          maxAge: '1y',
+          immutable: true,
+          etag: true,
+        })
+      );
+    }
+    app.use(
+      express.static(distPath, {
+        etag: true,
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+          } else {
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+          }
+        },
+      })
+    );
     // SPA fallback. Written without a '*' pattern so it works on both Express 4 and Express 5.
     // /api and /images were already handled above, so they never reach this.
     app.use((req, res, next) => {
       if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+      res.setHeader('Cache-Control', 'no-cache');
       res.sendFile(path.join(distPath, 'index.html'));
     });
   };

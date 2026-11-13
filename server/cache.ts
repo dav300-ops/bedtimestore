@@ -8,11 +8,21 @@ interface CacheEntry<T = any> {
 
 class CacheManager {
   private store = new Map<string, CacheEntry>();
+  private readonly maxEntries = 500;
   private hits = 0;
   private misses = 0;
 
   private buildKey(key: string): string {
     return `${config.appVersion}:${key}`;
+  }
+
+  private pruneExpired(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.store.entries()) {
+      if (now > entry.expiresAt || entry.version !== config.appVersion) {
+        this.store.delete(key);
+      }
+    }
   }
 
   public get<T>(rawKey: string): T | null {
@@ -36,6 +46,10 @@ class CacheManager {
       return null;
     }
 
+    // Refresh insertion order for O(1) LRU behavior
+    this.store.delete(key);
+    this.store.set(key, entry);
+
     this.hits++;
     if (config.isDev) {
       console.log(`[Cache HIT] ${rawKey} (TTL remaining: ${Math.round((entry.expiresAt - Date.now()) / 1000)}s)`);
@@ -46,6 +60,19 @@ class CacheManager {
   public set<T>(rawKey: string, value: T, customTtlMs?: number): void {
     const key = this.buildKey(rawKey);
     const ttl = customTtlMs || config.cacheTtlMs;
+
+    if (this.store.has(key)) {
+      this.store.delete(key);
+    } else if (this.store.size >= this.maxEntries) {
+      this.pruneExpired();
+      if (this.store.size >= this.maxEntries) {
+        const oldestKey = this.store.keys().next().value;
+        if (oldestKey !== undefined) {
+          this.store.delete(oldestKey);
+        }
+      }
+    }
+
     this.store.set(key, {
       value,
       expiresAt: Date.now() + ttl,
