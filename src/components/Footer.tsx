@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useStore } from '../context/StoreContext';
 import { MapPin, Phone, Mail, Instagram, ShieldCheck, CreditCard } from 'lucide-react';
 
 interface FooterProps {
@@ -8,6 +9,11 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t, language } = useLanguage();
+  const { categories, isLoadingCatalog } = useStore();
+
+  const activeCategories = categories
+    .filter((cat) => cat.active)
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
   return (
     <footer className="bg-[var(--color-primary)] text-white pt-16 pb-12 border-t border-[var(--color-gold)]/30">
@@ -39,39 +45,46 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Collections */}
+          {/* Collections (Dynamically fetched from database) */}
           <div className="space-y-3">
             <h4 className="font-heading text-lg font-semibold tracking-wide text-white">
               {t.footer.shopLinks}
             </h4>
             <ul className="space-y-2 text-xs text-white/80">
+              {isLoadingCatalog && activeCategories.length === 0 ? (
+                <>
+                  {[1, 2, 3, 4].map((n) => (
+                    <li key={`cat-skel-${n}`} className="h-4 w-28 rounded bg-white/10 animate-pulse" />
+                  ))}
+                </>
+              ) : (
+                activeCategories.map((cat) => (
+                  <li key={cat.id}>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('shop', { category: cat.id })}
+                      className="hover:text-[var(--color-gold-light)] transition-colors cursor-pointer text-left rtl:text-right"
+                    >
+                      {language === 'ar' ? (cat.nameAr || cat.nameEn) : cat.nameEn}
+                    </button>
+                  </li>
+                ))
+              )}
               <li>
-                <button onClick={() => onNavigate('shop', { category: 'cat-night-dresses' })} className="hover:text-[var(--color-gold-light)] transition-colors">
-                  {language === 'ar' ? 'فساتين النوم' : 'Night Dresses'}
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('shop', { category: 'cat-pajama-sets' })} className="hover:text-[var(--color-gold-light)] transition-colors">
-                  {language === 'ar' ? 'أطقم البيجامات' : 'Pajama Sets'}
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('shop', { category: 'cat-robes' })} className="hover:text-[var(--color-gold-light)] transition-colors">
-                  {language === 'ar' ? 'الأرواب الفاخرة' : 'Robes & Kimonos'}
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('shop', { category: 'cat-silk-nightwear' })} className="hover:text-[var(--color-gold-light)] transition-colors">
-                  {language === 'ar' ? 'الحرير الطبيعي' : 'Pure Silk Collection'}
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('shop', { filter: 'newArrival' })} className="hover:text-[var(--color-gold-light)] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('shop', { filter: 'newArrival' })}
+                  className="hover:text-[var(--color-gold-light)] transition-colors cursor-pointer"
+                >
                   {t.nav.newArrivals}
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('shop', { filter: 'sale' })} className="hover:text-[var(--color-gold-light)] transition-colors text-white font-medium">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('shop', { filter: 'sale' })}
+                  className="hover:text-[var(--color-gold-light)] transition-colors text-white font-medium cursor-pointer"
+                >
                   {t.nav.sale}
                 </button>
               </li>
