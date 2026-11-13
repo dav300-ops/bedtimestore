@@ -2988,7 +2988,7 @@ var MySQLAuthService = class {
   async login(email, passwordAttempt, meta) {
     const rows = await executeQuery(SQL_FIND_USER_BY_EMAIL, [email]);
     if (!rows || rows.length === 0) {
-      throw new Error("Invalid credentials. No user found with this email in  database.");
+      throw new Error("Invalid credentials. No user found with this email.");
     }
     const rawUser = rows[0];
     const passwordHash = rawUser.password_hash || rawUser.password;
@@ -3049,7 +3049,7 @@ var MySQLAuthService = class {
         entry.device || "Desktop"
       ]);
     } catch (err) {
-      console.warn("[MySQL] Failed to write security log:", err?.message);
+      console.warn(" Failed to write security log:", err?.message);
     }
   }
   /**
@@ -3080,7 +3080,7 @@ var MySQLAuthService = class {
     const cleanEmail = adminData.email.toLowerCase().trim();
     const existing = await this.findUserByEmail(cleanEmail);
     if (existing) {
-      throw new Error(`An account with email "${cleanEmail}" already exists in the MySQL database.`);
+      throw new Error(`An account with email "${cleanEmail}" already exists.`);
     }
     const userId = `usr-admin-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     const role = "admin";
@@ -3340,14 +3340,14 @@ var MySQLOrderService = class {
       const rows = await executeQuery("SELECT COUNT(*) AS total FROM orders");
       const count = rows && rows.length > 0 ? Number(rows[0].total) : 0;
       if (count === 0) {
-        console.log("[MySQL] Seeding default orders into MySQL database...");
+        console.log(" Seeding default orders into MySQL database...");
         for (const order of INITIAL_ORDERS) {
           await this.createOrder(order);
         }
-        console.log(`[MySQL] Seeded ${INITIAL_ORDERS.length} sample orders.`);
+        console.log(` Seeded ${INITIAL_ORDERS.length} sample orders.`);
       }
     } catch (err) {
-      console.warn("[MySQL] Orders seeding notice:", err?.message);
+      console.warn("Orders seeding notice:", err?.message);
     }
   }
   /**
@@ -3360,7 +3360,7 @@ var MySQLOrderService = class {
         return rows.map(this.mapOrderRow);
       }
     } catch (err) {
-      console.warn("[MySQL] Failed to fetch orders from database:", err?.message);
+      console.warn(" Failed to fetch orders from database:", err?.message);
     }
     return [];
   }
@@ -3374,7 +3374,7 @@ var MySQLOrderService = class {
         return rows.map(this.mapOrderRow);
       }
     } catch (err) {
-      console.warn("[MySQL] Failed to fetch user orders:", err?.message);
+      console.warn("Failed to fetch user orders:", err?.message);
     }
     return [];
   }
@@ -3411,7 +3411,7 @@ var MySQLOrderService = class {
       await executeQuery(SQL_UPDATE_ORDER_STATUS, [status, orderId, orderId]);
       return true;
     } catch (err) {
-      console.warn("[MySQL] Error updating order status:", err?.message);
+      console.warn("Error updating order status:", err?.message);
       return false;
     }
   }
@@ -3423,7 +3423,7 @@ var MySQLOrderService = class {
       await executeQuery(SQL_CONFIRM_ORDER_PAYMENT, [orderId, orderId]);
       return true;
     } catch (err) {
-      console.warn("[MySQL] Error confirming order payment:", err?.message);
+      console.warn(" Error confirming order payment:", err?.message);
       return false;
     }
   }
@@ -3495,7 +3495,7 @@ router.post("/auth/register", async (req, res) => {
     });
     return res.status(201).json({
       success: true,
-      message: isGuest ? "Guest shopper session initialized in MySQL" : "User account created successfully in MySQL",
+      message: isGuest ? "Guest shopper session initialized" : "User account created successfully in MySQL",
       user: result.user,
       token: result.token
     });
@@ -3517,7 +3517,7 @@ router.post("/auth/login", async (req, res) => {
     });
     return res.json({
       success: true,
-      message: "Authenticated successfully against MySQL database",
+      message: "Authenticated successfully ",
       user: result.user,
       token: result.token
     });
@@ -3529,7 +3529,7 @@ router.get("/auth/user/:id", async (req, res) => {
   try {
     const user = await authService.findUserById(req.params.id);
     if (!user) {
-      return res.status(404).json({ error: "User not found in MySQL database" });
+      return res.status(404).json({ error: "User not found" });
     }
     return res.json({ success: true, user });
   } catch (error) {
@@ -3543,7 +3543,7 @@ router.post("/auth/password", async (req, res) => {
       return res.status(400).json({ error: "userId and newPassword are required" });
     }
     await authService.updatePassword(userId, newPassword);
-    return res.json({ success: true, message: "Password updated in MySQL database" });
+    return res.json({ success: true, message: "Password updated" });
   } catch (error) {
     return res.status(400).json({ error: error?.message || "Password update failed" });
   }
@@ -3576,7 +3576,7 @@ router.post("/admin/create-admin", async (req, res) => {
     });
     return res.status(201).json({
       success: true,
-      message: "New boutique administrator created and registered in MySQL successfully.",
+      message: "New boutique administrator created and registered successfully.",
       admin: newAdmin
     });
   } catch (error) {
@@ -3657,16 +3657,16 @@ router.get("/categories", async (_req, res) => {
       categories
     });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to fetch categories from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to fetch categories" });
   }
 });
 router.get("/categories/:id", async (req, res) => {
   try {
     const category = await categoryService.getCategoryById(req.params.id);
-    if (!category) return res.status(404).json({ error: "Category not found in MySQL" });
+    if (!category) return res.status(404).json({ error: "Category not found" });
     return res.json({ success: true, category });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to fetch category from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to fetch category " });
   }
 });
 router.post("/categories", async (req, res) => {
@@ -3687,24 +3687,24 @@ router.post("/categories", async (req, res) => {
     });
     return res.status(201).json({ success: true, category });
   } catch (err) {
-    return res.status(400).json({ error: err?.message || "Failed to create category in MySQL" });
+    return res.status(400).json({ error: err?.message || "Failed to create category" });
   }
 });
 router.put("/categories/:id", async (req, res) => {
   try {
     const category = await categoryService.updateCategory(req.params.id, req.body);
-    if (!category) return res.status(404).json({ error: "Category not found in MySQL" });
+    if (!category) return res.status(404).json({ error: "Category not found " });
     return res.json({ success: true, category });
   } catch (err) {
-    return res.status(400).json({ error: err?.message || "Failed to update category in MySQL" });
+    return res.status(400).json({ error: err?.message || "Failed to update category" });
   }
 });
 router.delete("/categories/:id", async (req, res) => {
   try {
     await categoryService.deleteCategory(req.params.id);
-    return res.json({ success: true, message: "Category deleted from MySQL database" });
+    return res.json({ success: true, message: "Category deleted " });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to delete category from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to delete category" });
   }
 });
 router.get("/products", async (_req, res) => {
@@ -3716,16 +3716,16 @@ router.get("/products", async (_req, res) => {
       products
     });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to fetch products from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to fetch products " });
   }
 });
 router.get("/products/:id", async (req, res) => {
   try {
     const product = await inventoryService.getProductById(req.params.id);
-    if (!product) return res.status(404).json({ error: "Product not found in MySQL" });
+    if (!product) return res.status(404).json({ error: "Product not found " });
     return res.json({ success: true, product });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to fetch product from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to fetch product" });
   }
 });
 router.post("/products", async (req, res) => {
@@ -3733,24 +3733,24 @@ router.post("/products", async (req, res) => {
     const product = await inventoryService.addProduct(req.body);
     return res.status(201).json({ success: true, product });
   } catch (err) {
-    return res.status(400).json({ error: err?.message || "Failed to create product in MySQL" });
+    return res.status(400).json({ error: err?.message || "Failed to create product" });
   }
 });
 router.put("/products/:id", async (req, res) => {
   try {
     const product = await inventoryService.updateProduct(req.params.id, req.body);
-    if (!product) return res.status(404).json({ error: "Product not found in MySQL" });
+    if (!product) return res.status(404).json({ error: "Product not found " });
     return res.json({ success: true, product });
   } catch (err) {
-    return res.status(400).json({ error: err?.message || "Failed to update product in MySQL" });
+    return res.status(400).json({ error: err?.message || "Failed to update product" });
   }
 });
 router.delete("/products/:id", async (req, res) => {
   try {
     await inventoryService.deleteProduct(req.params.id);
-    return res.json({ success: true, message: "Product deleted from MySQL database" });
+    return res.json({ success: true, message: "Product deleted " });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to delete product from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to delete product " });
   }
 });
 router.post("/products/:id/stock", async (req, res) => {
@@ -3765,7 +3765,7 @@ router.post("/products/:id/stock", async (req, res) => {
     );
     return res.json({ success: true, product: updated });
   } catch (err) {
-    return res.status(400).json({ error: err?.message || "Failed to adjust stock in MySQL" });
+    return res.status(400).json({ error: err?.message || "Failed to adjust stock " });
   }
 });
 router.get("/inventory/balances", async (_req, res) => {
@@ -3776,7 +3776,7 @@ router.get("/inventory/balances", async (_req, res) => {
       ...balances
     });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to calculate inventory balances from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to calculate inventory balances" });
   }
 });
 router.post("/inventory/deduct", async (req, res) => {
@@ -3788,7 +3788,7 @@ router.post("/inventory/deduct", async (req, res) => {
     const result = await inventoryService.deductStock(items);
     return res.json(result);
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to deduct stock in MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to deduct stock" });
   }
 });
 router.post("/payments/create", async (req, res) => {
@@ -3852,7 +3852,7 @@ router.get("/orders", async (_req, res) => {
       orders
     });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to fetch orders from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to fetch orders" });
   }
 });
 router.get("/orders/user/:userId", async (req, res) => {
@@ -3865,7 +3865,7 @@ router.get("/orders/user/:userId", async (req, res) => {
       orders
     });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to fetch user orders from MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to fetch user orders " });
   }
 });
 router.post("/orders", async (req, res) => {
@@ -3880,7 +3880,7 @@ router.post("/orders", async (req, res) => {
       order: created
     });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to save order in MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to save order" });
   }
 });
 router.put("/orders/:id/status", async (req, res) => {
@@ -3892,7 +3892,7 @@ router.put("/orders/:id/status", async (req, res) => {
     const updated = await orderService.updateOrderStatus(req.params.id, status);
     return res.json({ success: updated });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to update order status in MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to update order status " });
   }
 });
 router.post("/orders/:id/confirm-payment", async (req, res) => {
@@ -3900,7 +3900,7 @@ router.post("/orders/:id/confirm-payment", async (req, res) => {
     const success = await orderService.confirmDeliveryPayment(req.params.id);
     return res.json({ success, message: "Payment confirmed in MySQL database" });
   } catch (err) {
-    return res.status(500).json({ error: err?.message || "Failed to confirm order payment in MySQL" });
+    return res.status(500).json({ error: err?.message || "Failed to confirm order payment" });
   }
 });
 router.post("/sales/record-order", async (req, res) => {
@@ -3967,10 +3967,10 @@ router.post("/sales/record-order", async (req, res) => {
     });
     return res.status(201).json({
       ...recordResult,
-      message: `Persisted ${recordResult.recordedSalesCount} product sales line items in MySQL for ${data.orderNumber}`
+    message: `Persisted ${recordResult.recordedSalesCount} product sales line items  for ${data.orderNumber}`
     });
   } catch (error) {
-    return res.status(500).json({ error: error?.message || "Failed to record product sales in MySQL" });
+    return res.status(500).json({ error: error?.message || "Failed to record product sales " });
   }
 });
 router.get("/sales", async (req, res) => {
@@ -3986,7 +3986,7 @@ router.get("/sales", async (req, res) => {
       sales
     });
   } catch (error) {
-    return res.status(500).json({ error: error?.message || "Failed to fetch sales records from MySQL" });
+    return res.status(500).json({ error: error?.message || "Failed to fetch sales records" });
   }
 });
 router.get("/sales/analytics", async (req, res) => {
@@ -3999,7 +3999,7 @@ router.get("/sales/analytics", async (req, res) => {
       ...analytics
     });
   } catch (error) {
-    return res.status(500).json({ error: error?.message || "Failed to calculate sales analytics in MySQL" });
+    return res.status(500).json({ error: error?.message || "Failed to calculate sales analytics " });
   }
 });
 router.get("/sales/top-products", async (req, res) => {
@@ -4011,7 +4011,7 @@ router.get("/sales/top-products", async (req, res) => {
       topProducts: analytics.topProducts
     });
   } catch (error) {
-    return res.status(500).json({ error: error?.message || "Failed to fetch top selling products from MySQL" });
+    return res.status(500).json({ error: error?.message || "Failed to fetch top selling products" });
   }
 });
 router.get("/sales/order/:orderId", async (req, res) => {
@@ -4023,7 +4023,7 @@ router.get("/sales/order/:orderId", async (req, res) => {
       sales
     });
   } catch (error) {
-    return res.status(500).json({ error: error?.message || "Failed to fetch sales for order from MySQL" });
+    return res.status(500).json({ error: error?.message || "Failed to fetch sales for order" });
   }
 });
 router.get("/sales/product/:productId", async (req, res) => {
@@ -4035,7 +4035,7 @@ router.get("/sales/product/:productId", async (req, res) => {
       sales
     });
   } catch (error) {
-    return res.status(500).json({ error: error?.message || "Failed to fetch product sales from MySQL" });
+    return res.status(500).json({ error: error?.message || "Failed to fetch product sales" });
   }
 });
 router.get("/admin/customer-purchases", async (_req, res) => {
@@ -4047,7 +4047,7 @@ router.get("/admin/customer-purchases", async (_req, res) => {
       customers
     });
   } catch (error) {
-    return res.status(500).json({ error: error?.message || "Failed to fetch customer purchases from MySQL" });
+    return res.status(500).json({ error: error?.message || "Failed to fetch customer purchases " });
   }
 });
 router.get("/admin/customer-purchases/:customerIdOrEmail", async (req, res) => {

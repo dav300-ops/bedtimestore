@@ -125,7 +125,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
         }
       })
       .catch((err) => {
-        console.warn('Failed to load administrators from MySQL:', err);
+        console.warn('Failed to load administrators:', err);
         if (adminUser) {
           setAdminList([adminUser]);
         }
@@ -163,7 +163,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
             setSalesRecords(sales);
           }
         })
-        .catch((err) => console.warn('Failed to load sales line items from MySQL:', err))
+        .catch((err) => console.warn('Failed to load sales line items :', err))
         .finally(() => setIsLoadingSales(false));
     }
 
@@ -175,7 +175,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
             setCustomerPurchases(customers);
           }
         })
-        .catch((err) => console.warn('Failed to load customer purchases from MySQL:', err))
+        .catch((err) => console.warn('Failed to load customer purchases:', err))
         .finally(() => setIsLoadingCustomers(false));
     }
 
@@ -446,7 +446,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
           displayOrder: Number(categoryForm.displayOrder) || 1,
         });
         setCategoryFeedback({
-          text: language === 'ar' ? 'تم حفظ التعديلات على القسم في قاعدة بيانات MySQL بنجاح' : 'Category updated and saved to MySQL database successfully!',
+          text: language === 'ar' ? 'تم حفظ التعديلات على القسم في قاعدة بيانات  بنجاح' : 'Category updated and saved to  database successfully!',
           success: true,
         });
       } else {
@@ -461,7 +461,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
           displayOrder: Number(categoryForm.displayOrder) || (categories.length + 1),
         });
         setCategoryFeedback({
-          text: language === 'ar' ? 'تم إنشاء وحفظ القسم الجديد في قاعدة بيانات MySQL بنجاح' : 'New category created and saved to MySQL database successfully!',
+          text: language === 'ar' ? 'تم إنشاء وحفظ القسم الجديد في قاعدة بيانات  بنجاح' : 'New category created and saved to  database successfully!',
           success: true,
         });
       }
@@ -485,7 +485,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
       await deleteCategory(categoryToDelete.id);
       setCategoryFeedback({
         text: language === 'ar'
-          ? `تم حذف القسم "${categoryToDelete.nameAr || categoryToDelete.nameEn}" من قاعدة بيانات MySQL`
+          ? `تم حذف القسم "${categoryToDelete.nameAr || categoryToDelete.nameEn}" من قاعدة بيانات `
           : `Category "${categoryToDelete.nameEn}" deleted from Database!`,
         success: true,
       });
@@ -506,7 +506,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
       setCategoryFeedback({
         text: language === 'ar'
           ? `تم تغيير حالة "${cat.nameAr || cat.nameEn}" إلى ${nextActive ? 'نشط' : 'مخفي'}`
-          : `Category "${cat.nameEn}" status changed to ${nextActive ? 'Active' : 'Hidden'} in MySQL database`,
+          : `Category "${cat.nameEn}" status changed to ${nextActive ? 'Active' : 'Hidden'} in  database`,
         success: true,
       });
       setTimeout(() => setCategoryFeedback(null), 2500);
@@ -566,7 +566,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
     try {
       await adjustStock(productId, variantSku, colorHex, delta, absoluteNewStock);
       setStockFeedback(
-        language === 'ar' ? 'تم تحديث رصيد المخزون في قاعدة بيانات MySQL بنجاح' : 'Stock balance updated in MySQL database'
+        language === 'ar' ? 'تم تحديث رصيد المخزون في قاعدة بيانات  بنجاح' : 'Stock balance updated in database'
       );
       setTimeout(() => setStockFeedback(null), 2500);
     } catch (err) {
@@ -898,8 +898,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
                   </div>
                   <p className="text-xs text-[var(--color-text)]/75 mt-0.5">
                     {language === 'ar'
-                      ? `بصفتك مشرفاً معتمداً، يمكنك إنشاء حسابات مشرفين جديدة للمتجر وحفظها في MySQL. المشرفون الجدد سيتم توجيههم تلقائياً إلى هذه اللوحة فور تسجيل الدخول.`
-                      : `You have the authority to create new store administrators. All administrators are registered in MySQL and automatically redirected to this dashboard upon login.`}
+                      ? `بصفتك مشرفاً معتمداً، يمكنك إنشاء حسابات مشرفين جديدة للمتجر وحفظها في . المشرفون الجدد سيتم توجيههم تلقائياً إلى هذه اللوحة فور تسجيل الدخول.`
+                      : `You have the authority to create new store administrators. `}
                   </p>
                 </div>
               </div>
@@ -1664,7 +1664,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     {language === 'ar' ? 'سجل العميلات والمنتجات المشتراة' : language === 'ru' ? 'Список покупателей и купленные ими товары' : 'Customer Purchasing Profiles & Associated Products'}
                   </span>
                   <span className="text-xs text-[var(--color-accent)] font-medium">
-                    {customerPurchases.length} {language === 'ar' ? 'عميلة مسجلة في قاعدة البيانات' : language === 'ru' ? 'клиентов в базе данных' : 'customers in MySQL database'}
+                    {customerPurchases.length} {language === 'ar' ? 'عميلة مسجلة في قاعدة البيانات' : language === 'ru' ? 'клиентов в базе данных' : 'customers in  database'}
                   </span>
                 </div>
 
@@ -1687,7 +1687,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         <tr>
                           <td colSpan={8} className="p-8 text-center text-gray-500">
                             <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[var(--color-accent)]" />
-                            <span>{language === 'ar' ? 'جاري تحميل سجلات العميلات من MySQL...' : language === 'ru' ? 'Загрузка профилей покупателей...' : 'Loading customer purchasing data from MySQL...'}</span>
+                            <span>{language === 'ar' ? 'جاري تحميل سجلات العميلات من ...' : language === 'ru' ? 'Загрузка профилей покупателей...' : 'Loading customer purchasing data from ...'}</span>
                           </td>
                         </tr>
                       ) : customerPurchases.length === 0 ? (
@@ -1796,7 +1796,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                                         {isLoadingCustomerDetail ? (
                                           <div className="py-6 text-center text-gray-500">
                                             <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-1 text-[var(--color-accent)]" />
-                                            <span>{language === 'ar' ? 'جاري استرجاع تفاصيل المنتجات من MySQL...' : language === 'ru' ? 'Загрузка позиций...' : 'Retrieving purchase details from MySQL...'}</span>
+                                            <span>{language === 'ar' ? 'جاري استرجاع تفاصيل المنتجات من ...' : language === 'ru' ? 'Загрузка позиций...' : 'Retrieving purchase details ...'}</span>
                                           </div>
                                         ) : customerDetailSales.length === 0 ? (
                                           <p className="text-xs text-gray-500 py-2">
@@ -1992,7 +1992,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                               {isLoadingProductBuyers ? (
                                 <div className="py-4 text-center text-xs text-gray-500">
                                   <RefreshCw className="w-3.5 h-3.5 animate-spin mx-auto mb-1 text-[var(--color-accent)]" />
-                                  <span>{language === 'ar' ? 'جاري الاستعلام من قاعدة البيانات...' : language === 'ru' ? 'Загрузка...' : 'Querying MySQL...'}</span>
+                                  <span>{language === 'ar' ? 'جاري الاستعلام من قاعدة البيانات...' : language === 'ru' ? 'Загрузка...' : 'Querying ...'}</span>
                                 </div>
                               ) : productBuyersList.length === 0 ? (
                                 <p className="text-xs text-gray-500 italic py-2">
@@ -2235,7 +2235,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     {language === 'ar' ? 'أرصدة المنتجات ومخزون الموديلات' : 'Live Product Balances & Variety Stock Table'}
                   </h3>
                   <p className="text-xs text-[var(--color-text)]/70">
-                    {language === 'ar' ? 'يمكنك زيادة أو تعديل المخزون مباشرة لكل مقاس ولون، وتنعكس التحديثات فوراً في متجر العملاء وقاعدة بيانات MySQL' : 'Adjust units directly per size and color. Updates are reflected immediately in customer store & MySQL database.'}
+                    {language === 'ar' ? 'يمكنك زيادة أو تعديل المخزون مباشرة لكل مقاس ولون، وتنعكس التحديثات فوراً في متجر العملاء وقاعدة بيانات ' : 'Adjust units directly per size and color. Updates are reflected immediately in customer store &  database.'}
                   </p>
                 </div>
                 <span className="text-xs text-[var(--color-accent)] font-mono font-semibold">
@@ -3320,7 +3320,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 </p>
                 <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{language === 'ar' ? 'مسجلون في قاعدة بيانات MySQL' : 'MySQL Relational Table users'}</span>
+                  <span>{language === 'ar' ? 'مسجلون في قاعدة بيانات ' : ' Users'}</span>
                 </p>
               </div>
 
@@ -3387,10 +3387,10 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   onClick={fetchAdmins}
                   disabled={isLoadingAdmins}
                   className="px-3 py-2 border border-[var(--color-border)] hover:bg-gray-50 text-[var(--color-text)] text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                  title="Refresh admin list from MySQL"
+                  title="Refresh admin list from "
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isLoadingAdmins ? 'animate-spin text-[var(--color-primary)]' : 'text-gray-500'}`} />
-                  <span>{language === 'ar' ? 'تحديث من MySQL' : 'Sync MySQL'}</span>
+                  <span>{language === 'ar' ? 'تحديث من ' : 'Sync '}</span>
                 </button>
 
                 <button
@@ -3449,7 +3449,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                           </div>
                         </div>
 
-                        <span className="p-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200" title="Active in MySQL">
+                        <span className="p-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200" title="Active ">
                           <CheckCircle2 className="w-4 h-4" />
                         </span>
                       </div>
@@ -3482,7 +3482,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                         </div>
                         <div className="flex items-center gap-1.5 text-emerald-800 font-semibold">
                           <Check className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>{language === 'ar' ? 'إدارة الكتالوج، المخزون، والطلبات في MySQL' : 'Catalog, Inventory & Orders management in MySQL'}</span>
+                          <span>{language === 'ar' ? 'إدارة الكتالوج، المخزون، والطلبات في ' : 'Catalog, Inventory & Orders management'}</span>
                         </div>
                       </div>
 
@@ -3629,7 +3629,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       variants: defaultVariants,
                     });
                     setProductFeedback({
-                      text: language === 'ar' ? '✓ تم تحديث المنتج وحفظه بنجاح في قاعدة بيانات MySQL!' : '✓ Product data successfully updated and saved to MySQL database!',
+                      text: language === 'ar' ? '✓ تم تحديث المنتج وحفظه بنجاح في قاعدة بيانات !' : '✓ Product data successfully updated and saved to  database!',
                       success: true,
                     });
                   } else {
@@ -3662,7 +3662,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       isKids,
                     });
                     setProductFeedback({
-                      text: language === 'ar' ? '✓ تم رفع وإضافة المنتج الجديد بنجاح إلى قاعدة بيانات MySQL!' : '✓ New product successfully uploaded and published to MySQL database!',
+                      text: language === 'ar' ? '✓ تم رفع وإضافة المنتج الجديد بنجاح إلى قاعدة بيانات !' : '✓ New product successfully uploaded and published to  database!',
                       success: true,
                     });
                   }
@@ -3673,7 +3673,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                     setProductFeedback(null);
                   }, 1200);
                 } catch (err: any) {
-                  setProductUploadError(err.message || 'Failed to upload product data to MySQL database. Please check your connection.');
+                  setProductUploadError(err.message || 'Failed to upload product data to  database. Please check your connection.');
                 } finally {
                   setIsSavingProduct(false);
                 }
@@ -3972,7 +3972,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
               {/* Initial Inventory Stock Breakdown by Size */}
               <div className="bg-[var(--color-bg)] p-3 rounded-xs border border-[var(--color-border)] space-y-2">
                 <label className="font-semibold text-[var(--color-text)] block">
-                  {language === 'ar' ? 'رصيد المخزون الأولي حسب المقاسات (MySQL Inventory Breakdown)' : 'Initial Inventory Stocks by Size (MySQL Inventory Balance)'}
+                  {language === 'ar' ? 'رصيد المخزون الأولي حسب المقاسات ( Inventory Breakdown)' : 'Initial Inventory Stocks by Size ( Inventory Balance)'}
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   <div className="space-y-0.5">
@@ -4108,12 +4108,12 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   {isSavingProduct ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>{language === 'ar' ? 'جاري الحفظ في MySQL...' : 'Uploading to MySQL Database...'}</span>
+                      <span>{language === 'ar' ? 'جاري الحفظ في ...' : 'Uploading to  Database...'}</span>
                     </>
                   ) : (
                     <>
                       <Database className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-                      <span>{editingProduct ? (language === 'ar' ? 'تحديث وحفظ في قاعدة البيانات' : 'Update in MySQL Database') : (language === 'ar' ? 'رفع ونشر في قاعدة البيانات' : 'Upload to MySQL Database')}</span>
+                      <span>{editingProduct ? (language === 'ar' ? 'تحديث وحفظ في قاعدة البيانات' : 'Update in  Database') : (language === 'ar' ? 'رفع ونشر في قاعدة البيانات' : 'Upload to  Database')}</span>
                     </>
                   )}
                 </button>
@@ -4378,8 +4378,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   </h3>
                   <p className="text-[11px] text-[var(--color-accent)] font-medium">
                     {language === 'ar'
-                      ? 'سيتم حفظ وتحديث القسم تلقائياً في قاعدة بيانات MySQL'
-                      : 'Changes will be automatically synced with MySQL database'}
+                      ? 'سيتم حفظ وتحديث القسم تلقائياً في قاعدة بيانات '
+                      : 'Changes will be automatically synced with  database'}
                   </p>
                 </div>
               </div>
@@ -4616,7 +4616,7 @@ CREATE TABLE IF NOT EXISTS product_sales (
                   {isSavingCategory ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>{language === 'ar' ? 'جاري الحفظ في MySQL...' : 'Saving to MySQL Database...'}</span>
+                      <span>{language === 'ar' ? 'جاري الحفظ في ...' : 'Saving to  Database...'}</span>
                     </>
                   ) : (
                     <>
@@ -4651,8 +4651,8 @@ CREATE TABLE IF NOT EXISTS product_sales (
             <div className="space-y-3 text-xs text-[var(--color-text)]/80">
               <p>
                 {language === 'ar'
-                  ? `هل أنتِ متأكدة من رغبتك في حذف قسم "${categoryToDelete.nameAr || categoryToDelete.nameEn}" نهائياً من قاعدة بيانات MySQL؟`
-                  : `Are you sure you want to permanently delete "${categoryToDelete.nameEn}" from MySQL database?`}
+                  ? `هل أنتِ متأكدة من رغبتك في حذف قسم "${categoryToDelete.nameAr || categoryToDelete.nameEn}" نهائياً من قاعدة بيانات `
+                  : `Are you sure you want to permanently delete "${categoryToDelete.nameEn}" from  database?`}
               </p>
 
               {(() => {

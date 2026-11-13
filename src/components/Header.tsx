@@ -268,7 +268,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                         <Sparkles className="w-3 h-3 text-[var(--color-accent)]" />
                         <span>{language === 'ar' ? 'توصيل مجاني فوق ٢٥ د.ب' : language === 'ru' ? 'Бесплатная доставка от 25 BHD' : 'Free delivery over 25 BHD'}</span>
                       </span>
-                      <span className="font-serif italic text-[var(--color-primary)]">Bedtime Store</span>
+                      <span className="font-serif italic text-[var(--color-primary)]">deluxe Bedtime Store</span>
                     </div>
                   </div>
                 )}
@@ -341,12 +341,12 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                 </span>
               </button>
  
-              {/* 4. Rounded-rectangle outlined "BAG" button with bag icon */}
+              {/* 4. Rounded-rectangle outlined "CART" button with bag icon */}
               <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
                 className="flex items-center gap-1.5 py-1 px-2.5 border border-[#C9A24B] hover:border-[#E3C878] bg-[#4A0A15]/40 hover:bg-[#4A0A15]/80 text-[#FBF4E4] rounded-lg transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A24B]"
-                aria-label={`Bag with ${cartCount} items`}
+                aria-label={`Cartwith ${cartCount} items`}
               >
                 <div className="relative">
                   <ShoppingBag className="w-3.5 h-3.5 text-[#E3C878] stroke-[2]" />
@@ -412,17 +412,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, current
                   FR
                 </button>
               </div>
- 
-              {/* 6. Small gold shield or security icon at the far right */}
-              <button
-                type="button"
-                onClick={() => onNavigate('legal', { section: 'privacy' })}
-                className="p-1.5 text-[#E3C878] hover:text-white rounded-full border border-[#C9A24B]/60 hover:border-[#E3C878] transition-colors cursor-pointer"
-                title="Verified Luxury Sleepwear · Kingdom of Bahrain"
-                aria-label="Security guarantee"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 stroke-[2]" />
-              </button>
+
  
             </div>
  

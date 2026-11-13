@@ -132,7 +132,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                   ? 'Портал администратора'
                   : isFr
                   ? 'Portail Administrateur'
-                  : 'Restricted Admin Portal'}
+                  : 'Admin Login Portal'}
               </span>
             </div>
 
@@ -263,11 +263,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               </button>
             </form>
 
-            <div className="pt-3 border-t border-[#C9A24B]/25 text-[11px] text-[#5E453D] text-center">
-              {isAr
-                ? 'جميع جلسات الإدارة مشفرة ومحمية بتحقق التجزئة الأمني.'
-                : 'Protected admin route · Encrypted password hash verification & signed session tokens.'}
-            </div>
+           
           </div>
         </div>
       </div>
