@@ -167,7 +167,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div 
       ref={barRef}
-      className="sticky top-[68px] z-30 bg-[var(--color-bg)]/95 backdrop-blur-sm border-b border-[var(--color-border)] transition-colors"
+      className="sticky top-[var(--header-h)] z-30 bg-[var(--color-bg)]/95 backdrop-blur-sm border-b border-[var(--color-border)] transition-colors"
     >
       <div 
         className="w-full px-4 sm:px-6 md:px-12 py-3 flex items-center justify-between gap-4"

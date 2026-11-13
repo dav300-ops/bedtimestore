@@ -4,11 +4,15 @@ import { api } from '../services/api';
 import { browserCache } from '../services/cache';
 import { useAuth } from './AuthContext';
 
+import { storeConfig } from '../config/storeConfig';
+
 export interface CMSBannerSettings {
   announcementTextEn: string;
   announcementTextAr: string;
   heroKickerEn: string;
   heroKickerAr: string;
+  heroKickerRu?: string;
+  heroKickerFr?: string;
   heroTitleEn: string;
   heroTitleAr: string;
   heroSubtitleEn: string;
@@ -16,13 +20,16 @@ export interface CMSBannerSettings {
   heroCtaEn: string;
   heroCtaAr: string;
   logoPicUrl?: string;
+  freeDeliveryThresholdBHD?: number;
 }
 
 const DEFAULT_CMS: CMSBannerSettings = {
   announcementTextEn: "24hr Delivery Guaranteed ",
   announcementTextAr: "توصيل مجاني في مملكة البحرين للطلبات أكثر من ٢٥.٠٠٠ د.ب · يتوفر توصيل سريع في نفس اليوم",
-  heroKickerEn: "Spring / Summer 2026 Collection",
-  heroKickerAr: "مجموعة ربيع وصيف ٢٠٢٦",
+  heroKickerEn: storeConfig.defaultSeasonEyebrow.en,
+  heroKickerAr: storeConfig.defaultSeasonEyebrow.ar,
+  heroKickerRu: storeConfig.defaultSeasonEyebrow.ru,
+  heroKickerFr: storeConfig.defaultSeasonEyebrow.fr,
   heroTitleEn: "Sleep Beautifully. Feel Beautiful.",
   heroTitleAr: "نامي بأناقة. واشعري بالجمال.",
   heroSubtitleEn: "Handcrafted 100% mulberry silk pajamas, whisper-soft French lace slips, and ethereal bridal morning robes tailored for timeless elegance in Bahrain.",
@@ -30,6 +37,7 @@ const DEFAULT_CMS: CMSBannerSettings = {
   heroCtaEn: "Shop Nightwear",
   heroCtaAr: "تسوقي ملابس النوم",
   logoPicUrl: "",
+  freeDeliveryThresholdBHD: storeConfig.freeDeliveryThresholdBHD,
 };
 
 export interface InventoryBalanceItem {

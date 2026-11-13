@@ -23,11 +23,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div 
-        className="w-full px-4 sm:px-6 md:px-12 py-6"
-        style={{ paddingLeft: 'clamp(16px, 3.5vw, 48px)', paddingRight: 'clamp(16px, 3.5vw, 48px)' }}
-      >
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      <div className="w-full px-4 sm:px-6 md:px-12 py-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
           {Array.from({ length: 8 }).map((_, idx) => (
             <ProductCardSkeleton key={`skeleton-${idx}`} />
           ))}
@@ -41,13 +38,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <section 
+    <section
       aria-label="Products catalog"
       className="w-full px-4 sm:px-6 md:px-12 py-6"
-      style={{ paddingLeft: 'clamp(16px, 3.5vw, 48px)', paddingRight: 'clamp(16px, 3.5vw, 48px)' }}
     >
-      {/* 4 columns at 1280px and up, 3 at 1024px, 2 on tablet and mobile. 20px gap. */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {/* 2-col 12px gap on mobile; 3-col on lg; 4-col on xl */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
         {products.map((product) => (
           <ProductCard
             key={product.id}

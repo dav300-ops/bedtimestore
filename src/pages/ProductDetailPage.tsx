@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Product, ProductSize } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
@@ -51,6 +51,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const product = products.find((p) => p.id === initialProduct.id) || initialProduct;
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const mobileGalleryRef = useRef<HTMLDivElement>(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const [selectedSize, setSelectedSize] = useState<ProductSize>(
@@ -175,8 +176,34 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     .filter((p) => p.id !== product.id && p.categoryId === product.categoryId)
     .slice(0, 4);
 
+  const galleryImages =
+    product.images && product.images.filter((img) => typeof img === 'string' && img.trim() !== '').length > 0
+      ? product.images.filter((img) => typeof img === 'string' && img.trim() !== '')
+      : ['/images/hero_pic.jpeg'];
+
+  const effectiveUnitPrice = product.salePrice ?? product.price;
+
+  const handleMobileGalleryScroll = () => {
+    const el = mobileGalleryRef.current;
+    if (!el || el.clientWidth === 0) return;
+    const idx = Math.round(Math.abs(el.scrollLeft) / el.clientWidth);
+    if (idx >= 0 && idx < galleryImages.length && idx !== activeImageIndex) {
+      setActiveImageIndex(idx);
+    }
+  };
+
+  const scrollToSlide = (idx: number) => {
+    setActiveImageIndex(idx);
+    const el = mobileGalleryRef.current;
+    if (!el) return;
+    el.scrollTo({
+      left: idx * el.clientWidth,
+      behavior: 'smooth',
+    });
+  };
+
   return (
-    <div className="bg-[var(--color-bg)] min-h-screen py-10">
+    <div className="bg-[var(--color-bg)] min-h-screen pt-4 pb-28 sm:py-10 lg:pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb Navigation */}
@@ -195,19 +222,99 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         {/* Main PDP Grid (Contiguous Purchase Module on Right, Gallery on Left) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 bg-[var(--color-card)] p-6 sm:p-10 rounded-sm border border-[var(--color-border)] shadow-xs">
           
-          {/* Left Column: Image Gallery with Interactive Zoom */}
+          {/* Left Column: Mobile Swipeable Gallery + Desktop Interactive Zoom Gallery */}
           <div className="lg:col-span-7 space-y-4">
-            {/* Main Interactive Zoomable Image with Antique Gold Hairline Frame */}
+            {/* Mobile Swipeable Horizontal Gallery (< lg) */}
+            <div className="lg:hidden space-y-3">
+              <div className="relative rounded-lg overflow-hidden border border-[var(--color-gold)]/50 bg-white">
+                <div
+                  ref={mobileGalleryRef}
+                  dir="ltr"
+                  onScroll={handleMobileGalleryScroll}
+                  aria-label={t.mobileMenu.slideLabel}
+                  className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none"
+                >
+                  {galleryImages.map((img, idx) => (
+                    <div
+                      key={`${product.id}-slide-${idx}`}
+                      className="w-full shrink-0 snap-center aspect-[4/5] bg-white relative"
+                    >
+                      <img
+                        src={img}
+                        alt={`${displayName} - ${idx + 1}`}
+                        loading={idx === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover object-center"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Badges */}
+                <div className="absolute top-3 start-3 flex flex-col gap-1.5 z-10 pointer-events-none">
+                  {product.salePrice && product.salePrice < product.price && (
+                    <span className="bg-[var(--color-maroon)] text-white text-[11px] font-bold px-2.5 py-1 uppercase tracking-wider rounded-xs shadow-sm border border-[var(--color-gold)]/40">
+                      {t.product.sale}
+                    </span>
+                  )}
+                  {product.newArrival && (
+                    <span className="bg-[var(--color-maroon)] text-white text-[11px] font-semibold px-2.5 py-1 uppercase tracking-wider rounded-xs shadow-sm border border-[var(--color-gold)]/40">
+                      {t.product.new}
+                    </span>
+                  )}
+                </div>
+
+                {/* Fullscreen Album Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsAlbumModalOpen(true)}
+                  aria-label={language === 'ar' ? 'عرض ألبوم الصور' : 'Product Album'}
+                  className="absolute bottom-3 end-3 z-10 min-h-[44px] px-3 py-1.5 bg-[var(--color-maroon)]/90 text-white text-[11px] font-semibold uppercase tracking-wider rounded-full backdrop-blur-md border border-[var(--color-gold)]/50 flex items-center gap-1.5 shadow-md cursor-pointer"
+                >
+                  <Images className="w-3.5 h-3.5 text-[#E3C878]" />
+                  <span>{galleryImages.length}</span>
+                </button>
+              </div>
+
+              {/* Pagination Dots */}
+              {galleryImages.length > 1 && (
+                <div className="flex items-center justify-center gap-1.5" role="tablist" aria-label={t.mobileMenu.slideLabel}>
+                  {galleryImages.map((_, idx) => {
+                    const isActive = idx === activeImageIndex;
+                    return (
+                      <button
+                        key={`dot-${idx}`}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        aria-label={t.mobileMenu.goToSlide.replace('{index}', String(idx + 1))}
+                        onClick={() => scrollToSlide(idx)}
+                        className="min-w-[28px] min-h-[28px] flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] rounded-full"
+                      >
+                        <span
+                          className={`block rounded-full transition-all duration-200 ${
+                            isActive
+                              ? 'w-5 h-2 bg-[var(--color-maroon)]'
+                              : 'w-2 h-2 bg-[var(--color-maroon)]/30'
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Interactive Zoomable Image (>= lg) */}
             <div
-              className="relative aspect-[3/4] bg-[var(--color-card)] rounded-sm overflow-hidden border border-[var(--color-gold)]/50 cursor-crosshair shadow-sm"
+              className="hidden lg:block relative aspect-[3/4] bg-[var(--color-card)] rounded-sm overflow-hidden border border-[var(--color-gold)]/50 cursor-crosshair shadow-sm"
               onMouseEnter={() => setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
               onMouseMove={handleMouseMove}
             >
               <img
-                src={(product.images?.[activeImageIndex] && product.images[activeImageIndex].trim() !== '') 
-                  ? product.images[activeImageIndex] 
-                  : ((product.images?.[0] && product.images[0].trim() !== '') ? product.images[0] : '/images/hero_pic.jpeg')}
+                src={galleryImages[activeImageIndex] || galleryImages[0]}
                 alt={displayName}
                 className={`w-full h-full object-cover object-center transition-transform duration-200 ${
                   isZoomed ? 'scale-150 origin-center' : 'scale-100'
@@ -223,10 +330,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               />
 
               {/* Badges */}
-              <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 flex flex-col gap-1.5 z-10">
+              <div className="absolute top-4 start-4 flex flex-col gap-1.5 z-10">
                 {product.salePrice && product.salePrice < product.price && (
                   <span className="bg-[var(--color-primary)] text-white text-[11px] font-bold px-2.5 py-1 uppercase tracking-wider rounded-xs shadow-sm border border-[var(--color-gold)]/40">
-                    {language === 'ar' ? 'تخفيض' : 'Sale'}
+                    {t.product.sale}
                   </span>
                 )}
                 {product.newArrival && (
@@ -245,21 +352,22 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <button
                 type="button"
                 onClick={() => setIsAlbumModalOpen(true)}
-                className="absolute bottom-3 right-3 rtl:right-auto rtl:left-3 z-10 px-3 py-1.5 bg-[var(--color-primary)]/90 hover:bg-[var(--color-primary)] text-white text-[11px] font-semibold uppercase tracking-wider rounded-xs backdrop-blur-md border border-[var(--color-gold)]/50 flex items-center gap-1.5 transition-all shadow-md cursor-pointer hover:scale-105"
+                className="absolute bottom-3 end-3 z-10 px-3 py-1.5 bg-[var(--color-primary)]/90 hover:bg-[var(--color-primary)] text-white text-[11px] font-semibold uppercase tracking-wider rounded-xs backdrop-blur-md border border-[var(--color-gold)]/50 flex items-center gap-1.5 transition-all shadow-md cursor-pointer hover:scale-105"
                 title="Open Product Image Album"
               >
                 <Images className="w-3.5 h-3.5 text-[var(--color-gold-light)]" />
                 <span>{language === 'ar' ? 'عرض ألبوم الصور' : 'Product Album'}</span>
-                <span className="text-[10px] text-[var(--color-gold-light)] font-mono">({product.images.length})</span>
+                <span className="text-[10px] text-[var(--color-gold-light)] font-mono">({galleryImages.length})</span>
               </button>
             </div>
 
-            {/* Thumbnail Navigation */}
-            {product.images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {product.images.map((img, idx) => (
+            {/* Desktop Thumbnail Navigation */}
+            {galleryImages.length > 1 && (
+              <div className="hidden lg:flex gap-3 overflow-x-auto pb-2">
+                {galleryImages.map((img, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => setActiveImageIndex(idx)}
                     className={`w-20 h-24 rounded-xs overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
                       activeImageIndex === idx
@@ -267,7 +375,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                         : 'border-transparent opacity-70 hover:opacity-100 hover:border-[var(--color-border)]'
                     }`}
                   >
-                    <img src={(img && img.trim() !== '') ? img : '/images/hero_pic.jpeg'} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -538,38 +646,43 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </div>
               </div>
 
-              {/* Quantity & CTAs */}
+              {/* Quantity & CTAs (visible inline on desktop/tablet; mobile also gets sticky bottom bar) */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-3">
                   {/* Quantity Stepper */}
-                  <div className="flex items-center border border-[var(--color-border)] rounded-xs bg-white">
+                  <div className="flex items-center border border-[var(--color-border)] rounded-full bg-white">
                     <button
+                      type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-3 text-[var(--color-text)] hover:bg-[var(--color-bg)]"
+                      aria-label="Decrease quantity"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--color-text)] hover:bg-[var(--color-bg)] rounded-s-full cursor-pointer"
                     >
                       -
                     </button>
-                    <span className="px-4 text-xs font-semibold tabular-nums text-[var(--color-text)]">
+                    <span className="px-3 text-sm font-semibold tabular-nums text-[var(--color-text)]">
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
-                      className="px-3 py-3 text-[var(--color-text)] hover:bg-[var(--color-bg)]"
+                      type="button"
+                      onClick={() => setQuantity(Math.min(Math.max(1, availableStock), quantity + 1))}
+                      aria-label="Increase quantity"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--color-text)] hover:bg-[var(--color-bg)] rounded-e-full cursor-pointer"
                     >
                       +
                     </button>
                   </div>
 
-                  {/* Add to Cart CTA (Scarlet) */}
+                  {/* Add to Cart CTA */}
                   <button
+                    type="button"
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
-                    className={`flex-1 py-3.5 px-6 font-semibold text-xs uppercase tracking-wider rounded-xs shadow-md transition-all flex items-center justify-center gap-2 ${
+                    className={`flex-1 min-h-[48px] px-6 font-semibold text-xs uppercase tracking-wider rounded-full shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
                       isOutOfStock
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         : isAddedFeedback
-                        ? 'bg-[var(--color-accent)] text-white'
-                        : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white'
+                          ? 'bg-[var(--color-maroon-dark)] text-white'
+                          : 'bg-[var(--color-maroon)] hover:bg-[var(--color-maroon-dark)] text-white'
                     }`}
                   >
                     {isAddedFeedback ? (
@@ -580,20 +693,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     ) : (
                       <>
                         <ShoppingBag className="w-4 h-4" />
-                        <span>{t.product.addToCart}</span>
+                        <span>{isOutOfStock ? t.product.outOfStock : t.mobileMenu.addToBag}</span>
                       </>
                     )}
                   </button>
 
                   {/* Wishlist Button */}
                   <button
+                    type="button"
                     onClick={() => toggleWishlist(product.id)}
-                    className={`p-3.5 rounded-xs border transition-colors ${
+                    className={`min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border transition-colors cursor-pointer ${
                       isWishlisted
-                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
+                        ? 'bg-[var(--color-maroon)] text-white border-[var(--color-maroon)]'
                         : 'border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-bg)]'
                     }`}
-                    aria-label="Wishlist"
+                    aria-label={t.mobileMenu.wishlist}
                   >
                     <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
                   </button>
@@ -910,6 +1024,75 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           initialImageIndex={activeImageIndex}
         />
 
+        {/* Mobile Sticky Bottom Add to Bag Bar (< lg) */}
+        <div
+          className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[var(--color-card)]/95 backdrop-blur-md border-t border-[var(--color-border)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(46,31,27,0.1)]"
+        >
+          <div className="flex items-center gap-2.5 max-w-xl mx-auto">
+            {/* Price in BHD */}
+            <div className="shrink-0 min-w-[78px] text-start">
+              <p className="text-sm font-bold tabular-nums text-[var(--color-text)] leading-tight">
+                {formatBHD(effectiveUnitPrice * quantity)}
+              </p>
+              {quantity > 1 && (
+                <p className="text-[10px] tabular-nums text-[var(--color-text-secondary)]">
+                  {formatBHD(effectiveUnitPrice)} × {quantity}
+                </p>
+              )}
+            </div>
+
+            {/* Quantity Stepper (44x44px buttons) */}
+            <div className="inline-flex items-center border border-[var(--color-border)] rounded-full bg-white shrink-0">
+              <button
+                type="button"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                aria-label="Decrease quantity"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center text-base font-semibold text-[var(--color-text)] active:bg-[var(--color-bg)] rounded-s-full cursor-pointer"
+              >
+                −
+              </button>
+              <span className="px-1.5 text-sm font-bold tabular-nums text-[var(--color-text)] min-w-[20px] text-center">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity(Math.min(Math.max(1, availableStock), quantity + 1))}
+                aria-label="Increase quantity"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center text-base font-semibold text-[var(--color-text)] active:bg-[var(--color-bg)] rounded-e-full cursor-pointer"
+              >
+                +
+              </button>
+            </div>
+
+            {/* Add to Bag Button */}
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`flex-1 min-h-[48px] px-4 font-semibold text-xs uppercase tracking-wider rounded-full shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] ${
+                isOutOfStock
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  : isAddedFeedback
+                    ? 'bg-[var(--color-maroon-dark)] text-white'
+                    : 'bg-[var(--color-maroon)] hover:bg-[var(--color-maroon-dark)] text-white'
+              }`}
+            >
+              {isAddedFeedback ? (
+                <>
+                  <Check className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{t.product.addedToCart}</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-4 h-4 shrink-0" />
+                  <span className="truncate">
+                    {isOutOfStock ? t.product.outOfStock : t.mobileMenu.addToBag}
+                  </span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

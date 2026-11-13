@@ -95,13 +95,13 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
         {/* Horizontal Carousel Track */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 pt-1 scrollbar-none scroll-smooth snap-x snap-mandatory"
+          className="flex gap-3 sm:gap-6 overflow-x-auto pb-4 pt-1 scrollbar-none scroll-smooth snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {products.map((product) => (
             <div
               key={product.id}
-              className="w-[260px] sm:w-[280px] lg:w-[290px] shrink-0 snap-start"
+              className="w-[46vw] min-w-[168px] max-w-[240px] sm:w-[280px] sm:max-w-none lg:w-[290px] shrink-0 snap-start"
             >
               <ProductCard
                 product={product}

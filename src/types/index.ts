@@ -47,6 +47,7 @@ export interface Product {
   salePrice?: number; // in BHD
   currency: 'BHD';
   images: string[];
+  imageSrcSets?: string[];
   variants: ProductVariant[];
   materialEn: string;
   materialAr: string;
@@ -73,6 +74,7 @@ export interface Category {
   nameEn: string;
   nameAr: string;
   nameRu?: string;
+  nameFr?: string;
   descriptionEn: string;
   descriptionAr: string;
   descriptionRu?: string;

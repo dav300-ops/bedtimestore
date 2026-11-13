@@ -31,7 +31,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onOrderSuccess,
   onBackToCart,
 }) => {
-  const { cart, subtotal, discount, shippingFee, total, shippingOption, setShippingOption, clearCart, appliedCoupon } = useCart();
+  const {
+    cart,
+    subtotal,
+    discount,
+    shippingFee,
+    freeDeliveryThreshold,
+    total,
+    shippingOption,
+    setShippingOption,
+    clearCart,
+    appliedCoupon,
+  } = useCart();
   const { language, formatBHD, t, isRtl } = useLanguage();
   const { addOrder, deductInventory } = useStore();
   const { currentUser, openAuthModal } = useAuth();
@@ -86,6 +97,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [sendReceiptViaEmail, setSendReceiptViaEmail] = useState<boolean>(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Card details
   const [cardHolder, setCardHolder] = useState('FATIMA AL KHALIFA');
@@ -95,6 +107,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   // BenefitPay simulated interactive flow
   const [benefitStep, setBenefitStep] = useState<'scan' | 'approved'>('scan');
+
+  const clearFieldError = (key: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
 
   const handleSubmitPayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,15 +132,71 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       return;
     }
 
-    // Validation
-    if (!customerName.trim() || !customerEmail.trim() || !customerPhone.trim()) {
-      setPaymentError(language === 'ar' ? 'يرجى إكمال بيانات العميل المطلوبة' : 'Please complete all customer details.');
+    // Inline Field Validation
+    const errors: Record<string, string> = {};
+    const requiredMsg =
+      language === 'ar'
+        ? 'هذا الحقل مطلوب'
+        : language === 'ru'
+          ? 'Обязательное поле'
+          : language === 'fr'
+            ? 'Ce champ est requis'
+            : 'This field is required';
+
+    if (!customerName.trim()) errors.customerName = requiredMsg;
+    if (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) {
+      errors.customerEmail =
+        language === 'ar'
+          ? 'يرجى إدخال بريد إلكتروني صحيح'
+          : language === 'ru'
+            ? 'Введите корректный email'
+            : language === 'fr'
+              ? 'Veuillez saisir un e-mail valide'
+              : 'Please enter a valid email address';
+    }
+    const phoneDigits = customerPhone.replace(/\D/g, '');
+    if (phoneDigits.length < 8) {
+      errors.customerPhone =
+        language === 'ar'
+          ? 'يرجى إدخال رقم هاتف مكون من 8 أرقام'
+          : language === 'ru'
+            ? 'Введите 8-значный номер телефона'
+            : language === 'fr'
+              ? 'Veuillez saisir un numéro à 8 chiffres'
+              : 'Please enter an 8-digit mobile number';
+    }
+    if (!buildingNumber.trim()) errors.buildingNumber = requiredMsg;
+    if (!roadNumber.trim()) errors.roadNumber = requiredMsg;
+    if (!blockNumber.trim()) errors.blockNumber = requiredMsg;
+    if (!area.trim()) errors.area = requiredMsg;
+    if (!city.trim()) errors.city = requiredMsg;
+
+    if (paymentMethod === 'visa_mastercard') {
+      if (!cardHolder.trim()) errors.cardHolder = requiredMsg;
+      if (!cardNumber.trim()) errors.cardNumber = requiredMsg;
+      if (!/^\d{2}\/\d{2}$/.test(cardExpiry.trim())) {
+        errors.cardExpiry = language === 'ar' ? 'الصيغة MM/YY' : 'Use MM/YY';
+      }
+      if (cardCvv.replace(/\D/g, '').length < 3) {
+        errors.cardCvv = language === 'ar' ? 'أدخلي 3-4 أرقام' : 'Enter 3-4 digits';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setPaymentError(
+        language === 'ar'
+          ? 'يرجى مراجعة الحقول المحددة باللون الأحمر.'
+          : language === 'ru'
+            ? 'Пожалуйста, проверьте выделенные поля.'
+            : language === 'fr'
+              ? 'Veuillez vérifier les champs indiqués ci-dessous.'
+              : 'Please check the highlighted fields below.'
+      );
       return;
     }
-    if (!buildingNumber.trim() || !roadNumber.trim() || !blockNumber.trim() || !area.trim()) {
-      setPaymentError(language === 'ar' ? 'يرجى إدخال تفاصيل العنوان في البحرين' : 'Please complete all address fields.');
-      return;
-    }
+
+    setFieldErrors({});
 
     setIsProcessing(true);
 
@@ -286,7 +363,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           </h1>
         </div>
 
-        <form onSubmit={handleSubmitPayment}>
+        <form onSubmit={handleSubmitPayment} noValidate>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* Left 2 Steps: Info & Address & Payment */}
@@ -343,51 +420,98 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-1 sm:col-span-2">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.fullName} *</label>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label htmlFor="checkout-name" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.fullName} *
+                    </label>
                     <input
+                      id="checkout-name"
                       type="text"
                       required
+                      autoComplete="name"
                       value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
+                      onChange={(e) => {
+                        setCustomerName(e.target.value);
+                        clearFieldError('customerName');
+                      }}
+                      aria-invalid={Boolean(fieldErrors.customerName)}
                       placeholder="e.g. Fatima Al Khalifa"
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                        fieldErrors.customerName ? 'border-red-600' : 'border-[var(--color-border)]'
+                      }`}
                     />
+                    {fieldErrors.customerName && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.customerName}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.email} *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-email" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.email} *
+                    </label>
                     <input
+                      id="checkout-email"
                       type="email"
+                      inputMode="email"
+                      autoComplete="email"
                       required
                       value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
+                      onChange={(e) => {
+                        setCustomerEmail(e.target.value);
+                        clearFieldError('customerEmail');
+                      }}
+                      aria-invalid={Boolean(fieldErrors.customerEmail)}
                       placeholder="e.g. fatima@example.bh"
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                        fieldErrors.customerEmail ? 'border-red-600' : 'border-[var(--color-border)]'
+                      }`}
                     />
+                    {fieldErrors.customerEmail && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.customerEmail}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.phone} *</label>
-                    <div className="flex items-center">
-                      <span className="bg-[var(--color-border)] border border-[var(--color-border)] px-2.5 py-2 text-xs font-semibold text-[var(--color-text)] rounded-l-xs rtl:rounded-l-none rtl:rounded-r-xs">
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-phone" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.phone} *
+                    </label>
+                    <div className="flex items-stretch">
+                      <span className="bg-[var(--color-border)] border border-[var(--color-border)] px-3 min-h-[44px] flex items-center text-xs font-semibold text-[var(--color-text)] rounded-s-sm">
                         +973
                       </span>
                       <input
+                        id="checkout-phone"
                         type="tel"
+                        inputMode="tel"
+                        autoComplete="tel-national"
                         required
                         value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        onChange={(e) => {
+                          setCustomerPhone(e.target.value);
+                          clearFieldError('customerPhone');
+                        }}
+                        aria-invalid={Boolean(fieldErrors.customerPhone)}
                         placeholder="3900 1234"
-                        className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-r-xs rtl:rounded-r-none rtl:rounded-l-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                        className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-e-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                          fieldErrors.customerPhone ? 'border-red-600' : 'border-[var(--color-border)]'
+                        }`}
                       />
                     </div>
+                    {fieldErrors.customerPhone && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.customerPhone}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Step 2: Bahrain Delivery Address */}
-              <div className="bg-[var(--color-card)] p-6 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
+              <div className="bg-[var(--color-card)] p-5 sm:p-8 rounded-sm border border-[var(--color-border)] shadow-xs space-y-4">
                 <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
                   <span className="w-6 h-6 rounded-full bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center">2</span>
                   <h2 className="font-heading text-lg font-semibold text-[var(--color-text)]">
@@ -396,74 +520,152 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.building} *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-building" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.building} *
+                    </label>
                     <input
+                      id="checkout-building"
                       type="text"
+                      autoComplete="address-line1"
                       required
                       value={buildingNumber}
-                      onChange={(e) => setBuildingNumber(e.target.value)}
+                      onChange={(e) => {
+                        setBuildingNumber(e.target.value);
+                        clearFieldError('buildingNumber');
+                      }}
+                      aria-invalid={Boolean(fieldErrors.buildingNumber)}
                       placeholder="Villa 24 / Apt 4B"
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                        fieldErrors.buildingNumber ? 'border-red-600' : 'border-[var(--color-border)]'
+                      }`}
                     />
+                    {fieldErrors.buildingNumber && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.buildingNumber}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.road} *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-road" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.road} *
+                    </label>
                     <input
+                      id="checkout-road"
                       type="text"
+                      autoComplete="address-line2"
                       required
                       value={roadNumber}
-                      onChange={(e) => setRoadNumber(e.target.value)}
+                      onChange={(e) => {
+                        setRoadNumber(e.target.value);
+                        clearFieldError('roadNumber');
+                      }}
+                      aria-invalid={Boolean(fieldErrors.roadNumber)}
                       placeholder="Road 3812"
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                        fieldErrors.roadNumber ? 'border-red-600' : 'border-[var(--color-border)]'
+                      }`}
                     />
+                    {fieldErrors.roadNumber && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.roadNumber}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.block} *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-block" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.block} *
+                    </label>
                     <input
+                      id="checkout-block"
                       type="text"
+                      inputMode="numeric"
                       required
                       value={blockNumber}
-                      onChange={(e) => setBlockNumber(e.target.value)}
+                      onChange={(e) => {
+                        setBlockNumber(e.target.value);
+                        clearFieldError('blockNumber');
+                      }}
+                      aria-invalid={Boolean(fieldErrors.blockNumber)}
                       placeholder="Block 338"
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                        fieldErrors.blockNumber ? 'border-red-600' : 'border-[var(--color-border)]'
+                      }`}
                     />
+                    {fieldErrors.blockNumber && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.blockNumber}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-1 sm:col-span-2">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.area} *</label>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label htmlFor="checkout-area" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.area} *
+                    </label>
                     <input
+                      id="checkout-area"
                       type="text"
+                      autoComplete="address-level2"
                       required
                       value={area}
-                      onChange={(e) => setArea(e.target.value)}
+                      onChange={(e) => {
+                        setArea(e.target.value);
+                        clearFieldError('area');
+                      }}
+                      aria-invalid={Boolean(fieldErrors.area)}
                       placeholder="e.g. Adliya, Seef, Saar, Amwaj, Riffa"
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                        fieldErrors.area ? 'border-red-600' : 'border-[var(--color-border)]'
+                      }`}
                     />
+                    {fieldErrors.area && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.area}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.city} *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-city" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.city} *
+                    </label>
                     <input
+                      id="checkout-city"
                       type="text"
+                      autoComplete="address-level1"
                       required
                       value={city}
-                      onChange={(e) => setCity(e.target.value)}
+                      onChange={(e) => {
+                        setCity(e.target.value);
+                        clearFieldError('city');
+                      }}
+                      aria-invalid={Boolean(fieldErrors.city)}
                       placeholder="Manama"
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                        fieldErrors.city ? 'border-red-600' : 'border-[var(--color-border)]'
+                      }`}
                     />
+                    {fieldErrors.city && (
+                      <p role="alert" className="text-xs font-medium text-red-700">
+                        {fieldErrors.city}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="space-y-1 sm:col-span-3">
-                    <label className="font-semibold text-[var(--color-text)]">{t.checkout.additionalNotes}</label>
+                  <div className="space-y-1.5 sm:col-span-3">
+                    <label htmlFor="checkout-notes" className="font-semibold text-[var(--color-text)] block">
+                      {t.checkout.additionalNotes}
+                    </label>
                     <input
+                      id="checkout-notes"
                       type="text"
                       value={additionalInstructions}
                       onChange={(e) => setAdditionalInstructions(e.target.value)}
                       placeholder="Special gate instructions, doorbell..."
-                      className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
+                      className="w-full min-h-[44px] px-3 py-2 bg-white border border-[var(--color-border)] rounded-sm text-base sm:text-xs text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)]"
                     />
                   </div>
                 </div>
@@ -473,36 +675,48 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   <label className="text-xs font-semibold text-[var(--color-text)] block uppercase tracking-wider">
                     {t.checkout.deliveryMethod}
                   </label>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <label className={`p-3 rounded-xs border cursor-pointer flex items-center justify-between transition-colors ${
-                      shippingOption === 'standard' ? 'bg-[var(--color-border)]/60 border-[var(--color-text)] font-semibold' : 'bg-white border-[var(--color-border)]'
-                    }`}>
+                    <label
+                      className={`min-h-[48px] p-3 rounded-sm border cursor-pointer flex items-center justify-between transition-colors ${
+                        shippingOption === 'standard'
+                          ? 'bg-[var(--color-border)]/60 border-[var(--color-text)] font-semibold'
+                          : 'bg-white border-[var(--color-border)]'
+                      }`}
+                    >
                       <div className="flex items-center gap-2">
                         <input
                           type="radio"
                           name="shippingOption"
                           checked={shippingOption === 'standard'}
                           onChange={() => setShippingOption('standard')}
-                          className="accent-[var(--color-primary)]"
+                          className="accent-[var(--color-primary)] w-4 h-4"
                         />
                         <span>{language === 'ar' ? 'توصيل عادي (١-٢ يوم)' : 'Standard (1-2 Days)'}</span>
                       </div>
                       <span className="font-bold tabular-nums">
-                        {subtotal >= 25 ? (language === 'ar' ? 'مجاني' : 'FREE') : '1.500 BHD'}
+                        {subtotal >= freeDeliveryThreshold
+                          ? language === 'ar'
+                            ? 'مجاني'
+                            : 'FREE'
+                          : '1.500 BHD'}
                       </span>
                     </label>
 
-                    <label className={`p-3 rounded-xs border cursor-pointer flex items-center justify-between transition-colors ${
-                      shippingOption === 'express' ? 'bg-[var(--color-border)]/60 border-[var(--color-text)] font-semibold' : 'bg-white border-[var(--color-border)]'
-                    }`}>
+                    <label
+                      className={`min-h-[48px] p-3 rounded-sm border cursor-pointer flex items-center justify-between transition-colors ${
+                        shippingOption === 'express'
+                          ? 'bg-[var(--color-border)]/60 border-[var(--color-text)] font-semibold'
+                          : 'bg-white border-[var(--color-border)]'
+                      }`}
+                    >
                       <div className="flex items-center gap-2">
                         <input
                           type="radio"
                           name="shippingOption"
                           checked={shippingOption === 'express'}
                           onChange={() => setShippingOption('express')}
-                          className="accent-[var(--color-primary)]"
+                          className="accent-[var(--color-primary)] w-4 h-4"
                         />
                         <span>{language === 'ar' ? 'توصيل فوري نفس اليوم' : 'Same-Day Express'}</span>
                       </div>
@@ -603,43 +817,106 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   {/* Card Payment Interface */}
                   {paymentMethod === 'visa_mastercard' && (
                     <div className="space-y-3 text-xs">
-                      <div className="space-y-1">
-                        <label className="font-semibold text-[var(--color-text)]">{t.checkout.cardHolder}</label>
+                      <div className="space-y-1.5">
+                        <label htmlFor="checkout-cc-holder" className="font-semibold text-[var(--color-text)] block">
+                          {t.checkout.cardHolder}
+                        </label>
                         <input
+                          id="checkout-cc-holder"
                           type="text"
+                          autoComplete="cc-name"
                           value={cardHolder}
-                          onChange={(e) => setCardHolder(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs font-mono uppercase"
+                          onChange={(e) => {
+                            setCardHolder(e.target.value);
+                            clearFieldError('cardHolder');
+                          }}
+                          aria-invalid={Boolean(fieldErrors.cardHolder)}
+                          className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono uppercase text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                            fieldErrors.cardHolder ? 'border-red-600' : 'border-[var(--color-border)]'
+                          }`}
                         />
+                        {fieldErrors.cardHolder && (
+                          <p role="alert" className="text-xs font-medium text-red-700">
+                            {fieldErrors.cardHolder}
+                          </p>
+                        )}
                       </div>
-                      <div className="space-y-1">
-                        <label className="font-semibold text-[var(--color-text)]">{t.checkout.cardNumber}</label>
+                      <div className="space-y-1.5">
+                        <label htmlFor="checkout-cc-number" className="font-semibold text-[var(--color-text)] block">
+                          {t.checkout.cardNumber}
+                        </label>
                         <input
+                          id="checkout-cc-number"
                           type="text"
+                          inputMode="numeric"
+                          autoComplete="cc-number"
                           value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
-                          className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs font-mono"
+                          onChange={(e) => {
+                            setCardNumber(e.target.value);
+                            clearFieldError('cardNumber');
+                          }}
+                          aria-invalid={Boolean(fieldErrors.cardNumber)}
+                          className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                            fieldErrors.cardNumber ? 'border-red-600' : 'border-[var(--color-border)]'
+                          }`}
                         />
+                        {fieldErrors.cardNumber && (
+                          <p role="alert" className="text-xs font-medium text-red-700">
+                            {fieldErrors.cardNumber}
+                          </p>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <label className="font-semibold text-[var(--color-text)]">{t.checkout.expiry}</label>
+                        <div className="space-y-1.5">
+                          <label htmlFor="checkout-cc-exp" className="font-semibold text-[var(--color-text)] block">
+                            {t.checkout.expiry}
+                          </label>
                           <input
+                            id="checkout-cc-exp"
                             type="text"
+                            inputMode="numeric"
+                            autoComplete="cc-exp"
                             value={cardExpiry}
-                            onChange={(e) => setCardExpiry(e.target.value)}
-                            className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs font-mono"
+                            onChange={(e) => {
+                              setCardExpiry(e.target.value);
+                              clearFieldError('cardExpiry');
+                            }}
+                            aria-invalid={Boolean(fieldErrors.cardExpiry)}
+                            className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                              fieldErrors.cardExpiry ? 'border-red-600' : 'border-[var(--color-border)]'
+                            }`}
                           />
+                          {fieldErrors.cardExpiry && (
+                            <p role="alert" className="text-xs font-medium text-red-700">
+                              {fieldErrors.cardExpiry}
+                            </p>
+                          )}
                         </div>
-                        <div className="space-y-1">
-                          <label className="font-semibold text-[var(--color-text)]">{t.checkout.cvv}</label>
+                        <div className="space-y-1.5">
+                          <label htmlFor="checkout-cc-cvv" className="font-semibold text-[var(--color-text)] block">
+                            {t.checkout.cvv}
+                          </label>
                           <input
+                            id="checkout-cc-cvv"
                             type="password"
+                            inputMode="numeric"
+                            autoComplete="cc-csc"
                             maxLength={4}
                             value={cardCvv}
-                            onChange={(e) => setCardCvv(e.target.value)}
-                            className="w-full px-3 py-2 bg-white border border-[var(--color-border)] rounded-xs font-mono"
+                            onChange={(e) => {
+                              setCardCvv(e.target.value);
+                              clearFieldError('cardCvv');
+                            }}
+                            aria-invalid={Boolean(fieldErrors.cardCvv)}
+                            className={`w-full min-h-[44px] px-3 py-2 bg-white border rounded-sm font-mono text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-maroon)] ${
+                              fieldErrors.cardCvv ? 'border-red-600' : 'border-[var(--color-border)]'
+                            }`}
                           />
+                          {fieldErrors.cardCvv && (
+                            <p role="alert" className="text-xs font-medium text-red-700">
+                              {fieldErrors.cardCvv}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>

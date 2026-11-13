@@ -1,59 +1,77 @@
 @import "tailwindcss";
 
 @theme {
-  /* Core Luxury Burgundy & Metallic Gold on Lavender Palette */
+  /* Core Luxury Maroon & Metallic Gold on Lavender Palette */
+  --color-maroon: #6B0F1F;
+  --color-maroon-dark: #4A0A15;
   --color-burgundy: #6B0F1F;
   --color-burgundy-dark: #4A0A15;
-  --color-gold: #C9A24B;
-  --color-gold-highlight: #E3C878;
-  --color-gold-shadow: #A67C2E;
-  --color-gold-brown: #8A5A1E;
+
+  --color-lavender: #EBE0F3;
   --color-lavender-bg: #F1ECFA;
   --color-lavender-light: #F7F3FC;
+
+  --color-gold: #C9A04A;
+  --color-gold-highlight: #E3C878;
+  --color-gold-shadow: #A67C2E;
+  /* WCAG AA >= 4.5:1 gold-brown for text on light lavender surfaces */
+  --color-gold-text: #7A5016;
+  --color-gold-brown: #7A5016;
+
   --color-cream: #FBF4E4;
-  --color-dark-brown: #3B2A24;
+  --color-dark-brown: #2E1F1B;
 
   --color-bg: #F1ECFA;
-  --color-card: #EAE2F3;
+  --color-card: #EBE0F3;
   --color-primary: #6B0F1F;
   --color-primary-hover: #4A0A15;
   --color-gold-light: #E3C878;
-  --color-heading: #8A5A1E;
-  --color-text: #3B2A24;
-  --color-text-secondary: #5E453D;
-  --color-border: #D8C2E2;
-  --color-btn-text: #FBF4E4;
-  --color-accent: #C9A24B;
+  --color-heading: #7A5016;
+  --color-text: #2E1F1B;
+  --color-text-secondary: #533D36;
+  --color-border: #D5C0E1;
+  --color-btn-text: #FFFFFF;
+  --color-accent: #C9A04A;
 
   --font-heading: "Cormorant Garamond", "Playfair Display", Georgia, serif;
-  --font-body: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-arabic: "Cairo", "Amiri", "Noto Sans Arabic", sans-serif;
+  --font-body: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-arabic: "Cairo", "Tajawal", "Segoe UI", Tahoma, sans-serif;
 }
 
 :root {
-  /* Specific Palette tokens */
+  /* Header & Layout Tokens */
+  --header-h: 56px;
+
+  /* Core Brand Tokens */
+  --color-maroon: #6B0F1F;
+  --color-maroon-dark: #4A0A15;
   --color-burgundy: #6B0F1F;
   --color-burgundy-dark: #4A0A15;
-  --color-gold: #C9A24B;
-  --color-gold-highlight: #E3C878;
-  --color-gold-shadow: #A67C2E;
-  --color-gold-brown: #8A5A1E;
+
+  --color-lavender: #EBE0F3;
   --color-lavender-bg: #F1ECFA;
   --color-lavender-light: #F7F3FC;
+
+  --color-gold: #C9A04A;
+  --color-gold-highlight: #E3C878;
+  --color-gold-shadow: #A67C2E;
+  --color-gold-text: #7A5016;
+  --color-gold-brown: #7A5016;
+
   --color-cream: #FBF4E4;
-  --color-dark-brown: #3B2A24;
+  --color-dark-brown: #2E1F1B;
 
   --color-bg: #F1ECFA;
-  --color-card: #EAE2F3;
+  --color-card: #EBE0F3;
   --color-primary: #6B0F1F;
   --color-primary-hover: #4A0A15;
   --color-gold-light: #E3C878;
-  --color-heading: #8A5A1E;
-  --color-text: #3B2A24;
-  --color-text-secondary: #5E453D;
-  --color-border: #D8C2E2;
-  --color-btn-text: #FBF4E4;
-  --color-accent: #C9A24B;
+  --color-heading: #7A5016;
+  --color-text: #2E1F1B;
+  --color-text-secondary: #533D36;
+  --color-border: #D5C0E1;
+  --color-btn-text: #FFFFFF;
+  --color-accent: #C9A04A;
 
   /* Semantic Aliases */
   --bg-shop: var(--color-bg);
@@ -77,36 +95,99 @@
   --accent: var(--color-accent);
   --border-soft: var(--color-border);
   --focus-ring: var(--color-gold);
-
-  --color-dogwood: var(--color-bg);
-  --color-pastel-day: var(--color-card);
-  --color-rural-green: var(--color-accent);
-  --color-scarlet: var(--color-primary);
-  --color-black-bean: var(--color-text);
-  --color-cream: #FBF4E4;
   --color-white: #FFFFFF;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-h: 64px;
+  }
+}
+
+html {
+  overflow-x: clip;
+  scroll-padding-top: var(--header-h);
 }
 
 body {
   font-family: var(--font-body);
   background-color: var(--color-bg);
   color: var(--color-text);
-  overflow-x: hidden;
+  overflow-x: clip;
+  -webkit-tap-highlight-color: rgba(107, 15, 31, 0.12);
+}
+
+body.drawer-scroll-locked {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 h1, h2, h3, .font-heading {
   font-family: var(--font-heading);
 }
 
+/* Arabic RTL Font Overrides */
+html[lang="ar"],
+html[dir="rtl"],
 [dir="rtl"] {
+  --font-heading: var(--font-arabic);
+  --font-body: var(--font-arabic);
   font-family: var(--font-arabic);
 }
 
-[dir="rtl"] h1, 
-[dir="rtl"] h2, 
-[dir="rtl"] h3, 
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
 [dir="rtl"] .font-heading {
   font-family: var(--font-arabic);
+}
+
+/* Prevent iOS Safari input auto-zoom on mobile (< 768px) */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Logical utility helpers & drawer motion */
+.mobile-drawer-panel {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), opacity 220ms ease;
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobile-drawer-backdrop {
+  transition: opacity 220ms ease;
+}
+
+.bag-drawer-panel {
+  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 220ms ease;
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-drawer-panel,
+  .mobile-drawer-backdrop,
+  .bag-drawer-panel,
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide scrollbars cleanly in horizontal touch strips */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 /* Custom scrollbars in Metallic Gold & Burgundy */

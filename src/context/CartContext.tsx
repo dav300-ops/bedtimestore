@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem, Product, ProductSize, Coupon } from '../types';
 import { useStore } from './StoreContext';
+import { storeConfig } from '../config/storeConfig';
 
 interface CartContextType {
   cart: CartItem[];
@@ -17,6 +18,7 @@ interface CartContextType {
   shippingOption: 'standard' | 'express';
   setShippingOption: (option: 'standard' | 'express') => void;
   shippingFee: number;
+  freeDeliveryThreshold: number;
   total: number;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
@@ -25,22 +27,34 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { coupons } = useStore();
+  const { coupons, cms } = useStore();
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('bedtime_cart');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('bedtime_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(() => {
-    const saved = localStorage.getItem('bedtime_coupon');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('bedtime_coupon');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
   const [shippingOption, setShippingOption] = useState<'standard' | 'express'>('standard');
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('bedtime_cart', JSON.stringify(cart));
+    try {
+      localStorage.setItem('bedtime_cart', JSON.stringify(cart));
+    } catch {
+      // ignore storage errors
+    }
   }, [cart]);
 
   useEffect(() => {
@@ -64,9 +78,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       : Math.min(subtotal, appliedCoupon.value)
     : 0;
 
-  // Bahrain shipping calculation: Free standard shipping if subtotal >= 25.000 BHD
-  const standardFee = subtotal >= 25.000 ? 0.000 : 1.500;
-  const shippingFee = shippingOption === 'express' ? 2.500 : standardFee;
+  // Bahrain shipping calculation from config/CMS (default 25.000 BHD)
+  const freeDeliveryThreshold = Number(cms?.freeDeliveryThresholdBHD ?? storeConfig.freeDeliveryThresholdBHD) || 25;
+  const standardFee = subtotal >= freeDeliveryThreshold ? 0.000 : storeConfig.standardShippingFeeBHD;
+  const shippingFee = shippingOption === 'express' ? storeConfig.expressShippingFeeBHD : standardFee;
 
   const total = Math.max(0, subtotal - discount + shippingFee);
 
@@ -186,6 +201,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         shippingOption,
         setShippingOption,
         shippingFee,
+        freeDeliveryThreshold,
         total,
         isCartOpen,
         setIsCartOpen,
