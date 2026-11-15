@@ -887,21 +887,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
                 <div className="w-12 h-12 rounded-full bg-[var(--color-text)] text-[var(--color-bg)] flex items-center justify-center shrink-0 border border-[var(--color-accent)]/50 shadow-xs">
                   <ShieldCheck className="w-6 h-6 text-[var(--color-accent)]" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="bg-[var(--color-accent)]/20 text-[var(--color-accent)] font-bold text-[10px] uppercase px-2 py-0.5 rounded-xs border border-[var(--color-accent)]/30">
-                      {language === 'ar' ? 'صلاحية المشرف' : 'Administrator Role'}
-                    </span>
-                    <h4 className="font-heading text-base sm:text-lg font-bold text-[var(--color-text)]">
-                      {language === 'ar' ? 'إدارة المشرفين وتعيين حسابات إدارية جديدة' : 'Administrator Management & Role Assignment'}
-                    </h4>
-                  </div>
-                  <p className="text-xs text-[var(--color-text)]/75 mt-0.5">
-                    {language === 'ar'
-                      ? `بصفتك مشرفاً معتمداً، يمكنك إنشاء حسابات مشرفين جديدة للمتجر وحفظها في . المشرفون الجدد سيتم توجيههم تلقائياً إلى هذه اللوحة فور تسجيل الدخول.`
-                      : `You have the authority to create new store administrators. `}
-                  </p>
-                </div>
+                
               </div>
 
               <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">

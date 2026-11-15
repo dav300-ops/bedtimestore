@@ -125,7 +125,7 @@ adminRouter.post('/create-admin', async (req: Request, res: Response) => {
 
     return res.status(201).json({
       success: true,
-      message: 'New boutique administrator created with hashed password in MySQL.',
+      message: 'New boutique administrator created.',
       admin: newAdmin,
     });
   } catch (error: any) {

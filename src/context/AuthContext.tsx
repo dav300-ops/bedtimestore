@@ -360,7 +360,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (storedUser.role === 'admin') {
         return {
           success: false,
-          error: 'Administrator accounts must sign in through the dedicated Admin Login page (/admin/login).',
+          error: 'Login failed..',
         };
       }
       if (storedUser.passwordHash === submittedHash) {
@@ -376,7 +376,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (trimmedEmail === 'admin@thebedtimestore.bh') {
       return {
         success: false,
-        error: 'Administrator accounts must sign in through the dedicated Admin Login page (/admin/login).',
+        error: 'Login failed...',
       };
     }
 

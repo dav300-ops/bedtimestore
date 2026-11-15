@@ -200,7 +200,7 @@ export class MySQLAuthService {
 
     const rawUser = rows[0];
     if (rawUser.role === 'admin' || rawUser.role === 'superadmin') {
-      throw new Error('Administrator accounts must sign in through the dedicated Admin Login page (/admin/login).');
+      throw new Error('Account login failed.');
     }
 
     const passwordHash = rawUser.password_hash || rawUser.password;
