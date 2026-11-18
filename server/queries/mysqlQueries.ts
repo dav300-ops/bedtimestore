@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
   is_guest TINYINT(1) DEFAULT 0,
   two_factor_enabled TINYINT(1) DEFAULT 0,
   must_change_password TINYINT(1) DEFAULT 0,
+  otp_login_enabled TINYINT(1) DEFAULT 1,
   saved_addresses JSON DEFAULT NULL,
   wishlist JSON DEFAULT NULL,
   connected_providers JSON DEFAULT NULL,
@@ -175,6 +176,26 @@ CREATE TABLE IF NOT EXISTS product_sales (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 `;
 
+export const DDL_CREATE_ADMIN_OTP_CHALLENGES_TABLE = `
+CREATE TABLE IF NOT EXISTS admin_otp_challenges (
+  id VARCHAR(64) PRIMARY KEY,
+  admin_id VARCHAR(64) NOT NULL,
+  email VARCHAR(191) NOT NULL,
+  code_hash VARCHAR(255) NOT NULL,
+  language VARCHAR(10) DEFAULT 'en',
+  expires_at DATETIME NOT NULL,
+  attempts INT DEFAULT 0,
+  used_at DATETIME DEFAULT NULL,
+  invalidated_at DATETIME DEFAULT NULL,
+  request_ip VARCHAR(45) NOT NULL,
+  user_agent VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_otp_admin (admin_id),
+  INDEX idx_otp_email_created (email, created_at),
+  INDEX idx_otp_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`;
+
 // ============================================================================
 // 1. USER AUTHENTICATION QUERIES
 // ============================================================================
@@ -188,7 +209,7 @@ INSERT INTO users (
 export const SQL_FIND_USER_BY_EMAIL = `
 SELECT 
   id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled,
-  must_change_password, saved_addresses, wishlist, connected_providers, created_at, updated_at
+  must_change_password, otp_login_enabled, saved_addresses, wishlist, connected_providers, created_at, updated_at
 FROM users 
 WHERE LOWER(email) = LOWER(?)
 LIMIT 1
@@ -197,7 +218,7 @@ LIMIT 1
 export const SQL_FIND_USER_BY_ID = `
 SELECT 
   id, email, first_name, last_name, phone, role, is_guest, two_factor_enabled,
-  must_change_password, saved_addresses, wishlist, connected_providers, created_at, updated_at
+  must_change_password, otp_login_enabled, saved_addresses, wishlist, connected_providers, created_at, updated_at
 FROM users 
 WHERE id = ?
 LIMIT 1
@@ -206,7 +227,7 @@ LIMIT 1
 export const SQL_SELECT_ALL_ADMINS = `
 SELECT 
   id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled,
-  must_change_password, saved_addresses, wishlist, connected_providers, created_at, updated_at
+  must_change_password, otp_login_enabled, saved_addresses, wishlist, connected_providers, created_at, updated_at
 FROM users 
 WHERE role IN ('admin', 'superadmin')
 ORDER BY created_at DESC
@@ -232,6 +253,61 @@ export const SQL_MIGRATE_PASSWORD_HASH = `
 UPDATE users
 SET password_hash = ?, updated_at = NOW()
 WHERE id = ?
+`;
+
+export const SQL_UPDATE_ADMIN_OTP_SETTING = `
+UPDATE users
+SET otp_login_enabled = ?, updated_at = NOW()
+WHERE id = ? AND role IN ('admin', 'superadmin')
+`;
+
+export const SQL_INSERT_OTP_CHALLENGE = `
+INSERT INTO admin_otp_challenges (
+  id, admin_id, email, code_hash, language, expires_at, attempts, request_ip, user_agent, created_at
+) VALUES (?, ?, LOWER(?), ?, ?, ?, 0, ?, ?, NOW())
+`;
+
+export const SQL_FIND_OTP_CHALLENGE_BY_ID = `
+SELECT id, admin_id, email, code_hash, language, expires_at, attempts, used_at, invalidated_at, request_ip, user_agent, created_at
+FROM admin_otp_challenges
+WHERE id = ?
+LIMIT 1
+`;
+
+export const SQL_INVALIDATE_ADMIN_ACTIVE_OTPS = `
+UPDATE admin_otp_challenges
+SET invalidated_at = NOW()
+WHERE admin_id = ? AND used_at IS NULL AND invalidated_at IS NULL
+`;
+
+export const SQL_INCREMENT_OTP_ATTEMPTS = `
+UPDATE admin_otp_challenges
+SET attempts = attempts + 1
+WHERE id = ?
+`;
+
+export const SQL_INVALIDATE_OTP_CHALLENGE = `
+UPDATE admin_otp_challenges
+SET invalidated_at = NOW()
+WHERE id = ?
+`;
+
+export const SQL_MARK_OTP_USED = `
+UPDATE admin_otp_challenges
+SET used_at = NOW()
+WHERE id = ? AND used_at IS NULL AND invalidated_at IS NULL
+`;
+
+export const SQL_COUNT_RECENT_OTP_BY_EMAIL = `
+SELECT COUNT(*) AS total
+FROM admin_otp_challenges
+WHERE LOWER(email) = LOWER(?) AND created_at >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
+`;
+
+export const SQL_COUNT_RECENT_OTP_BY_IP = `
+SELECT COUNT(*) AS total
+FROM admin_otp_challenges
+WHERE request_ip = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 60 MINUTE)
 `;
 
 export const SQL_UPDATE_USER_PROFILE = `

@@ -57,6 +57,14 @@ interface AuthContextType {
   adminUser: User | null;
   adminToken: string | null;
   isAdmin: boolean;
+  adminLoginMethod: 'password' | 'otp' | null;
+  justLoggedInViaOtp: boolean;
+  dismissOtpBanner: () => void;
+  completeOtpLogin: (admin: User, token: string) => void;
+  updateAdminOtpLoginSetting: (
+    enabled: boolean,
+    targetAdminId?: string
+  ) => Promise<{ success: boolean; admin?: User; error?: string }>;
   loginAdmin: (
     email: string,
     pass: string
@@ -147,6 +155,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return api.getAdminToken();
   });
 
+  const [adminLoginMethod, setAdminLoginMethod] = useState<'password' | 'otp' | null>(() => {
+    try {
+      const saved = sessionStorage.getItem('bedtime_admin_login_method');
+      return saved === 'otp' || saved === 'password' ? saved : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [justLoggedInViaOtp, setJustLoggedInViaOtp] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('bedtime_admin_otp_banner') === '1';
+    } catch {
+      return false;
+    }
+  });
+
   const isAdmin = Boolean(
     adminUser && adminToken && (adminUser.role === 'admin' || adminUser.role === 'superadmin')
   );
@@ -158,11 +183,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res?.success && res.admin) {
         setAdminUser(res.admin);
         localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(res.admin));
+        if (res.loginMethod === 'otp' || res.loginMethod === 'password') {
+          setAdminLoginMethod(res.loginMethod);
+          try {
+            sessionStorage.setItem('bedtime_admin_login_method', res.loginMethod);
+          } catch {
+            // ignore
+          }
+        }
       }
     }).catch((err: any) => {
       if (err?.status === 401 || err?.status === 403) {
         setAdminUser(null);
         setAdminToken(null);
+        setAdminLoginMethod(null);
+        setJustLoggedInViaOtp(false);
         api.setAdminToken(null);
         localStorage.removeItem(ADMIN_USER_KEY);
       }
@@ -340,7 +375,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         api.setAdminToken(res.token);
         setAdminToken(res.token);
         setAdminUser(loggedInAdmin);
+        setAdminLoginMethod('password');
+        setJustLoggedInViaOtp(false);
         localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(loggedInAdmin));
+        try {
+          sessionStorage.setItem('bedtime_admin_login_method', 'password');
+          sessionStorage.removeItem('bedtime_admin_otp_banner');
+        } catch {
+          // ignore
+        }
         return { success: true, admin: loggedInAdmin };
       }
     } catch (err: any) {
@@ -392,17 +435,70 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
+  const completeOtpLogin = (admin: User, token: string) => {
+    const loggedInAdmin = logSecurityAction(admin, 'login_success');
+    api.setAdminToken(token);
+    setAdminToken(token);
+    setAdminUser(loggedInAdmin);
+    setAdminLoginMethod('otp');
+    setJustLoggedInViaOtp(true);
+    localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(loggedInAdmin));
+    try {
+      sessionStorage.setItem('bedtime_admin_login_method', 'otp');
+      sessionStorage.setItem('bedtime_admin_otp_banner', '1');
+    } catch {
+      // ignore
+    }
+  };
+
+  const dismissOtpBanner = () => {
+    setJustLoggedInViaOtp(false);
+    try {
+      sessionStorage.removeItem('bedtime_admin_otp_banner');
+    } catch {
+      // ignore
+    }
+  };
+
+  const updateAdminOtpLoginSetting = async (
+    enabled: boolean,
+    targetAdminId?: string
+  ): Promise<{ success: boolean; admin?: User; error?: string }> => {
+    try {
+      const res = await api.updateAdminOtpSetting(enabled, targetAdminId);
+      if (res?.success && res.admin) {
+        if (!targetAdminId || targetAdminId === adminUser?.id) {
+          const updatedSelf = { ...adminUser, ...res.admin };
+          setAdminUser(updatedSelf);
+          localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(updatedSelf));
+        }
+        return { success: true, admin: res.admin };
+      }
+      return { success: false, error: 'Failed to update setting.' };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to update email code sign-in setting.' };
+    }
+  };
+
   const logoutAdmin = () => {
     api.logoutAdmin();
     api.setAdminToken(null);
     setAdminToken(null);
     setAdminUser(null);
+    setAdminLoginMethod(null);
+    setJustLoggedInViaOtp(false);
     localStorage.removeItem(ADMIN_USER_KEY);
     localStorage.removeItem(ADMIN_TOKEN_KEY);
+    try {
+      sessionStorage.removeItem('bedtime_admin_login_method');
+      sessionStorage.removeItem('bedtime_admin_otp_banner');
+    } catch {
+      // ignore
+    }
   };
 
   /**
-   * Rotate Administrator Password (used for must_change_password enforcement & admin security)
+   * Rotate Administrator Password (used for must_change_password enforcement & OTP password recovery)
    */
   const changeAdminPassword = async (
     currentPass: string,
@@ -420,13 +516,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const res = await api.changeAdminPassword(currentPass, newPass);
+      const res = await api.changeAdminPassword(currentPass || '', newPass);
       if (res?.success && res.admin && res.token) {
         api.setAdminToken(res.token);
         setAdminToken(res.token);
         const updatedAdmin = { ...res.admin, mustChangePassword: false };
         setAdminUser(updatedAdmin);
+        setJustLoggedInViaOtp(false);
         localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(updatedAdmin));
+        try {
+          sessionStorage.removeItem('bedtime_admin_otp_banner');
+        } catch {
+          // ignore
+        }
         return { success: true };
       }
       return { success: false, error: 'Failed to update administrator password.' };
@@ -942,6 +1044,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         adminUser,
         adminToken,
+        adminLoginMethod,
+        justLoggedInViaOtp,
+        dismissOtpBanner,
+        completeOtpLogin,
+        updateAdminOtpLoginSetting,
         loginAdmin,
         logoutAdmin,
         changeAdminPassword,

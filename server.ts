@@ -57,7 +57,7 @@ async function startServer() {
       cors({
         origin: config.corsOrigin,
         credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       })
     );
   } else {
@@ -87,6 +87,7 @@ async function startServer() {
   app.use('/api/auth/login', authRateLimiter);
   app.use('/api/auth/register', authRateLimiter);
   app.use('/api/admin/login', authRateLimiter);
+  app.use('/api/admin/otp', authRateLimiter);
   app.use('/api', writeRateLimiter);
 
   // 5. Logging Middleware (Verbose in Dev, Sanitized & Lean in Production)

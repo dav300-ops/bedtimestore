@@ -226,6 +226,7 @@ export interface User {
   };
   twoFactorEnabled?: boolean;
   twoFactorSecret?: string;
+  otpLoginEnabled?: boolean;
   isEmailVerified?: boolean;
   passwordHash?: string;
   securityLogs?: SecurityLogItem[];

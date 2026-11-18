@@ -8,6 +8,7 @@ import {
   SQL_FIND_USER_BY_ID,
   SQL_UPDATE_USER_PASSWORD,
   SQL_MIGRATE_PASSWORD_HASH,
+  SQL_UPDATE_ADMIN_OTP_SETTING,
   SQL_UPDATE_USER_PROFILE,
   SQL_INSERT_SECURITY_LOG,
   SQL_GET_USER_SECURITY_LOGS,
@@ -25,6 +26,7 @@ export interface MySQLUser {
   isGuest: boolean;
   twoFactorEnabled: boolean;
   mustChangePassword?: boolean;
+  otpLoginEnabled?: boolean;
   savedAddresses?: any[];
   wishlist?: string[];
   connectedProviders?: Record<string, boolean>;
@@ -265,14 +267,16 @@ export class MySQLAuthService {
   }
 
   /**
-   * Verify current administrator password and update to a new bcrypt-hashed password,
-   * clearing must_change_password = 0 and issuing a fresh admin session token.
+   * Update administrator password to a new bcrypt-hashed password, clearing must_change_password = 0
+   * and issuing a fresh admin session token.
+   * For password sessions, verifies currentPassword; for active passwordless OTP recovery sessions,
+   * allows setting a new password directly if currentPassword is omitted.
    */
   public async changeAdminPassword(
     adminId: string,
     currentPassword: string,
     newPassword: string,
-    meta?: { ip?: string; device?: string }
+    meta?: { ip?: string; device?: string; authMethod?: 'password' | 'otp' }
   ): Promise<{ user: MySQLUser; token: string }> {
     if (!newPassword || newPassword.length < 8) {
       throw new Error('New administrator password must be at least 8 characters.');
@@ -291,9 +295,15 @@ export class MySQLAuthService {
       throw new Error('Access denied: administrator role required.');
     }
 
-    const isValid = await verifyPassword(currentPassword, rawUser.password_hash || rawUser.password);
-    if (!isValid) {
-      throw new Error('Current password is incorrect.');
+    const isOtpRecovery = meta?.authMethod === 'otp' && !currentPassword;
+    if (!isOtpRecovery) {
+      if (!currentPassword) {
+        throw new Error('Current password is required.');
+      }
+      const isValid = await verifyPassword(currentPassword, rawUser.password_hash || rawUser.password);
+      if (!isValid) {
+        throw new Error('Current password is incorrect.');
+      }
     }
 
     const hashed = await hashPassword(newPassword);
@@ -313,9 +323,37 @@ export class MySQLAuthService {
       email: user.email,
       role: user.role === 'superadmin' ? 'superadmin' : 'admin',
       mustChangePassword: false,
+      authMethod: meta?.authMethod || 'password',
     });
 
     return { user, token };
+  }
+
+  /**
+   * Toggle per-admin Email Code Sign-In ("otp_login_enabled") setting in MariaDB/MySQL
+   */
+  public async updateAdminOtpLoginSetting(
+    targetAdminId: string,
+    enabled: boolean,
+    actorAdminId: string,
+    meta?: { ip?: string; device?: string }
+  ): Promise<MySQLUser> {
+    const existing = await this.findUserById(targetAdminId);
+    if (!existing || (existing.role !== 'admin' && existing.role !== 'superadmin')) {
+      throw new Error('Administrator account not found.');
+    }
+
+    await executeQuery(SQL_UPDATE_ADMIN_OTP_SETTING, [enabled ? 1 : 0, targetAdminId]);
+
+    await this.logSecurityEvent({
+      userId: targetAdminId,
+      action: enabled ? 'otp_login_enabled' : 'otp_login_disabled',
+      ip: meta?.ip || '127.0.0.1',
+      location: 'Manama, Bahrain',
+      device: meta?.device || `Updated by ${actorAdminId}`,
+    });
+
+    return (await this.findUserById(targetAdminId))!;
   }
 
   /**
@@ -459,6 +497,10 @@ export class MySQLAuthService {
       isGuest: Boolean(row.is_guest || row.isGuest),
       twoFactorEnabled: Boolean(row.two_factor_enabled || row.twoFactorEnabled),
       mustChangePassword: Boolean(row.must_change_password ?? row.mustChangePassword),
+      otpLoginEnabled:
+        row.otp_login_enabled === undefined && row.otpLoginEnabled === undefined
+          ? true
+          : Boolean(row.otp_login_enabled ?? row.otpLoginEnabled),
       savedAddresses: parseJson(row.saved_addresses || row.savedAddresses),
       wishlist: parseJson(row.wishlist),
       connectedProviders: parseJson(row.connected_providers || row.connectedProviders),

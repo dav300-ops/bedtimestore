@@ -7,13 +7,15 @@ export interface AdminTokenPayload {
   email: string;
   role: 'admin' | 'superadmin';
   mustChangePassword?: boolean;
+  authMethod?: 'password' | 'otp';
   iat: number;
   exp: number;
 }
 
 const TOKEN_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+export const ADMIN_SESSION_COOKIE = 'bds_admin_session';
 
-function getSigningSecret(): string {
+export function getSigningSecret(): string {
   if (process.env.ADMIN_TOKEN_SECRET && process.env.ADMIN_TOKEN_SECRET.trim()) {
     return process.env.ADMIN_TOKEN_SECRET.trim();
   }
@@ -43,6 +45,7 @@ export function signAdminToken(admin: {
   email: string;
   role: 'admin' | 'superadmin';
   mustChangePassword?: boolean;
+  authMethod?: 'password' | 'otp';
 }): string {
   const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'BDS-ADMIN' }));
   const now = Date.now();
@@ -51,6 +54,7 @@ export function signAdminToken(admin: {
     email: admin.email,
     role: admin.role,
     mustChangePassword: Boolean(admin.mustChangePassword),
+    authMethod: admin.authMethod || 'password',
     iat: now,
     exp: now + TOKEN_TTL_MS,
   };
@@ -99,13 +103,74 @@ export function extractBearerToken(req: Request): string | null {
   return token.trim();
 }
 
+export function extractCookieToken(req: Request): string | null {
+  const rawCookie = req.headers.cookie;
+  if (!rawCookie || typeof rawCookie !== 'string') return null;
+  const pairs = rawCookie.split(';');
+  for (const pair of pairs) {
+    const idx = pair.indexOf('=');
+    if (idx === -1) continue;
+    const key = pair.slice(0, idx).trim();
+    if (key === ADMIN_SESSION_COOKIE) {
+      return decodeURIComponent(pair.slice(idx + 1).trim());
+    }
+  }
+  return null;
+}
+
+function isSecureRequest(req: Request): boolean {
+  const proto = req.headers['x-forwarded-proto']?.toString().toLowerCase() || '';
+  return req.secure || proto.includes('https') || config.isProd;
+}
+
+export function setAdminSessionCookie(req: Request, res: Response, token: string): void {
+  res.cookie(ADMIN_SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: isSecureRequest(req),
+    sameSite: 'lax',
+    path: '/api/admin',
+    maxAge: TOKEN_TTL_MS,
+  });
+}
+
+export function clearAdminSessionCookie(req: Request, res: Response): void {
+  res.clearCookie(ADMIN_SESSION_COOKIE, {
+    httpOnly: true,
+    secure: isSecureRequest(req),
+    sameSite: 'lax',
+    path: '/api/admin',
+  });
+}
+
 export function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
-  const token = extractBearerToken(req);
+  const bearerToken = extractBearerToken(req);
+  const cookieToken = !bearerToken ? extractCookieToken(req) : null;
+  const token = bearerToken || cookieToken;
+
   if (!token) {
     return res.status(401).json({
       error: 'Administrator authentication required.',
       code: 'ADMIN_AUTH_REQUIRED',
     });
+  }
+
+  // CSRF Origin guard when relying purely on cookie auth for state-changing methods
+  if (!bearerToken && cookieToken && req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') {
+    const origin = req.headers.origin;
+    const host = req.headers.host;
+    if (origin && host) {
+      try {
+        const originHost = new URL(origin).host;
+        if (originHost !== host && config.isProd && origin !== config.corsOrigin) {
+          return res.status(403).json({
+            error: 'Cross-site state-changing request rejected.',
+            code: 'CSRF_ORIGIN_MISMATCH',
+          });
+        }
+      } catch {
+        return res.status(403).json({ error: 'Invalid request origin.', code: 'CSRF_INVALID_ORIGIN' });
+      }
+    }
   }
 
   const payload = verifyAdminToken(token);

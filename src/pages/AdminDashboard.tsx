@@ -104,7 +104,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
   } = useStore();
 
   const { language, formatBHD, t } = useLanguage();
-  const { adminUser, logoutAdmin, changeAdminPassword } = useAuth();
+  const {
+    adminUser,
+    logoutAdmin,
+    changeAdminPassword,
+    adminLoginMethod,
+    justLoggedInViaOtp,
+    dismissOtpBanner,
+    updateAdminOtpLoginSetting,
+  } = useAuth();
+  const otpStrings = t.adminOtp;
 
   const [forceCurrentPassword, setForceCurrentPassword] = useState('');
   const [forceNewPassword, setForceNewPassword] = useState('');
@@ -112,6 +121,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
   const [showForcePasswords, setShowForcePasswords] = useState(false);
   const [forcePasswordError, setForcePasswordError] = useState('');
   const [isUpdatingForcePassword, setIsUpdatingForcePassword] = useState(false);
+
+  // Reset / Change Admin Password Modal State (accessible from post-OTP banner & Security section)
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [resetCurrentPassword, setResetCurrentPassword] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('');
+  const [showResetPasswords, setShowResetPasswords] = useState(false);
+  const [resetPasswordError, setResetPasswordError] = useState('');
+  const [resetPasswordSuccess, setResetPasswordSuccess] = useState('');
+  const [isSavingResetPassword, setIsSavingResetPassword] = useState(false);
+
+  // Per-admin OTP login setting toggle state
+  const [togglingOtpAdminId, setTogglingOtpAdminId] = useState<string | null>(null);
+  const [otpSettingFeedback, setOtpSettingFeedback] = useState<string | null>(null);
+  const [otpSettingError, setOtpSettingError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'customers' | 'products' | 'inventory' | 'categories' | 'orders' | 'coupons' | 'cms' | 'admins'>('overview');
   const [inventorySearch, setInventorySearch] = useState('');
@@ -616,14 +640,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
     e.preventDefault();
     setForcePasswordError('');
     if (forceNewPassword !== forceConfirmPassword) {
-      setForcePasswordError(
-        language === 'ar' ? 'كلمتا المرور غير متطابقتين.' : 'New password and confirmation do not match.'
-      );
+      setForcePasswordError(otpStrings.passwordMismatch);
       return;
     }
     setIsUpdatingForcePassword(true);
     try {
-      const res = await changeAdminPassword(forceCurrentPassword, forceNewPassword);
+      const res = await changeAdminPassword(
+        adminLoginMethod === 'otp' ? '' : forceCurrentPassword,
+        forceNewPassword
+      );
       if (!res.success) {
         setForcePasswordError(res.error || 'Failed to update password.');
       } else {
@@ -633,6 +658,63 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
       }
     } finally {
       setIsUpdatingForcePassword(false);
+    }
+  };
+
+  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetPasswordError('');
+    setResetPasswordSuccess('');
+    if (resetNewPassword !== resetConfirmPassword) {
+      setResetPasswordError(otpStrings.passwordMismatch);
+      return;
+    }
+    setIsSavingResetPassword(true);
+    try {
+      const res = await changeAdminPassword(
+        adminLoginMethod === 'otp' ? '' : resetCurrentPassword,
+        resetNewPassword
+      );
+      if (!res.success) {
+        setResetPasswordError(res.error || 'Failed to update password.');
+      } else {
+        setResetPasswordSuccess(otpStrings.passwordUpdatedSuccess);
+        setResetCurrentPassword('');
+        setResetNewPassword('');
+        setResetConfirmPassword('');
+        setTimeout(() => {
+          setIsResetPasswordModalOpen(false);
+          setResetPasswordSuccess('');
+        }, 1200);
+      }
+    } finally {
+      setIsSavingResetPassword(false);
+    }
+  };
+
+  const handleToggleAdminOtpSetting = async (targetAdmin: any) => {
+    if (!targetAdmin?.id) return;
+    const currentlyEnabled = targetAdmin.otpLoginEnabled !== false;
+    const nextEnabled = !currentlyEnabled;
+    setTogglingOtpAdminId(targetAdmin.id);
+    setOtpSettingError(null);
+    setOtpSettingFeedback(null);
+
+    try {
+      const res = await updateAdminOtpLoginSetting(nextEnabled, targetAdmin.id);
+      if (!res.success) {
+        setOtpSettingError(res.error || 'Failed to update email code sign-in setting.');
+      } else {
+        setAdminList((prev) =>
+          prev.map((a) => (a.id === targetAdmin.id ? { ...a, otpLoginEnabled: nextEnabled } : a))
+        );
+        setOtpSettingFeedback(
+          `${targetAdmin.email}: ${nextEnabled ? otpStrings.settingEnabledBadge : otpStrings.settingDisabledBadge}`
+        );
+        setTimeout(() => setOtpSettingFeedback(null), 3000);
+      }
+    } finally {
+      setTogglingOtpAdminId(null);
     }
   };
 
@@ -667,21 +749,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
               </div>
             )}
 
-            <div className="space-y-1">
-              <label className="font-semibold text-[var(--text-strong)] flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-[var(--gold-text)]" />
-                <span>{isAr ? 'كلمة المرور الحالية *' : 'Current Password *'}</span>
-              </label>
-              <input
-                type={showForcePasswords ? 'text' : 'password'}
-                required
-                autoComplete="current-password"
-                value={forceCurrentPassword}
-                onChange={(e) => setForceCurrentPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
-              />
-            </div>
+            {adminLoginMethod !== 'otp' && (
+              <div className="space-y-1">
+                <label className="font-semibold text-[var(--text-strong)] flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-[var(--gold-text)]" />
+                  <span>{isAr ? 'كلمة المرور الحالية *' : 'Current Password *'}</span>
+                </label>
+                <input
+                  type={showForcePasswords ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  value={forceCurrentPassword}
+                  onChange={(e) => setForceCurrentPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
+                />
+              </div>
+            )}
 
             <div className="space-y-1">
               <label className="font-semibold text-[var(--text-strong)] flex items-center justify-between">
@@ -850,6 +934,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
       {/* 2. Main Content Area - Dogwood background with White cards */}
       <main className="flex-1 p-6 md:p-10 overflow-y-auto">
         
+        {/* Post-OTP Optional Password Recovery Banner */}
+        {justLoggedInViaOtp && (
+          <div
+            role="status"
+            className="mb-6 p-4 rounded-sm bg-[var(--surface-champagne)] border border-[var(--gold-decor)] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          >
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-full bg-[var(--maroon-700)] text-[var(--gold-decor)] shrink-0">
+                <KeyRound className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--gold-text)]">
+                  {otpStrings.bannerTitle}
+                </p>
+                <p className="text-sm font-semibold text-[var(--text-strong)]">
+                  {otpStrings.bannerQuestion}
+                </p>
+                <p className="text-xs text-[var(--text-muted)]">
+                  {otpStrings.bannerSubtitle}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setResetPasswordError('');
+                  setResetPasswordSuccess('');
+                  setIsResetPasswordModalOpen(true);
+                }}
+                className="px-4 py-2 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] text-[var(--text-on-maroon)] border border-[var(--gold-decor)] text-xs font-semibold uppercase tracking-wider rounded-[var(--radius-pill)] transition-colors cursor-pointer"
+              >
+                {otpStrings.resetPasswordCta}
+              </button>
+              <button
+                type="button"
+                onClick={dismissOtpBanner}
+                aria-label={otpStrings.dismissBanner}
+                className="px-3 py-2 bg-[var(--surface-card)] hover:bg-[var(--surface-page)] text-[var(--text-muted)] border border-[var(--line)] text-xs font-semibold rounded-[var(--radius-pill)] transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>{otpStrings.dismissBanner}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[var(--color-border)] mb-8 gap-4">
           <div>
@@ -3515,7 +3646,20 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 />
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetPasswordError('');
+                    setResetPasswordSuccess('');
+                    setIsResetPasswordModalOpen(true);
+                  }}
+                  className="px-3 py-2 border border-[var(--line)] bg-[var(--surface-champagne)] hover:bg-[var(--surface-page)] text-[var(--maroon-700)] text-xs font-semibold rounded-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-[var(--gold-text)]" />
+                  <span>{otpStrings.resetPasswordCta}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={fetchAdmins}
@@ -3537,6 +3681,79 @@ CREATE TABLE IF NOT EXISTS product_sales (
                 </button>
               </div>
             </div>
+
+            {/* Email Code Sign-In (Passwordless OTP) Security Setting Card */}
+            {adminUser && (
+              <div className="bg-[var(--surface-card)] p-5 rounded-sm border border-[var(--line)] shadow-xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-[var(--gold-text)]" />
+                      <h3 className="font-heading text-base font-semibold text-[var(--text-strong)]">
+                        {otpStrings.settingTitle}
+                      </h3>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-[var(--radius-pill)] border ${
+                          adminUser.otpLoginEnabled !== false
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-[var(--surface-page)] text-[var(--text-muted)] border-[var(--line)]'
+                        }`}
+                      >
+                        {adminUser.otpLoginEnabled !== false
+                          ? otpStrings.settingEnabledBadge
+                          : otpStrings.settingDisabledBadge}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[var(--text-muted)]">{otpStrings.settingDescription}</p>
+                    {adminUser.role === 'superadmin' && (
+                      <p className="text-[11px] text-[var(--gold-text)] font-medium">
+                        {otpStrings.settingSuperadminHint}
+                      </p>
+                    )}
+                  </div>
+
+                  <label className="inline-flex items-center gap-3 cursor-pointer shrink-0 select-none">
+                    <span className="text-xs font-semibold text-[var(--text-strong)]">
+                      {togglingOtpAdminId === adminUser.id ? otpStrings.settingSaving : otpStrings.settingLabel}
+                    </span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={adminUser.otpLoginEnabled !== false}
+                      disabled={togglingOtpAdminId === adminUser.id}
+                      onClick={() => handleToggleAdminOtpSetting(adminUser)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer border ${
+                        adminUser.otpLoginEnabled !== false
+                          ? 'bg-[var(--maroon-700)] border-[var(--maroon-700)]'
+                          : 'bg-gray-300 border-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          adminUser.otpLoginEnabled !== false
+                            ? 'translate-x-6 rtl:-translate-x-6'
+                            : 'translate-x-1 rtl:-translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </label>
+                </div>
+
+                {otpSettingFeedback && (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xs text-xs text-emerald-800 font-medium flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{otpSettingFeedback}</span>
+                  </div>
+                )}
+
+                {otpSettingError && (
+                  <div className="p-2.5 bg-[var(--surface-blush)] border border-[var(--red-600)] rounded-xs text-xs text-[var(--red-600)] font-medium flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{otpSettingError}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Admin Staff Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -3621,11 +3838,32 @@ CREATE TABLE IF NOT EXISTS product_sales (
                       </div>
 
                       {/* Card Footer */}
-                      <div className="flex items-center justify-between text-[10px] text-[var(--color-text)]/60 pt-2 border-t border-[var(--color-border)]/60">
+                      <div className="flex items-center justify-between gap-2 text-[10px] text-[var(--color-text)]/60 pt-2 border-t border-[var(--color-border)]/60">
                         <span>{language === 'ar' ? 'تاريخ التعيين:' : 'Appointed:'} {admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : 'Active'}</span>
-                        <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-xs border border-emerald-200">
-                          {admin.twoFactorEnabled ? '2FA Enabled' : 'Verified Staff'}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {(isCurrent || adminUser?.role === 'superadmin') ? (
+                            <button
+                              type="button"
+                              disabled={togglingOtpAdminId === admin.id}
+                              onClick={() => handleToggleAdminOtpSetting(admin)}
+                              className={`font-semibold px-2 py-0.5 rounded-xs border cursor-pointer transition-colors ${
+                                admin.otpLoginEnabled !== false
+                                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+                                  : 'text-gray-600 bg-gray-50 border-gray-200 hover:bg-gray-100'
+                              }`}
+                            >
+                              {togglingOtpAdminId === admin.id
+                                ? '...'
+                                : admin.otpLoginEnabled !== false
+                                ? otpStrings.settingEnabledBadge
+                                : otpStrings.settingDisabledBadge}
+                            </button>
+                          ) : (
+                            <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-xs border border-emerald-200">
+                              {admin.otpLoginEnabled !== false ? otpStrings.settingEnabledBadge : otpStrings.settingDisabledBadge}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -4840,6 +5078,127 @@ CREATE TABLE IF NOT EXISTS product_sales (
             fetchAdmins();
           }}
         />
+      )}
+
+      {/* Admin Password Reset / Change Modal (accessible from post-OTP banner & Security tab) */}
+      {isResetPasswordModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-[var(--text-strong)]/70 backdrop-blur-xs">
+          <div className="bg-[var(--surface-card)] rounded-[var(--radius-card)] max-w-md w-full border border-[var(--line)] shadow-2xl overflow-hidden">
+            <div className="bg-[var(--maroon-700)] text-[var(--text-on-maroon)] px-6 py-4 flex items-center justify-between border-b border-[var(--gold-decor)]">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-[var(--gold-decor)]" />
+                <h3 className="font-heading text-lg font-semibold text-[var(--text-on-maroon)]">
+                  {otpStrings.resetModalTitle}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsResetPasswordModalOpen(false)}
+                aria-label={otpStrings.dismissBanner}
+                className="text-white/80 hover:text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleResetPasswordSubmit} className="p-6 space-y-4 text-xs">
+              <p className="text-[var(--text-muted)] leading-relaxed">
+                {adminLoginMethod === 'otp'
+                  ? otpStrings.resetModalSubtitleOtp
+                  : otpStrings.resetModalSubtitlePassword}
+              </p>
+
+              {resetPasswordError && (
+                <div
+                  role="alert"
+                  className="p-3 bg-[var(--surface-blush)] border border-[var(--red-600)] rounded-xs flex items-start gap-2 text-[var(--red-600)] font-medium"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{resetPasswordError}</span>
+                </div>
+              )}
+
+              {resetPasswordSuccess && (
+                <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xs flex items-start gap-2 text-emerald-800 font-medium">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>{resetPasswordSuccess}</span>
+                </div>
+              )}
+
+              {adminLoginMethod !== 'otp' && (
+                <div className="space-y-1">
+                  <label className="font-semibold text-[var(--text-strong)]">
+                    {otpStrings.currentPasswordLabel}
+                  </label>
+                  <input
+                    type={showResetPasswords ? 'text' : 'password'}
+                    required
+                    autoComplete="current-password"
+                    value={resetCurrentPassword}
+                    onChange={(e) => setResetCurrentPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="font-semibold text-[var(--text-strong)] flex items-center justify-between">
+                  <span>{otpStrings.newPasswordLabel}</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowResetPasswords(!showResetPasswords)}
+                    className="text-[11px] text-[var(--gold-text)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    {showResetPasswords ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </label>
+                <input
+                  type={showResetPasswords ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  value={resetNewPassword}
+                  onChange={(e) => setResetNewPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
+                />
+                <PasswordStrengthMeter password={resetNewPassword} showChecklist={true} />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-semibold text-[var(--text-strong)]">
+                  {otpStrings.confirmPasswordLabel}
+                </label>
+                <input
+                  type={showResetPasswords ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  value={resetConfirmPassword}
+                  onChange={(e) => setResetConfirmPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end items-center gap-2 pt-2 border-t border-[var(--line)]">
+                <button
+                  type="button"
+                  onClick={() => setIsResetPasswordModalOpen(false)}
+                  className="px-4 py-2 border border-[var(--line)] text-[var(--text-body)] hover:bg-[var(--surface-page)] rounded-[var(--radius-pill)] font-semibold cursor-pointer"
+                >
+                  {otpStrings.dismissBanner}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingResetPassword}
+                  className="px-5 py-2 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] disabled:opacity-50 text-[var(--text-on-maroon)] border border-[var(--gold-decor)] rounded-[var(--radius-pill)] font-semibold uppercase tracking-wider cursor-pointer"
+                >
+                  {isSavingResetPassword ? otpStrings.savingPasswordBtn : otpStrings.savePasswordBtn}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
     </div>

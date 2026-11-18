@@ -72,6 +72,21 @@ export const config = {
   clientApiBaseUrl: process.env.VITE_API_BASE_URL || '',
   appVersion: process.env.VITE_APP_VERSION || process.env.APP_VERSION || 'v1.0.0',
   cacheTtlMs: isProd ? 10 * 60 * 1000 : 60 * 1000, // 10 minutes prod, 1 minute dev
+  otp: {
+    enabled: process.env.OTP_LOGIN_ENABLED !== 'false',
+    expiryMinutes: Math.max(1, Number(process.env.OTP_EXPIRY_MINUTES || 10)),
+    allowedDomains: (process.env.OTP_ALLOWED_DOMAINS || '')
+      .split(',')
+      .map((d) => d.trim().toLowerCase())
+      .filter(Boolean),
+  },
+  smtp: {
+    host: (process.env.SMTP_HOST || 'smtp.gmail.com').trim(),
+    port: Number(process.env.SMTP_PORT || 465),
+    user: (process.env.SMTP_USER || '').trim(),
+    appPassword: process.env.SMTP_APP_PASSWORD || '',
+    fromName: (process.env.SMTP_FROM_NAME || 'Deluxe Bedtime Store').trim(),
+  },
 };
 
 /**
@@ -128,6 +143,9 @@ export function sanitizeData(data: any): any {
     'authorization',
     'cookie',
     'secret',
+    'smtp_app_password',
+    'app_password',
+    'otp_code',
     'cvv',
     'cardnumber',
     'card_number',

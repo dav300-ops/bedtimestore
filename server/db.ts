@@ -9,6 +9,7 @@ import {
   DDL_CREATE_ORDERS_TABLE,
   DDL_CREATE_SECURITY_LOGS_TABLE,
   DDL_CREATE_PRODUCT_SALES_TABLE,
+  DDL_CREATE_ADMIN_OTP_CHALLENGES_TABLE,
 } from './queries/mysqlQueries';
 
 export interface MySQLDatabaseStatus {
@@ -95,6 +96,7 @@ const memoryStore = {
   orders: new Map<string, any>(),
   security_logs: new Map<string, any>(),
   product_sales: new Map<string, any>(),
+  admin_otp_challenges: new Map<string, any>(),
 };
 
 const PERSISTENCE_DIR = path.join(process.cwd(), 'server', 'data');
@@ -367,13 +369,21 @@ async function initializeSchemas() {
         console.warn('[MariaDB/MySQL] must_change_password column migration notice:', alterErr?.message);
       }
     }
+    try {
+      await pool.query('ALTER TABLE users ADD COLUMN otp_login_enabled TINYINT(1) DEFAULT 1');
+    } catch (alterErr: any) {
+      if (alterErr?.errno !== 1060 && alterErr?.code !== 'ER_DUP_FIELDNAME') {
+        console.warn('[MariaDB/MySQL] otp_login_enabled column migration notice:', alterErr?.message);
+      }
+    }
     await pool.query(DDL_CREATE_CATEGORIES_TABLE);
     await pool.query(DDL_CREATE_PRODUCTS_TABLE);
     await pool.query(DDL_CREATE_ORDERS_TABLE);
     await pool.query(DDL_CREATE_SECURITY_LOGS_TABLE);
     await pool.query(DDL_CREATE_PRODUCT_SALES_TABLE);
-    console.log('[MariaDB/MySQL] All relational tables verified: users, categories, products, orders, security_logs, product_sales');
-    dbStatus.tables = ['users', 'categories', 'products', 'orders', 'security_logs', 'product_sales'];
+    await pool.query(DDL_CREATE_ADMIN_OTP_CHALLENGES_TABLE);
+    console.log('[MariaDB/MySQL] All relational tables verified: users, categories, products, orders, security_logs, product_sales, admin_otp_challenges');
+    dbStatus.tables = ['users', 'categories', 'products', 'orders', 'security_logs', 'product_sales', 'admin_otp_challenges'];
   } catch (err: any) {
     console.warn('[MariaDB/MySQL] Schema initialization warning:', err?.message);
   }
@@ -506,6 +516,7 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
           is_guest: false,
           two_factor_enabled: false,
           must_change_password: Boolean(must_change_password),
+          otp_login_enabled: true,
           saved_addresses: safeParse(saved_addresses) || [],
           wishlist: safeParse(wishlist) || [],
           connected_providers: safeParse(connected_providers) || {},
@@ -529,6 +540,7 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         is_guest: Boolean(is_guest),
         two_factor_enabled: Boolean(two_factor_enabled),
         must_change_password: false,
+        otp_login_enabled: true,
         saved_addresses: safeParse(saved_addresses) || [],
         wishlist: safeParse(wishlist) || [],
         connected_providers: safeParse(connected_providers) || {},
@@ -540,6 +552,16 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
     }
 
     if (lower.startsWith('update users')) {
+      if (lower.includes('set otp_login_enabled = ?')) {
+        const [enabled, id] = params;
+        const user = memoryStore.users.get(id);
+        if (user && (user.role === 'admin' || user.role === 'superadmin')) {
+          user.otp_login_enabled = Boolean(enabled);
+          user.updated_at = new Date().toISOString();
+          return [{ affectedRows: 1 }] as any;
+        }
+        return [{ affectedRows: 0 }] as any;
+      }
       if (lower.includes('set password_hash = ?')) {
         const [pass, id] = params;
         const user = memoryStore.users.get(id);
@@ -563,6 +585,109 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         }
         return [{ affectedRows: user ? 1 : 0 }] as any;
       }
+    }
+  }
+
+  // --- ADMIN OTP CHALLENGES QUERIES ---
+  if (lower.includes('admin_otp_challenges')) {
+    if (lower.startsWith('insert into admin_otp_challenges')) {
+      const [id, admin_id, email, code_hash, language, expires_at, request_ip, user_agent] = params;
+      const row = {
+        id,
+        admin_id,
+        email: String(email || '').toLowerCase(),
+        code_hash,
+        language: language || 'en',
+        expires_at: expires_at instanceof Date ? expires_at.toISOString() : expires_at,
+        attempts: 0,
+        used_at: null,
+        invalidated_at: null,
+        request_ip,
+        user_agent,
+        created_at: new Date().toISOString(),
+      };
+      memoryStore.admin_otp_challenges.set(id, row);
+      return [{ insertId: id, affectedRows: 1 }] as any;
+    }
+    if (lower.startsWith('select count(*)')) {
+      const now = Date.now();
+      if (lower.includes('lower(email) = lower(?)')) {
+        const email = String(params[0] || '').toLowerCase();
+        const cutoff = now - 15 * 60 * 1000;
+        const total = Array.from(memoryStore.admin_otp_challenges.values()).filter(
+          (r) => r.email === email && new Date(r.created_at).getTime() >= cutoff
+        ).length;
+        return [{ total }] as any;
+      }
+      if (lower.includes('request_ip = ?')) {
+        const ip = String(params[0] || '');
+        const cutoff = now - 60 * 60 * 1000;
+        const total = Array.from(memoryStore.admin_otp_challenges.values()).filter(
+          (r) => r.request_ip === ip && new Date(r.created_at).getTime() >= cutoff
+        ).length;
+        return [{ total }] as any;
+      }
+    }
+    if (lower.startsWith('select') && lower.includes('where id = ?')) {
+      const row = memoryStore.admin_otp_challenges.get(String(params[0]));
+      return (row ? [{ ...row }] : []) as T[];
+    }
+    if (lower.startsWith('update admin_otp_challenges')) {
+      if (lower.includes('where admin_id = ?')) {
+        const adminId = String(params[0]);
+        let affected = 0;
+        for (const r of memoryStore.admin_otp_challenges.values()) {
+          if (r.admin_id === adminId && !r.used_at && !r.invalidated_at) {
+            r.invalidated_at = new Date().toISOString();
+            affected++;
+          }
+        }
+        return [{ affectedRows: affected }] as any;
+      }
+      const row = memoryStore.admin_otp_challenges.get(String(params[0]));
+      if (!row) return [{ affectedRows: 0 }] as any;
+      if (lower.includes('attempts = attempts + 1')) {
+        row.attempts = Number(row.attempts || 0) + 1;
+        return [{ affectedRows: 1 }] as any;
+      }
+      if (lower.includes('set invalidated_at = now()')) {
+        row.invalidated_at = new Date().toISOString();
+        return [{ affectedRows: 1 }] as any;
+      }
+      if (lower.includes('set used_at = now()')) {
+        if (!row.used_at && !row.invalidated_at) {
+          row.used_at = new Date().toISOString();
+          return [{ affectedRows: 1 }] as any;
+        }
+        return [{ affectedRows: 0 }] as any;
+      }
+    }
+  }
+
+  // --- SECURITY LOGS QUERIES ---
+  if (lower.includes('security_logs')) {
+    if (lower.startsWith('insert into security_logs')) {
+      const [id, user_id, action, ip, location, device] = params;
+      const logRow = {
+        id,
+        user_id,
+        action,
+        ip,
+        location,
+        device,
+        created_at: new Date().toISOString(),
+      };
+      memoryStore.security_logs.set(id, logRow);
+      return [{ insertId: id, affectedRows: 1 }] as any;
+    }
+    if (lower.startsWith('select')) {
+      const userId = params[0];
+      const rows = Array.from(memoryStore.security_logs.values())
+        .filter((r) => !userId || r.user_id === userId)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+        .slice(0, 20)
+        .map((r) => ({ ...r }));
+      return rows as T[];
     }
   }
 

@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { authService } from '../services/authService';
+import { adminOtpService } from '../services/adminOtpService';
 import { inventoryService } from '../services/inventoryService';
 import { categoryService } from '../services/categoryService';
 import { salesService } from '../services/salesService';
@@ -7,7 +8,11 @@ import { orderService } from '../services/orderService';
 import { getDatabaseStatus, isDatabaseAvailable } from '../db';
 import { config } from '../config';
 import { appCache } from '../cache';
-import { requireAdminAuth } from '../utils/adminToken';
+import {
+  clearAdminSessionCookie,
+  requireAdminAuth,
+  setAdminSessionCookie,
+} from '../utils/adminToken';
 import {
   formatErrorResponse,
   validateOrderStatus,
@@ -33,7 +38,8 @@ const ensureDbForAdmin = (req: Request, res: Response, next: express.NextFunctio
 // 1. Admin Authentication Endpoints (Public entry point for Admins only)
 // ============================================================================
 
-adminRouter.post('/logout', (_req: Request, res: Response) => {
+adminRouter.post('/logout', (req: Request, res: Response) => {
+  clearAdminSessionCookie(req, res);
   return res.json({ success: true, message: 'Administrator logged out successfully' });
 });
 
@@ -48,7 +54,7 @@ adminRouter.post('/login', ensureDbForAdmin, async (req: Request, res: Response)
       return res.status(400).json({ error: 'Administrator email and password are required.' });
     }
 
-    const clientIp = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || '127.0.0.1';
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
     const userAgent = req.headers['user-agent'] || 'Admin Portal';
 
     const result = await authService.loginAdmin(email, password, {
@@ -56,11 +62,14 @@ adminRouter.post('/login', ensureDbForAdmin, async (req: Request, res: Response)
       device: userAgent,
     });
 
+    setAdminSessionCookie(req, res, result.token);
+
     return res.json({
       success: true,
       message: 'Administrator authenticated successfully.',
       admin: result.user,
       token: result.token,
+      loginMethod: 'password',
     });
   } catch (error: any) {
     const msg = error?.message || 'Administrator authentication failed';
@@ -70,7 +79,99 @@ adminRouter.post('/login', ensureDbForAdmin, async (req: Request, res: Response)
 });
 
 // ============================================================================
-// All routes below require a valid signed Administrator Bearer token first
+// 1b. Passwordless Email Code (OTP) Admin Authentication Endpoints
+// ============================================================================
+
+adminRouter.get('/otp/config', (_req: Request, res: Response) => {
+  return res.json({
+    enabled: config.otp.enabled,
+    expiryMinutes: config.otp.expiryMinutes,
+    resendCooldownSeconds: 60,
+  });
+});
+
+adminRouter.post('/otp/request', ensureDbForAdmin, async (req: Request, res: Response) => {
+  try {
+    const { email, language } = req.body || {};
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Admin Portal';
+
+    const result = await adminOtpService.requestOtp(email, language, {
+      ip: clientIp,
+      device: userAgent,
+    });
+
+    return res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error: any) {
+    const status = error?.status || 500;
+    return res.status(status).json({
+      error: error?.message || 'Unable to process verification code request.',
+      code: error?.code || 'OTP_REQUEST_ERROR',
+      ...(error?.retryAfterSeconds ? { retryAfterSeconds: error.retryAfterSeconds } : {}),
+    });
+  }
+});
+
+adminRouter.post('/otp/resend', ensureDbForAdmin, async (req: Request, res: Response) => {
+  try {
+    const { challengeId, language } = req.body || {};
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Admin Portal';
+
+    const result = await adminOtpService.resendOtp(challengeId, language, {
+      ip: clientIp,
+      device: userAgent,
+    });
+
+    return res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error: any) {
+    const status = error?.status || 500;
+    return res.status(status).json({
+      error: error?.message || 'Unable to resend verification code.',
+      code: error?.code || 'OTP_RESEND_ERROR',
+      ...(error?.retryAfterSeconds ? { retryAfterSeconds: error.retryAfterSeconds } : {}),
+    });
+  }
+});
+
+adminRouter.post('/otp/verify', ensureDbForAdmin, async (req: Request, res: Response) => {
+  try {
+    const { challengeId, code } = req.body || {};
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Admin Portal';
+
+    const result = await adminOtpService.verifyOtp(challengeId, code, {
+      ip: clientIp,
+      device: userAgent,
+    });
+
+    setAdminSessionCookie(req, res, result.token);
+
+    return res.json({
+      success: true,
+      message: 'Administrator authenticated successfully via email code.',
+      admin: result.user,
+      token: result.token,
+      loginMethod: 'otp',
+    });
+  } catch (error: any) {
+    const status = error?.status || 401;
+    return res.status(status).json({
+      error: error?.message || 'Invalid or expired verification code.',
+      code: error?.code || 'OTP_VERIFY_ERROR',
+      ...(error?.retryAfterSeconds ? { retryAfterSeconds: error.retryAfterSeconds } : {}),
+    });
+  }
+});
+
+// ============================================================================
+// All routes below require a valid signed Administrator session first
 // ============================================================================
 adminRouter.use(requireAdminAuth);
 adminRouter.use(ensureDbForAdmin);
@@ -85,7 +186,11 @@ adminRouter.get('/session', async (req: Request, res: Response) => {
     if (!admin || (admin.role !== 'admin' && admin.role !== 'superadmin')) {
       return res.status(403).json({ error: 'Administrator privileges revoked or unavailable.' });
     }
-    return res.json({ success: true, admin });
+    return res.json({
+      success: true,
+      admin,
+      loginMethod: adminPayload.authMethod || 'password',
+    });
   } catch (error: any) {
     return res.status(500).json({ error: error?.message || 'Failed to verify administrator session' });
   }
@@ -97,20 +202,27 @@ adminRouter.get('/session', async (req: Request, res: Response) => {
 adminRouter.post('/change-password', async (req: Request, res: Response) => {
   try {
     const adminPayload = (req as any).adminUser;
-    const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!newPassword) {
+      return res.status(400).json({ error: 'New password is required.' });
+    }
+
+    const authMethod = adminPayload.authMethod === 'otp' ? 'otp' : 'password';
+    if (authMethod !== 'otp' && !currentPassword) {
       return res.status(400).json({ error: 'Current password and new password are required.' });
     }
 
-    const clientIp = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || '127.0.0.1';
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
     const userAgent = req.headers['user-agent'] || 'Admin Portal';
 
     const result = await authService.changeAdminPassword(
       adminPayload.id,
-      currentPassword,
+      currentPassword || '',
       newPassword,
-      { ip: clientIp, device: userAgent }
+      { ip: clientIp, device: userAgent, authMethod }
     );
+
+    setAdminSessionCookie(req, res, result.token);
 
     return res.json({
       success: true,
@@ -134,6 +246,42 @@ adminRouter.use((req: Request, res: Response, next) => {
     });
   }
   return next();
+});
+
+/**
+ * Toggle "Allow email code sign-in" setting per admin.
+ * An admin can toggle their own setting; a superadmin can toggle any admin's setting.
+ */
+adminRouter.patch('/security/otp-login-setting', async (req: Request, res: Response) => {
+  try {
+    const adminPayload = (req as any).adminUser;
+    const { enabled, targetAdminId } = req.body || {};
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({ error: 'Boolean "enabled" flag is required.' });
+    }
+
+    const targetId = targetAdminId && typeof targetAdminId === 'string' ? targetAdminId : adminPayload.id;
+    if (targetId !== adminPayload.id && adminPayload.role !== 'superadmin') {
+      return res.status(403).json({ error: 'Only a superadmin can modify another administrator\'s sign-in settings.' });
+    }
+
+    const clientIp = req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Admin Portal';
+
+    const updatedAdmin = await authService.updateAdminOtpLoginSetting(
+      targetId,
+      enabled,
+      adminPayload.id,
+      { ip: clientIp, device: userAgent }
+    );
+
+    return res.json({
+      success: true,
+      admin: updatedAdmin,
+    });
+  } catch (error: any) {
+    return res.status(400).json({ error: error?.message || 'Failed to update email code sign-in setting.' });
+  }
 });
 
 // ============================================================================

@@ -91,6 +91,7 @@ class ApiService {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         response = await fetch(resolvedUrl, {
+          credentials: 'same-origin',
           ...fetchOptions,
           headers: {
             'Content-Type': 'application/json',
@@ -145,6 +146,9 @@ class ApiService {
       error.code = code;
       error.sqlMessage = sqlMessage;
       error.status = response.status;
+      if (typeof data?.retryAfterSeconds === 'number') {
+        error.retryAfterSeconds = data.retryAfterSeconds;
+      }
       throw error;
     }
 
@@ -170,11 +174,72 @@ class ApiService {
     }
   }
 
-  public async getAdminSession(token?: string): Promise<{ success: boolean; admin: any }> {
+  public async getAdminSession(token?: string): Promise<{ success: boolean; admin: any; loginMethod?: 'password' | 'otp' }> {
     const authToken = token || this.getAdminToken();
     return await this.request('/api/admin/session', {
       headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
       silentNetworkError: true,
+    });
+  }
+
+  public async getAdminOtpConfig(): Promise<{ enabled: boolean; expiryMinutes: number; resendCooldownSeconds: number }> {
+    return await this.request('/api/admin/otp/config', {
+      silentNetworkError: true,
+    });
+  }
+
+  public async requestAdminOtp(
+    email: string,
+    language: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    challengeId: string;
+    maskedEmail: string;
+    expiresInSeconds: number;
+    cooldownSeconds: number;
+  }> {
+    return await this.request('/api/admin/otp/request', {
+      method: 'POST',
+      body: JSON.stringify({ email, language }),
+    });
+  }
+
+  public async resendAdminOtp(
+    challengeId: string,
+    language: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    challengeId: string;
+    maskedEmail: string;
+    expiresInSeconds: number;
+    cooldownSeconds: number;
+  }> {
+    return await this.request('/api/admin/otp/resend', {
+      method: 'POST',
+      body: JSON.stringify({ challengeId, language }),
+    });
+  }
+
+  public async verifyAdminOtp(
+    challengeId: string,
+    code: string
+  ): Promise<{ success: boolean; admin: any; token: string; loginMethod: 'otp' }> {
+    return await this.request('/api/admin/otp/verify', {
+      method: 'POST',
+      body: JSON.stringify({ challengeId, code }),
+    });
+  }
+
+  public async updateAdminOtpSetting(
+    enabled: boolean,
+    targetAdminId?: string
+  ): Promise<{ success: boolean; admin: any }> {
+    return await this.request('/api/admin/security/otp-login-setting', {
+      method: 'PATCH',
+      headers: this.getAdminHeaders(),
+      body: JSON.stringify({ enabled, ...(targetAdminId ? { targetAdminId } : {}) }),
     });
   }
 
