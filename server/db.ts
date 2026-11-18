@@ -360,6 +360,13 @@ async function initializeSchemas() {
   if (!pool) return;
   try {
     await pool.query(DDL_CREATE_USERS_TABLE);
+    try {
+      await pool.query('ALTER TABLE users ADD COLUMN must_change_password TINYINT(1) DEFAULT 0');
+    } catch (alterErr: any) {
+      if (alterErr?.errno !== 1060 && alterErr?.code !== 'ER_DUP_FIELDNAME') {
+        console.warn('[MariaDB/MySQL] must_change_password column migration notice:', alterErr?.message);
+      }
+    }
     await pool.query(DDL_CREATE_CATEGORIES_TABLE);
     await pool.query(DDL_CREATE_PRODUCTS_TABLE);
     await pool.query(DDL_CREATE_ORDERS_TABLE);
@@ -455,6 +462,15 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
   // --- USERS QUERIES ---
   if (lower.includes('from users') || lower.includes('into users') || lower.includes('update users')) {
     if (lower.startsWith('select')) {
+      if (lower.includes('select count(*)')) {
+        if (lower.includes('role in')) {
+          const count = Array.from(memoryStore.users.values()).filter(
+            (u) => u.role === 'admin' || u.role === 'superadmin'
+          ).length;
+          return [{ total: count }] as any;
+        }
+        return [{ total: memoryStore.users.size }] as any;
+      }
       if (lower.includes('where lower(email) = lower(?)')) {
         const email = String(params[0] || '').toLowerCase();
         const user = Array.from(memoryStore.users.values()).find(
@@ -477,11 +493,34 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
     }
 
     if (lower.startsWith('insert into users')) {
+      if (lower.includes("'superadmin'")) {
+        const [id, email, password_hash, first_name, last_name, phone, must_change_password, saved_addresses, wishlist, connected_providers] = params;
+        const newUser = {
+          id,
+          email: String(email || '').toLowerCase(),
+          password_hash,
+          first_name,
+          last_name,
+          phone,
+          role: 'superadmin',
+          is_guest: false,
+          two_factor_enabled: false,
+          must_change_password: Boolean(must_change_password),
+          saved_addresses: safeParse(saved_addresses) || [],
+          wishlist: safeParse(wishlist) || [],
+          connected_providers: safeParse(connected_providers) || {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        memoryStore.users.set(id, newUser);
+        return [{ insertId: id, affectedRows: 1 }] as any;
+      }
+
       // id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled, saved_addresses, wishlist, connected_providers
       const [id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled, saved_addresses, wishlist, connected_providers] = params;
       const newUser = {
         id,
-        email,
+        email: String(email || '').toLowerCase(),
         password_hash,
         first_name,
         last_name,
@@ -489,6 +528,7 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         role: role || 'customer',
         is_guest: Boolean(is_guest),
         two_factor_enabled: Boolean(two_factor_enabled),
+        must_change_password: false,
         saved_addresses: safeParse(saved_addresses) || [],
         wishlist: safeParse(wishlist) || [],
         connected_providers: safeParse(connected_providers) || {},
@@ -505,6 +545,9 @@ function executeInMemoryQuery<T = any>(sql: string, params: any[] = []): T[] {
         const user = memoryStore.users.get(id);
         if (user) {
           user.password_hash = pass;
+          if (lower.includes('must_change_password = 0')) {
+            user.must_change_password = false;
+          }
           user.updated_at = new Date().toISOString();
         }
         return [{ affectedRows: user ? 1 : 0 }] as any;

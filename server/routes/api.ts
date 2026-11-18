@@ -122,7 +122,7 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       lastName: lastName || '',
       email,
       phone,
-      password: password || 'GuestPass@2026',
+      password: password || undefined,
       role: 'customer',
       isGuest: Boolean(isGuest),
       ip: clientIp,

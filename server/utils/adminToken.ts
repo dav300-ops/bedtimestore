@@ -6,6 +6,7 @@ export interface AdminTokenPayload {
   id: string;
   email: string;
   role: 'admin' | 'superadmin';
+  mustChangePassword?: boolean;
   iat: number;
   exp: number;
 }
@@ -37,13 +38,19 @@ function base64UrlDecode(input: string): string {
   return Buffer.from(padded, 'base64').toString('utf8');
 }
 
-export function signAdminToken(admin: { id: string; email: string; role: 'admin' | 'superadmin' }): string {
+export function signAdminToken(admin: {
+  id: string;
+  email: string;
+  role: 'admin' | 'superadmin';
+  mustChangePassword?: boolean;
+}): string {
   const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'BDS-ADMIN' }));
   const now = Date.now();
   const payload: AdminTokenPayload = {
     id: admin.id,
     email: admin.email,
     role: admin.role,
+    mustChangePassword: Boolean(admin.mustChangePassword),
     iat: now,
     exp: now + TOKEN_TTL_MS,
   };

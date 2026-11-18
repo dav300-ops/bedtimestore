@@ -17,7 +17,7 @@ interface StoredAuthUser {
   lastName: string;
   email: string;
   phone: string;
-  role: 'customer' | 'admin';
+  role: 'customer' | 'admin' | 'superadmin';
   passwordHash: string;
   authProvider?: AuthProviderType;
   avatarUrl?: string;
@@ -62,6 +62,7 @@ interface AuthContextType {
     pass: string
   ) => Promise<{ success: boolean; error?: string; remainingSeconds?: number; admin?: User }>;
   logoutAdmin: () => void;
+  changeAdminPassword: (currentPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   createAdminUser: (data: {
     firstName: string;
     lastName: string;
@@ -94,86 +95,6 @@ interface AuthContextType {
   setAuthModalMode: (mode: 'signin' | 'signup' | 'forgot') => void;
 }
 
-const DEMO_ADMIN: User = {
-  id: 'usr-admin-01',
-  firstName: 'Reem',
-  lastName: 'Al Mansoor',
-  email: 'admin@thebedtimestore.bh',
-  phone: '+973 1722 8844',
-  role: 'admin',
-  authProvider: 'email',
-  avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80',
-  savedAddresses: [
-    {
-      buildingNumber: 'Atelier 12',
-      roadNumber: 'Road 3812',
-      blockNumber: 'Block 338',
-      area: 'Adliya',
-      city: 'Manama',
-      country: 'Bahrain',
-    },
-  ],
-  wishlist: ['prod-001', 'prod-003'],
-  connectedProviders: { email: true, google: true, github: true },
-  twoFactorEnabled: true,
-  createdAt: '2026-01-01T00:00:00Z',
-  securityLogs: [
-    {
-      id: 'log-01',
-      timestamp: '2026-10-15T09:12:00Z',
-      action: 'login_success',
-      ip: '82.194.22.10',
-      location: 'Manama, Bahrain',
-      device: 'Boutique POS Admin / Safari macOS',
-    },
-  ],
-};
-
-const DEMO_CUSTOMER: User = {
-  id: 'usr-customer-01',
-  firstName: 'Fatima',
-  lastName: 'Al Khalifa',
-  email: 'fatima@thebedtimestore.bh',
-  phone: '+973 3922 1144',
-  role: 'customer',
-  authProvider: 'email',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-  savedAddresses: [
-    {
-      buildingNumber: 'Villa 14',
-      roadNumber: 'Road 3812',
-      blockNumber: 'Block 338',
-      area: 'Adliya',
-      city: 'Manama',
-      country: 'Bahrain',
-      additionalInstructions: 'Call upon arrival at the gate',
-    },
-    {
-      buildingNumber: 'Building 802',
-      roadNumber: 'Road 2814',
-      blockNumber: 'Block 428',
-      area: 'Seef District',
-      city: 'Manama',
-      country: 'Bahrain',
-      additionalInstructions: 'Flat 403, 4th Floor',
-    },
-  ],
-  wishlist: ['prod-002', 'prod-004'],
-  connectedProviders: { email: true, google: true, github: false },
-  twoFactorEnabled: false,
-  createdAt: '2026-02-10T11:20:00Z',
-  securityLogs: [
-    {
-      id: 'log-101',
-      timestamp: '2026-10-14T18:22:00Z',
-      action: 'login_success',
-      ip: '185.132.84.14',
-      location: 'Seef, Bahrain',
-      device: 'iPhone 16 Pro / Safari Mobile',
-    },
-  ],
-};
-
 const USERS_DB_KEY = 'bedtime_registered_users_v2';
 const ADMIN_USER_KEY = 'bedtime_admin_user';
 const ADMIN_TOKEN_KEY = 'bedtime_admin_token';
@@ -202,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.role !== 'admin') {
+        if (parsed && parsed.role !== 'admin' && parsed.role !== 'superadmin') {
           return parsed;
         }
       } catch {
@@ -226,7 +147,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return api.getAdminToken();
   });
 
-  const isAdmin = Boolean(adminUser && adminToken && adminUser.role === 'admin');
+  const isAdmin = Boolean(
+    adminUser && adminToken && (adminUser.role === 'admin' || adminUser.role === 'superadmin')
+  );
 
   // Verify existing admin token with backend on mount (if not an offline preview token)
   useEffect(() => {
@@ -357,34 +280,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const storedUser = storedUsers.find((u) => u.email.toLowerCase() === trimmedEmail);
 
     if (storedUser) {
-      if (storedUser.role === 'admin') {
+      if (storedUser.role === 'admin' || storedUser.role === 'superadmin') {
         return {
           success: false,
-          error: 'Login failed..',
+          error: 'Login failed.',
         };
       }
       if (storedUser.passwordHash === submittedHash) {
         resetFailedLogin(trimmedEmail);
         const { passwordHash: _, ...safeUser } = storedUser;
         const loggedIn = logSecurityAction(safeUser, 'login_success');
-        setCurrentUser(loggedIn);
-        return { success: true, user: loggedIn };
-      }
-    }
-
-    // Reject demo admin on public storefront login
-    if (trimmedEmail === 'admin@thebedtimestore.bh') {
-      return {
-        success: false,
-        error: 'Login failed...',
-      };
-    }
-
-    // Check Demo Customer
-    if (trimmedEmail === 'fatima@thebedtimestore.bh') {
-      if (pass === 'secret123' || pass === 'LuxurySilk@2026') {
-        resetFailedLogin(trimmedEmail);
-        const loggedIn = logSecurityAction(DEMO_CUSTOMER, 'login_success');
         setCurrentUser(loggedIn);
         return { success: true, user: loggedIn };
       }
@@ -457,7 +362,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const submittedHash = await hashPasswordWithSalt(pass);
     const storedUsers = getStoredUsers();
     const storedAdmin = storedUsers.find(
-      (u) => u.email.toLowerCase() === trimmedEmail && u.role === 'admin'
+      (u) => u.email.toLowerCase() === trimmedEmail && (u.role === 'admin' || u.role === 'superadmin')
     );
 
     if (storedAdmin && storedAdmin.passwordHash === submittedHash) {
@@ -465,18 +370,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { passwordHash: _, ...safeAdmin } = storedAdmin;
       const loggedInAdmin = logSecurityAction(safeAdmin, 'login_success');
       const fallbackToken = `offline-admin-${safeAdmin.id}-${Date.now()}`;
-      api.setAdminToken(fallbackToken);
-      setAdminToken(fallbackToken);
-      setAdminUser(loggedInAdmin);
-      localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(loggedInAdmin));
-      return { success: true, admin: loggedInAdmin };
-    }
-
-    const demoAdminHash = await hashPasswordWithSalt('Admin@Bedtime2026!');
-    if (trimmedEmail === DEMO_ADMIN.email && submittedHash === demoAdminHash) {
-      resetFailedLogin(lockKey);
-      const loggedInAdmin = logSecurityAction(DEMO_ADMIN, 'login_success');
-      const fallbackToken = `offline-admin-${DEMO_ADMIN.id}-${Date.now()}`;
       api.setAdminToken(fallbackToken);
       setAdminToken(fallbackToken);
       setAdminUser(loggedInAdmin);
@@ -506,6 +399,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAdminUser(null);
     localStorage.removeItem(ADMIN_USER_KEY);
     localStorage.removeItem(ADMIN_TOKEN_KEY);
+  };
+
+  /**
+   * Rotate Administrator Password (used for must_change_password enforcement & admin security)
+   */
+  const changeAdminPassword = async (
+    currentPass: string,
+    newPass: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!isAdmin || !adminUser) {
+      return { success: false, error: 'Administrator session is not active.' };
+    }
+    const analysis = analyzePassword(newPass);
+    if (!analysis.checks.minLength || !analysis.checks.hasUpper || !analysis.checks.hasLower || !analysis.checks.hasNumber || !analysis.checks.hasSpecial) {
+      return {
+        success: false,
+        error: 'New password must be at least 8 characters and include uppercase, lowercase, numeric, and special characters.',
+      };
+    }
+
+    try {
+      const res = await api.changeAdminPassword(currentPass, newPass);
+      if (res?.success && res.admin && res.token) {
+        api.setAdminToken(res.token);
+        setAdminToken(res.token);
+        const updatedAdmin = { ...res.admin, mustChangePassword: false };
+        setAdminUser(updatedAdmin);
+        localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(updatedAdmin));
+        return { success: true };
+      }
+      return { success: false, error: 'Failed to update administrator password.' };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to update administrator password.' };
+    }
   };
 
   /**
@@ -628,7 +555,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const lastName = nameParts.slice(1).join(' ') || '';
 
     const storedUsers = getStoredUsers();
-    const existing = storedUsers.find((u) => u.email.toLowerCase() === chosen!.email.toLowerCase() && u.role !== 'admin');
+    const existing = storedUsers.find(
+      (u) => u.email.toLowerCase() === chosen!.email.toLowerCase() && u.role !== 'admin' && u.role !== 'superadmin'
+    );
 
     if (existing) {
       const updatedUser: User = {
@@ -679,7 +608,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   /**
    * Create New Boutique Administrator (Authenticated Admin Session Only)
-   * Password is hashed via salted SHA-256 locally and salted scrypt on the backend before MySQL storage.
+   * Password is hashed via bcrypt (cost 12) on the backend before MySQL storage.
    */
   const createAdminUser = async (data: {
     firstName: string;
@@ -719,7 +648,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const passwordHash = await hashPasswordWithSalt(data.password);
     const storedUsers = getStoredUsers();
 
-    // Persist to MySQL via separated protected /api/admin/create-admin route (hashes with scrypt on server)
+    // Persist to MySQL via separated protected /api/admin/create-admin route (hashes with bcrypt on server)
     let createdServerAdmin: User | null = null;
     try {
       const apiRes = await api.createAdminAccount({
@@ -1015,6 +944,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         adminToken,
         loginAdmin,
         logoutAdmin,
+        changeAdminPassword,
         createAdminUser,
         changePassword,
         requestPasswordReset,

@@ -203,7 +203,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   aria-invalid={Boolean(errorMsg)}
-                  placeholder="admin@thebedtimestore.bh"
+                  placeholder="admin@domain.com"
                   className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
                 />
               </div>

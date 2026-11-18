@@ -144,7 +144,14 @@ Use this checklist to verify that both modes behave correctly:
 
 ---
 
-## 7. Demo Accounts
+## 7. Superadmin Setup & Recovery
 
-- **Administrator**: `admin@thebedtimestore.bh` (Password: `Admin@Bedtime2026!`)
-- **Customer**: `fatima@thebedtimestore.bh` (Password: `LuxurySilk@2026`)
+Passwords are stored using adaptive **bcrypt** (`cost = 12`). To bootstrap an initial or recovery superadmin account safely (without hardcoding credentials):
+
+```bash
+SEED_ADMIN_EMAIL=owner@yourdomain.com \
+SEED_ADMIN_PASSWORD='YourStrongPassword!1' \
+npm run seed:superadmin
+```
+
+The created superadmin is flagged with `must_change_password = 1`, requiring a personal password change immediately upon first login. Remove `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` from the environment once complete.

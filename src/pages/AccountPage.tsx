@@ -524,7 +524,7 @@ export const AccountPage: React.FC<AccountPageProps> = ({
                         {t.account.changePassword}
                       </h3>
                       <p className="text-[11px] text-[var(--text-muted)]">
-                        {isAr ? 'تشفير وحماية كلمة المرور وفق أعلى معايير الأمان (OWASP).' : 'Update your password with cryptographic SHA-256 salted hashing.'}
+                        {isAr ? 'تشفير وحماية كلمة المرور وفق أعلى معايير الأمان (bcrypt).' : 'Update your password with adaptive bcrypt salted hashing.'}
                       </p>
                     </div>
                   </div>

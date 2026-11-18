@@ -1,15 +1,18 @@
+import crypto from 'crypto';
 import { executeQuery } from '../db';
-import { hashPassword, isHashedPassword, verifyPassword } from '../utils/password';
+import { hashPassword, needsPasswordMigration, verifyPassword } from '../utils/password';
 import { signAdminToken } from '../utils/adminToken';
 import {
   SQL_REGISTER_USER,
   SQL_FIND_USER_BY_EMAIL,
   SQL_FIND_USER_BY_ID,
   SQL_UPDATE_USER_PASSWORD,
+  SQL_MIGRATE_PASSWORD_HASH,
   SQL_UPDATE_USER_PROFILE,
   SQL_INSERT_SECURITY_LOG,
   SQL_GET_USER_SECURITY_LOGS,
   SQL_SELECT_ALL_ADMINS,
+  SQL_COUNT_ADMINS,
 } from '../queries/mysqlQueries';
 
 export interface MySQLUser {
@@ -21,6 +24,7 @@ export interface MySQLUser {
   role: 'customer' | 'admin' | 'superadmin';
   isGuest: boolean;
   twoFactorEnabled: boolean;
+  mustChangePassword?: boolean;
   savedAddresses?: any[];
   wishlist?: string[];
   connectedProviders?: Record<string, boolean>;
@@ -30,86 +34,20 @@ export interface MySQLUser {
 
 export class MySQLAuthService {
   /**
-   * Seed Initial Luxury Boutique Demo Users (Admin and Verified Customer) into MySQL
-   * All seeded passwords are stored using salted scrypt hashes.
+   * Startup check: never hardcode default emails or passwords in source code.
+   * Logs an advisory notice if no admin/superadmin account exists yet.
    */
   public async seedDefaultUsers(): Promise<void> {
     try {
-      const existingAdminRows = await executeQuery(SQL_FIND_USER_BY_EMAIL, ['admin@thebedtimestore.bh']);
-      if (!existingAdminRows || existingAdminRows.length === 0) {
-        console.log(' Seeding default administrator account with scrypt password hash...');
-        const hashedAdminPassword = hashPassword('Admin@Bedtime2026!');
-        await executeQuery(SQL_REGISTER_USER, [
-          'usr-admin-01',
-          'admin@thebedtimestore.bh',
-          hashedAdminPassword,
-          'Reem',
-          'Al Mansoor',
-          '+973 3922 8899',
-          'admin',
-          0,
-          1,
-          JSON.stringify([
-            {
-              id: 'addr-admin-01',
-              buildingNumber: 'Boutique 10',
-              roadNumber: 'Road 3812',
-              blockNumber: 'Block 338',
-              area: 'Adliya',
-              city: 'Manama',
-              country: 'Bahrain',
-              isDefault: true,
-            },
-          ]),
-          JSON.stringify(['prod-1', 'prod-3']),
-          JSON.stringify({ google: true, email: true }),
-        ]);
-      } else {
-        const rawAdmin = existingAdminRows[0];
-        const storedHash = rawAdmin.password_hash || rawAdmin.password;
-        if (storedHash && !isHashedPassword(storedHash)) {
-          await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(storedHash), rawAdmin.id]);
-        }
-      }
-
-      const existingCustomerRows = await executeQuery(SQL_FIND_USER_BY_EMAIL, ['fatima@thebedtimestore.bh']);
-      if (!existingCustomerRows || existingCustomerRows.length === 0) {
-        console.log('[MySQL] Seeding default verified customer account...');
-        const hashedCustomerPassword = hashPassword('LuxurySilk@2026');
-        await executeQuery(SQL_REGISTER_USER, [
-          'usr-customer-01',
-          'fatima@thebedtimestore.bh',
-          hashedCustomerPassword,
-          'Fatima',
-          'Al Khalifa',
-          '+973 3922 1144',
-          'customer',
-          0,
-          0,
-          JSON.stringify([
-            {
-              id: 'addr-cust-01',
-              buildingNumber: 'Villa 24',
-              roadNumber: 'Road 3812',
-              blockNumber: 'Block 338',
-              area: 'Adliya',
-              city: 'Manama',
-              country: 'Bahrain',
-              isDefault: true,
-            },
-          ]),
-          JSON.stringify(['prod-1', 'prod-2', 'prod-5']),
-          JSON.stringify({ google: true, email: true }),
-        ]);
-      } else {
-        const rawCustomer = existingCustomerRows[0];
-        const storedHash = rawCustomer.password_hash || rawCustomer.password;
-        if (storedHash && !isHashedPassword(storedHash)) {
-          await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(storedHash), rawCustomer.id]);
-        }
+      const rows = await executeQuery<{ total: number }>(SQL_COUNT_ADMINS, []);
+      const adminCount = Number(rows?.[0]?.total || 0);
+      if (adminCount === 0) {
+        console.warn(
+          '[Auth] No administrator account found. To bootstrap a superadmin safely, set SEED_ADMIN_EMAIL & SEED_ADMIN_PASSWORD and run: npm run seed:superadmin'
+        );
       }
     } catch (err: any) {
-      console.warn(' Notice during user seeding:', err?.message);
+      console.warn('Notice during admin existence check:', err?.message);
     }
   }
 
@@ -133,6 +71,7 @@ export class MySQLAuthService {
 
   /**
    * Register a new public customer user in MySQL (never assigns admin role)
+   * Hashes password with bcrypt (cost 12).
    */
   public async register(userData: {
     firstName: string;
@@ -153,7 +92,11 @@ export class MySQLAuthService {
     const userId = `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     // Public registration strictly creates customer accounts only
     const role: 'customer' = 'customer';
-    const hashedPassword = hashPassword(userData.password || 'GuestPassword@2026');
+    const rawPassword =
+      userData.password && userData.password.length > 0
+        ? userData.password
+        : crypto.randomBytes(24).toString('hex');
+    const hashedPassword = await hashPassword(rawPassword);
 
     await executeQuery(SQL_REGISTER_USER, [
       userId,
@@ -186,7 +129,8 @@ export class MySQLAuthService {
   }
 
   /**
-   * Authenticate / Login customer user against MySQL database
+   * Authenticate / Login customer user against MySQL database.
+   * Supports dual-format verification (scrypt & bcrypt) with lazy migration to bcrypt.
    */
   public async login(
     email: string,
@@ -204,8 +148,9 @@ export class MySQLAuthService {
     }
 
     const passwordHash = rawUser.password_hash || rawUser.password;
+    const isValid = await verifyPassword(passwordAttempt, passwordHash);
 
-    if (!verifyPassword(passwordAttempt, passwordHash)) {
+    if (!isValid) {
       await this.logSecurityEvent({
         userId: rawUser.id,
         action: 'login_failed',
@@ -216,9 +161,10 @@ export class MySQLAuthService {
       throw new Error('Invalid password for this account.');
     }
 
-    // Migrate legacy plaintext password hash on successful login
-    if (passwordHash && !isHashedPassword(passwordHash)) {
-      await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(passwordAttempt), rawUser.id]);
+    // Lazy migration: transparently upgrade scrypt$ (or legacy unhashed) passwords to bcrypt
+    if (needsPasswordMigration(passwordHash)) {
+      const upgradedHash = await hashPassword(passwordAttempt);
+      await executeQuery(SQL_MIGRATE_PASSWORD_HASH, [upgradedHash, rawUser.id]);
     }
 
     await this.logSecurityEvent({
@@ -236,7 +182,8 @@ export class MySQLAuthService {
   }
 
   /**
-   * Dedicated Administrator Authentication against MySQL database
+   * Dedicated Administrator Authentication against MySQL database.
+   * Supports dual-format verification (scrypt & bcrypt) with lazy migration to bcrypt.
    */
   public async loginAdmin(
     email: string,
@@ -262,7 +209,9 @@ export class MySQLAuthService {
     }
 
     const passwordHash = rawUser.password_hash || rawUser.password;
-    if (!verifyPassword(passwordAttempt, passwordHash)) {
+    const isValid = await verifyPassword(passwordAttempt, passwordHash);
+
+    if (!isValid) {
       await this.logSecurityEvent({
         userId: rawUser.id,
         action: 'admin_login_failed',
@@ -273,9 +222,11 @@ export class MySQLAuthService {
       throw new Error('Invalid administrator email or password.');
     }
 
-    // Upgrade legacy plaintext hash transparently if needed
-    if (passwordHash && !isHashedPassword(passwordHash)) {
-      await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashPassword(passwordAttempt), rawUser.id]);
+    // Lazy migration: transparently upgrade scrypt$ (or legacy unhashed) passwords to bcrypt.
+    // Preserves must_change_password if it was already set (e.g. seeded superadmin).
+    if (needsPasswordMigration(passwordHash)) {
+      const upgradedHash = await hashPassword(passwordAttempt);
+      await executeQuery(SQL_MIGRATE_PASSWORD_HASH, [upgradedHash, rawUser.id]);
     }
 
     await this.logSecurityEvent({
@@ -291,16 +242,17 @@ export class MySQLAuthService {
       id: user.id,
       email: user.email,
       role: user.role === 'superadmin' ? 'superadmin' : 'admin',
+      mustChangePassword: Boolean(user.mustChangePassword),
     });
 
     return { user, token };
   }
 
   /**
-   * Update password in MySQL (always hashed with scrypt)
+   * Update password in MySQL (always hashed with bcrypt) and clear must_change_password.
    */
   public async updatePassword(userId: string, newPassword: string): Promise<boolean> {
-    const hashed = hashPassword(newPassword);
+    const hashed = await hashPassword(newPassword);
     await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashed, userId]);
     await this.logSecurityEvent({
       userId,
@@ -310,6 +262,60 @@ export class MySQLAuthService {
       device: 'Web Client',
     });
     return true;
+  }
+
+  /**
+   * Verify current administrator password and update to a new bcrypt-hashed password,
+   * clearing must_change_password = 0 and issuing a fresh admin session token.
+   */
+  public async changeAdminPassword(
+    adminId: string,
+    currentPassword: string,
+    newPassword: string,
+    meta?: { ip?: string; device?: string }
+  ): Promise<{ user: MySQLUser; token: string }> {
+    if (!newPassword || newPassword.length < 8) {
+      throw new Error('New administrator password must be at least 8 characters.');
+    }
+
+    const rows = await executeQuery(
+      'SELECT id, email, password_hash, role FROM users WHERE id = ? LIMIT 1',
+      [adminId]
+    );
+    if (!rows || rows.length === 0) {
+      throw new Error('Administrator account not found.');
+    }
+
+    const rawUser = rows[0];
+    if (rawUser.role !== 'admin' && rawUser.role !== 'superadmin') {
+      throw new Error('Access denied: administrator role required.');
+    }
+
+    const isValid = await verifyPassword(currentPassword, rawUser.password_hash || rawUser.password);
+    if (!isValid) {
+      throw new Error('Current password is incorrect.');
+    }
+
+    const hashed = await hashPassword(newPassword);
+    await executeQuery(SQL_UPDATE_USER_PASSWORD, [hashed, adminId]);
+
+    await this.logSecurityEvent({
+      userId: adminId,
+      action: 'password_changed',
+      ip: meta?.ip || '127.0.0.1',
+      location: 'Manama, Bahrain',
+      device: meta?.device || 'Admin Portal',
+    });
+
+    const user = (await this.findUserById(adminId))!;
+    const token = signAdminToken({
+      id: user.id,
+      email: user.email,
+      role: user.role === 'superadmin' ? 'superadmin' : 'admin',
+      mustChangePassword: false,
+    });
+
+    return { user, token };
   }
 
   /**
@@ -373,7 +379,7 @@ export class MySQLAuthService {
 
   /**
    * Create New Boutique Administrator Account (Admin Role Only)
-   * Password is always hashed with salted scrypt before writing to MySQL.
+   * Password is always hashed with bcrypt (cost 12) before writing to MySQL.
    */
   public async createAdmin(adminData: {
     firstName: string;
@@ -397,7 +403,7 @@ export class MySQLAuthService {
 
     const userId = `usr-admin-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     const role = 'admin';
-    const hashedPassword = hashPassword(adminData.password);
+    const hashedPassword = await hashPassword(adminData.password);
 
     await executeQuery(SQL_REGISTER_USER, [
       userId,
@@ -452,6 +458,7 @@ export class MySQLAuthService {
       role: row.role || 'customer',
       isGuest: Boolean(row.is_guest || row.isGuest),
       twoFactorEnabled: Boolean(row.two_factor_enabled || row.twoFactorEnabled),
+      mustChangePassword: Boolean(row.must_change_password ?? row.mustChangePassword),
       savedAddresses: parseJson(row.saved_addresses || row.savedAddresses),
       wishlist: parseJson(row.wishlist),
       connectedProviders: parseJson(row.connected_providers || row.connectedProviders),

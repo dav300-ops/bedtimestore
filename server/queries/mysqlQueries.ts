@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS users (
   role ENUM('customer', 'admin', 'superadmin') DEFAULT 'customer',
   is_guest TINYINT(1) DEFAULT 0,
   two_factor_enabled TINYINT(1) DEFAULT 0,
+  must_change_password TINYINT(1) DEFAULT 0,
   saved_addresses JSON DEFAULT NULL,
   wishlist JSON DEFAULT NULL,
   connected_providers JSON DEFAULT NULL,
@@ -187,7 +188,7 @@ INSERT INTO users (
 export const SQL_FIND_USER_BY_EMAIL = `
 SELECT 
   id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled,
-  saved_addresses, wishlist, connected_providers, created_at, updated_at
+  must_change_password, saved_addresses, wishlist, connected_providers, created_at, updated_at
 FROM users 
 WHERE LOWER(email) = LOWER(?)
 LIMIT 1
@@ -196,7 +197,7 @@ LIMIT 1
 export const SQL_FIND_USER_BY_ID = `
 SELECT 
   id, email, first_name, last_name, phone, role, is_guest, two_factor_enabled,
-  saved_addresses, wishlist, connected_providers, created_at, updated_at
+  must_change_password, saved_addresses, wishlist, connected_providers, created_at, updated_at
 FROM users 
 WHERE id = ?
 LIMIT 1
@@ -205,15 +206,31 @@ LIMIT 1
 export const SQL_SELECT_ALL_ADMINS = `
 SELECT 
   id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled,
-  saved_addresses, wishlist, connected_providers, created_at, updated_at
+  must_change_password, saved_addresses, wishlist, connected_providers, created_at, updated_at
 FROM users 
 WHERE role IN ('admin', 'superadmin')
 ORDER BY created_at DESC
 `;
 
+export const SQL_COUNT_ADMINS = `
+SELECT COUNT(*) AS total FROM users WHERE role IN ('admin', 'superadmin')
+`;
+
+export const SQL_INSERT_SUPERADMIN = `
+INSERT INTO users (
+  id, email, password_hash, first_name, last_name, phone, role, is_guest, two_factor_enabled, must_change_password, saved_addresses, wishlist, connected_providers, created_at, updated_at
+) VALUES (?, LOWER(?), ?, ?, ?, ?, 'superadmin', 0, 0, ?, ?, ?, ?, NOW(), NOW())
+`;
+
 export const SQL_UPDATE_USER_PASSWORD = `
 UPDATE users 
-SET password_hash = ?, updated_at = NOW() 
+SET password_hash = ?, must_change_password = 0, updated_at = NOW() 
+WHERE id = ?
+`;
+
+export const SQL_MIGRATE_PASSWORD_HASH = `
+UPDATE users
+SET password_hash = ?, updated_at = NOW()
 WHERE id = ?
 `;
 

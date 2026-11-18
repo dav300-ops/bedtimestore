@@ -7,6 +7,7 @@ import { Product, Category, Order, Coupon, OrderStatus, ProductSize, KidAgeRange
 import { DeliveryQrCode } from '../components/DeliveryQrCode';
 import { ReceiptModal } from '../components/ReceiptModal';
 import { CreateAdminModal } from '../components/CreateAdminModal';
+import { PasswordStrengthMeter } from '../components/PasswordStrengthMeter';
 import { 
   BarChart3, 
   Package, 
@@ -21,9 +22,13 @@ import {
   Copy, 
   CheckCircle, 
   AlertTriangle, 
+  AlertCircle,
   ArrowUpRight, 
   TrendingUp, 
   Eye, 
+  EyeOff,
+  Lock,
+  KeyRound,
   Search,
   Save,
   X,
@@ -99,7 +104,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
   } = useStore();
 
   const { language, formatBHD, t } = useLanguage();
-  const { adminUser, logoutAdmin } = useAuth();
+  const { adminUser, logoutAdmin, changeAdminPassword } = useAuth();
+
+  const [forceCurrentPassword, setForceCurrentPassword] = useState('');
+  const [forceNewPassword, setForceNewPassword] = useState('');
+  const [forceConfirmPassword, setForceConfirmPassword] = useState('');
+  const [showForcePasswords, setShowForcePasswords] = useState(false);
+  const [forcePasswordError, setForcePasswordError] = useState('');
+  const [isUpdatingForcePassword, setIsUpdatingForcePassword] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'sales' | 'customers' | 'products' | 'inventory' | 'categories' | 'orders' | 'coupons' | 'cms' | 'admins'>('overview');
   const [inventorySearch, setInventorySearch] = useState('');
@@ -599,6 +611,142 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onReturnToStore,
     });
     setNewCouponCode('');
   };
+
+  const handleForcePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForcePasswordError('');
+    if (forceNewPassword !== forceConfirmPassword) {
+      setForcePasswordError(
+        language === 'ar' ? 'كلمتا المرور غير متطابقتين.' : 'New password and confirmation do not match.'
+      );
+      return;
+    }
+    setIsUpdatingForcePassword(true);
+    try {
+      const res = await changeAdminPassword(forceCurrentPassword, forceNewPassword);
+      if (!res.success) {
+        setForcePasswordError(res.error || 'Failed to update password.');
+      } else {
+        setForceCurrentPassword('');
+        setForceNewPassword('');
+        setForceConfirmPassword('');
+      }
+    } finally {
+      setIsUpdatingForcePassword(false);
+    }
+  };
+
+  if (adminUser?.mustChangePassword) {
+    const isAr = language === 'ar';
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--surface-page)] text-[var(--text-body)] px-4 py-10">
+        <div className="max-w-md w-full bg-[var(--surface-card)] rounded-[var(--radius-card)] border border-[var(--line)] shadow-[var(--shadow-soft)] overflow-hidden">
+          <div className="bg-[var(--maroon-700)] text-[var(--text-on-maroon)] px-6 py-6 text-center border-b border-[var(--gold-decor)] space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[var(--radius-pill)] bg-[var(--maroon-900)] border border-[var(--gold-decor)] text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--surface-champagne)]">
+              <KeyRound className="w-3.5 h-3.5 text-[var(--gold-decor)]" />
+              <span>{isAr ? 'إجراء أمني مطلوب' : 'Security Action Required'}</span>
+            </div>
+            <h1 className="font-heading text-2xl font-semibold text-[var(--text-on-maroon)]">
+              {isAr ? 'تغيير كلمة المرور المؤقتة' : 'Change Temporary Password'}
+            </h1>
+            <p className="text-xs text-[var(--surface-champagne)] leading-relaxed">
+              {isAr
+                ? 'تم تسجيل دخولك بحساب مشرف مُهيأ مسبقاً. يجب تعيين كلمة مرور شخصية جديدة قبل الوصول إلى لوحة التحكم.'
+                : 'Your account requires a personal password update before you can access the administrator dashboard.'}
+            </p>
+          </div>
+
+          <form onSubmit={handleForcePasswordSubmit} className="p-6 space-y-4 text-xs">
+            {forcePasswordError && (
+              <div
+                role="alert"
+                className="p-3 bg-[var(--surface-blush)] border border-[var(--red-600)] rounded-xs flex items-start gap-2 text-[var(--red-600)] font-medium"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div>{forcePasswordError}</div>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="font-semibold text-[var(--text-strong)] flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-[var(--gold-text)]" />
+                <span>{isAr ? 'كلمة المرور الحالية *' : 'Current Password *'}</span>
+              </label>
+              <input
+                type={showForcePasswords ? 'text' : 'password'}
+                required
+                autoComplete="current-password"
+                value={forceCurrentPassword}
+                onChange={(e) => setForceCurrentPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-semibold text-[var(--text-strong)] flex items-center justify-between">
+                <span>{isAr ? 'كلمة المرور الجديدة *' : 'New Strong Password *'}</span>
+                <button
+                  type="button"
+                  onClick={() => setShowForcePasswords(!showForcePasswords)}
+                  className="text-[11px] text-[var(--gold-text)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                >
+                  {showForcePasswords ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  <span>{showForcePasswords ? (isAr ? 'إخفاء' : 'Hide') : (isAr ? 'إظهار' : 'Show')}</span>
+                </button>
+              </label>
+              <input
+                type={showForcePasswords ? 'text' : 'password'}
+                required
+                autoComplete="new-password"
+                value={forceNewPassword}
+                onChange={(e) => setForceNewPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
+              />
+              <PasswordStrengthMeter password={forceNewPassword} showChecklist={true} />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-semibold text-[var(--text-strong)]">
+                {isAr ? 'تأكيد كلمة المرور الجديدة *' : 'Confirm New Password *'}
+              </label>
+              <input
+                type={showForcePasswords ? 'text' : 'password'}
+                required
+                autoComplete="new-password"
+                value={forceConfirmPassword}
+                onChange={(e) => setForceConfirmPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="token-input w-full px-3.5 py-2.5 border rounded-xs text-xs"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isUpdatingForcePassword}
+              className="w-full py-3 bg-[var(--maroon-700)] hover:bg-[var(--maroon-600)] disabled:opacity-50 text-[var(--text-on-maroon)] border border-[var(--gold-decor)] font-semibold uppercase tracking-[0.16em] rounded-[var(--radius-pill)] transition-colors cursor-pointer"
+            >
+              {isUpdatingForcePassword
+                ? isAr ? 'جارٍ التحديث...' : 'Updating Password...'
+                : isAr ? 'حفظ كلمة المرور والدخول' : 'Save New Password & Continue'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                logoutAdmin();
+                if (onLogout) onLogout();
+              }}
+              className="w-full py-2.5 bg-[var(--surface-page)] hover:bg-[var(--surface-champagne)] text-[var(--text-body)] border border-[var(--line)] font-semibold uppercase tracking-wider rounded-[var(--radius-pill)] transition-colors cursor-pointer"
+            >
+              {isAr ? 'تسجيل الخروج' : 'Sign Out'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[var(--color-bg)]">

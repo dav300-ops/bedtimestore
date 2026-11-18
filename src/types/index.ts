@@ -211,8 +211,9 @@ export interface User {
   lastName: string;
   email: string;
   phone: string;
-  role: 'customer' | 'admin';
+  role: 'customer' | 'admin' | 'superadmin';
   isGuest?: boolean;
+  mustChangePassword?: boolean;
   savedAddresses: BahrainAddress[];
   wishlist: string[]; // product IDs
   createdAt: string;

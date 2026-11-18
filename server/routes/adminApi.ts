@@ -39,7 +39,7 @@ adminRouter.post('/logout', (_req: Request, res: Response) => {
 
 /**
  * Dedicated Administrator Login
- * Verifies role ('admin' | 'superadmin') and salted scrypt password hash.
+ * Verifies role ('admin' | 'superadmin') and bcrypt/legacy password hash.
  */
 adminRouter.post('/login', ensureDbForAdmin, async (req: Request, res: Response) => {
   try {
@@ -89,6 +89,51 @@ adminRouter.get('/session', async (req: Request, res: Response) => {
   } catch (error: any) {
     return res.status(500).json({ error: error?.message || 'Failed to verify administrator session' });
   }
+});
+
+/**
+ * Change Administrator Password (clears must_change_password = 0 and issues refreshed token)
+ */
+adminRouter.post('/change-password', async (req: Request, res: Response) => {
+  try {
+    const adminPayload = (req as any).adminUser;
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required.' });
+    }
+
+    const clientIp = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Admin Portal';
+
+    const result = await authService.changeAdminPassword(
+      adminPayload.id,
+      currentPassword,
+      newPassword,
+      { ip: clientIp, device: userAgent }
+    );
+
+    return res.json({
+      success: true,
+      message: 'Administrator password updated successfully.',
+      admin: result.user,
+      token: result.token,
+    });
+  } catch (error: any) {
+    const msg = error?.message || 'Failed to update administrator password';
+    const status = msg.includes('incorrect') ? 401 : 400;
+    return res.status(status).json({ error: msg });
+  }
+});
+
+// Block operational admin routes until a temporary/seeded password is changed
+adminRouter.use((req: Request, res: Response, next) => {
+  if ((req as any).adminUser?.mustChangePassword) {
+    return res.status(403).json({
+      error: 'You must change your temporary password before accessing administrator features.',
+      code: 'MUST_CHANGE_PASSWORD',
+    });
+  }
+  return next();
 });
 
 // ============================================================================

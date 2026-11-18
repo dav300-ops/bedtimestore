@@ -178,6 +178,17 @@ class ApiService {
     });
   }
 
+  public async changeAdminPassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; admin: any; token: string; message?: string }> {
+    return await this.request('/api/admin/change-password', {
+      method: 'POST',
+      headers: this.getAdminHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  }
+
   public async createAdminAccount(payload: {
     firstName: string;
     lastName: string;
